@@ -66,7 +66,7 @@ export default function Footer() {
         <div className="mt-12 flex flex-wrap items-baseline justify-between gap-y-3 border-t border-[var(--color-night-rule)] pt-6 font-mono text-[11px] text-[oklch(0.86_0.02_85/0.55)]">
           <span>© {year} Creativo@Work LLC. All rights reserved.</span>
           <a
-            href="/terms.html"
+            href="/terms"
             className="text-[var(--color-paper)] underline-offset-4 hover:text-[var(--color-accent)] hover:underline"
           >
             Terms of Service

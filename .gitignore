@@ -6,3 +6,4 @@ dist-ssr
 .vite
 _assets_tmp
 *.tsbuildinfo
+.firebase/
