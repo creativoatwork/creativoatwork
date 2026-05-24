@@ -1,0 +1,13 @@
+name = "creativoatwork-contact"
+main = "src/index.ts"
+compatibility_date = "2024-10-22"
+
+# Secrets are set via:
+#   npx wrangler secret put RESEND_API_KEY
+#
+# After first `wrangler deploy`, the worker is reachable at
+#   https://creativoatwork-contact.<account>.workers.dev/contact
+# Use that URL as VITE_CONTACT_URL in the frontend .env.production.
+
+[observability]
+enabled = true

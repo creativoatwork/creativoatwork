@@ -7,3 +7,7 @@ dist-ssr
 _assets_tmp
 *.tsbuildinfo
 .firebase/
+.env
+.env.local
+.env.development
+.env.production

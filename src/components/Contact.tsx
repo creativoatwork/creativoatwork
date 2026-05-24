@@ -1,11 +1,61 @@
 import { useState, type FormEvent } from 'react';
 
-export default function Contact() {
-  const [submitted, setSubmitted] = useState(false);
+type Status = 'idle' | 'sending' | 'ok' | 'error';
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+const ERROR_COPY: Record<string, string> = {
+  invalid_input: 'Please fill in your name, email, and a short message.',
+  invalid_email: 'That email address looks off — mind double-checking?',
+  send_failed: 'Our mailer hiccuped. Try again in a moment, or write us directly.',
+  internal_error: 'Something broke on our end. Try again, or write us directly.',
+  network: 'Network problem — check your connection and try again.',
+};
+
+export default function Contact() {
+  const [status, setStatus] = useState<Status>('idle');
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (status === 'sending') return;
+
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      name: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      message: String(fd.get('message') ?? ''),
+      company: String(fd.get('company') ?? ''),
+    };
+
+    setStatus('sending');
+    setErrorKey(null);
+
+    const endpoint = import.meta.env.VITE_CONTACT_URL;
+    if (!endpoint) {
+      setStatus('error');
+      setErrorKey('internal_error');
+      console.error('VITE_CONTACT_URL is not set. Configure .env.production before building.');
+      return;
+    }
+
+    try {
+      const r = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+
+      if (r.ok && data.ok) {
+        setStatus('ok');
+      } else {
+        setStatus('error');
+        setErrorKey(data.error ?? 'internal_error');
+      }
+    } catch {
+      setStatus('error');
+      setErrorKey('network');
+    }
   };
 
   return (
@@ -27,19 +77,26 @@ export default function Contact() {
 
       <div className="mt-16 grid gap-16 sm:mt-20 sm:grid-cols-[1.2fr_1fr] sm:gap-x-20">
         <div>
-          {submitted ? (
+          {status === 'ok' ? (
             <div className="rounded-2xl border border-[var(--color-night-rule)] bg-[var(--color-night-2)] p-8">
               <p className="font-mono text-[11px] uppercase tracking-[0.04em] text-[oklch(0.86_0.02_85/0.7)]">
                 Received
               </p>
               <p className="display-md mt-2 text-[var(--color-paper)]">Thanks — we’ll be in touch.</p>
               <p className="mt-3 text-[oklch(0.92_0.012_85/0.8)]">
-                A short note is on its way. If you don’t see it within a business day, write us at
-                hello@creativoatwork.com.
+                A short note is on its way. If you don’t see a reply within a business day, write us
+                at{' '}
+                <a
+                  href="mailto:hello@creativoatwork.com"
+                  className="font-mono underline-offset-4 hover:underline"
+                >
+                  hello@creativoatwork.com
+                </a>
+                .
               </p>
             </div>
           ) : (
-            <form onSubmit={onSubmit} noValidate className="space-y-7">
+            <form onSubmit={onSubmit} noValidate className="space-y-7" aria-busy={status === 'sending'}>
               <Field
                 id="name"
                 label="Your name"
@@ -47,6 +104,7 @@ export default function Contact() {
                 placeholder="Jane Doe"
                 autoComplete="name"
                 required
+                disabled={status === 'sending'}
               />
               <Field
                 id="email"
@@ -55,6 +113,7 @@ export default function Contact() {
                 placeholder="jane@company.com"
                 autoComplete="email"
                 required
+                disabled={status === 'sending'}
               />
               <Field
                 id="message"
@@ -62,19 +121,45 @@ export default function Contact() {
                 placeholder="A few sentences is plenty."
                 rows={5}
                 required
+                disabled={status === 'sending'}
               />
-              <button
-                type="submit"
-                className="group inline-flex items-center gap-3 rounded-full bg-[var(--color-accent)] px-6 py-3.5 text-sm font-medium text-[var(--color-night)] transition-colors hover:bg-[var(--color-paper)]"
-              >
-                Send the brief
-                <span
-                  aria-hidden
-                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+
+              {/* Honeypot: hidden from humans, visible to bots */}
+              <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>
+                <label htmlFor="company">Company (leave blank)</label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                <button
+                  type="submit"
+                  disabled={status === 'sending'}
+                  className="group inline-flex items-center gap-3 rounded-full bg-[var(--color-accent)] px-6 py-3.5 text-sm font-medium text-[var(--color-night)] transition-colors hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  →
-                </span>
-              </button>
+                  {status === 'sending' ? 'Sending…' : 'Send the brief'}
+                  <span
+                    aria-hidden
+                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </button>
+
+                {status === 'error' && errorKey && (
+                  <p
+                    role="alert"
+                    className="text-sm text-[oklch(0.82_0.13_30)]"
+                  >
+                    {ERROR_COPY[errorKey] ?? ERROR_COPY.internal_error}
+                  </p>
+                )}
+              </div>
             </form>
           )}
         </div>
@@ -128,12 +213,22 @@ type FieldProps = {
   autoComplete?: string;
   rows?: number;
   required?: boolean;
+  disabled?: boolean;
 };
 
-function Field({ id, label, type = 'text', placeholder, autoComplete, rows, required }: FieldProps) {
+function Field({
+  id,
+  label,
+  type = 'text',
+  placeholder,
+  autoComplete,
+  rows,
+  required,
+  disabled,
+}: FieldProps) {
   const isTextarea = typeof rows === 'number';
   const common =
-    'block w-full bg-transparent text-[var(--color-paper)] placeholder:text-[oklch(0.92_0.012_85/0.4)] focus:outline-none border-0 border-b border-[var(--color-night-rule)] focus:border-[var(--color-accent)] py-3 text-[15px] transition-colors';
+    'block w-full bg-transparent text-[var(--color-paper)] placeholder:text-[oklch(0.92_0.012_85/0.4)] focus:outline-none border-0 border-b border-[var(--color-night-rule)] focus:border-[var(--color-accent)] py-3 text-[15px] transition-colors disabled:opacity-60';
   return (
     <div>
       <label
@@ -148,6 +243,7 @@ function Field({ id, label, type = 'text', placeholder, autoComplete, rows, requ
           name={id}
           rows={rows}
           required={required}
+          disabled={disabled}
           placeholder={placeholder}
           className={`${common} resize-y`}
         />
@@ -157,6 +253,7 @@ function Field({ id, label, type = 'text', placeholder, autoComplete, rows, requ
           name={id}
           type={type}
           required={required}
+          disabled={disabled}
           placeholder={placeholder}
           autoComplete={autoComplete}
           className={common}
