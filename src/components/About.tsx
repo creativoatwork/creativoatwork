@@ -2,7 +2,7 @@ const FACTS = [
   { k: 'Studio', v: 'Brooklyn, NY' },
   { k: 'Founded', v: '2020' },
   { k: 'Team', v: 'Small by design' },
-  { k: 'Stack', v: 'WordPress · Woo · Custom' },
+  { k: 'Stack', v: 'TypeScript · React · Headless' },
 ];
 
 export default function About() {
@@ -23,17 +23,18 @@ export default function About() {
       <div className="mt-16 grid gap-12 sm:mt-20 sm:grid-cols-[1fr_auto] sm:gap-x-20">
         <div className="space-y-6">
           <p className="lede text-[clamp(1.15rem,1.6vw,1.45rem)]">
-            We don’t take on projects. We take on missions. Strategic thinking, precise execution,
-            and a deep respect for your time and your goals.
+            We stay small so the people who scope your project are the people who build it. No
+            account layer, no handoff between the brief and the code.
           </p>
           <p className="body">
-            Our work is clean, modern, and crafted to move the needle. Whether you’re launching a
-            digital product, reimagining your online presence, or building the tools your team
-            actually needs, we stay lean so we stay close to the work, the client, and the result.
+            Most of our work starts with something that already exists — a platform that outgrew its
+            stack, a site nobody can edit without a developer, an internal tool held together by
+            spreadsheets. We modernize incrementally, in production, instead of proposing the
+            year-long rewrite that never ships.
           </p>
           <p className="body">
-            When you work with us, you don’t get a service provider. You get a partner who builds
-            with intention and delivers with impact.
+            Fewer projects at once, direct access to the people building, and a bias toward decisions
+            you can still reverse in eighteen months.
           </p>
         </div>
 

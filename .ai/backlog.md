@@ -21,6 +21,12 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 
 - **Manual deploys.** Both targets deploy from a local machine. Preferred flow is GitHub → CI → deploy for the frontend, and a checked Worker deploy. Would also close the CI gap above.
 
+## Content
+
+- **Six work images are missing — blocks deploy.** `Work.tsx` references `myonlinecopyright.png`, `clima.png`, `landusup.png`, `edge.png`, `fellow-alumni-network.png`, and `newyork-partners.png` in `public/img/img_cw/`. None exist yet, so those six cards render as empty boxes. **Do not deploy hosting until they are added.** `myonlinecopyright` is the `wide` card and wants ~2:1; the rest are ~4:3. Keep each under ~150KB — the page claims Core Web Vitals work.
+- **`02 / Selected work` heading not updated.** Still "Built for businesses that needed to grow up, online," which undersells a set that is now mostly platforms. Proposed but not applied: "Platforms we designed, built, and still run." Headlines are the operator's call.
+- **Project `scope` strings are inferred.** The six new entries were written from a single hero screenshot each and have not been confirmed against what was actually built.
+
 ## Documentation
 
 - `PRODUCT.md` has an empty **Register** section ("brand") that reads as a placeholder — confirm whether it is intentional.

@@ -8,38 +8,45 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    src: '/img/img_cw/cyrus-preview.png',
-    client: 'Cyrus Company',
-    sector: 'Furniture · Italy',
-    scope: 'Brand site & catalog',
+    src: '/img/img_cw/myonlinecopyright.png',
+    client: 'MyOnlineCopyright',
+    sector: 'LegalTech · IP',
+    scope: 'Cryptographic sealing & verification',
     span: 'wide',
   },
   {
-    src: '/img/img_cw/donnsterling-preview.png',
-    client: 'Donn Sterling',
-    sector: 'Consultancy · NY',
-    scope: 'Portfolio site',
+    src: '/img/img_cw/clima.png',
+    client: 'CLIMA Foundation',
+    sector: 'Climate research · Global',
+    scope: 'Tiered access & data sharing',
     span: 'std',
   },
   {
-    src: '/img/img_cw/gallery-preview.png',
-    client: 'Gallery Records',
-    sector: 'Music · Label',
-    scope: 'Catalog & releases',
-    span: 'tall',
-  },
-  {
-    src: '/img/img_cw/podcastfarm.jpg',
-    client: 'Podcast Farm',
-    sector: 'Media · Production',
-    scope: 'Editorial & shows',
+    src: '/img/img_cw/landusup.png',
+    client: 'LandUsUp',
+    sector: 'Incorporation · Remote',
+    scope: 'Multilingual incorporation flow',
     span: 'std',
   },
   {
-    src: '/img/img_cw/mariottistudio.jpg',
-    client: 'Mariotti Studio',
-    sector: 'Architecture · Studio',
-    scope: 'Portfolio & journal',
+    src: '/img/img_cw/edge.png',
+    client: 'EDGE Market Insights',
+    sector: 'Market intelligence · SaaS',
+    scope: 'Subscriptions & report delivery',
+    span: 'std',
+  },
+  {
+    src: '/img/img_cw/fellow-alumni-network.png',
+    client: 'Fellow Alumni Network',
+    sector: 'Nonprofit · Americas',
+    scope: 'Directory & mentor matching',
+    span: 'std',
+  },
+  {
+    src: '/img/img_cw/newyork-partners.png',
+    client: 'New York & Partners',
+    sector: 'Advisory · NY',
+    scope: 'Advisory platform & intake',
     span: 'std',
   },
   {
@@ -47,7 +54,14 @@ const PROJECTS: Project[] = [
     client: 'SISCC Academy',
     sector: 'Education · LMS',
     scope: 'Course platform',
-    span: 'wide',
+    span: 'std',
+  },
+  {
+    src: '/img/img_cw/cyrus-preview.png',
+    client: 'Cyrus Company',
+    sector: 'Furniture · Italy',
+    scope: 'Brand site & catalog',
+    span: 'std',
   },
 ];
 
@@ -70,8 +84,8 @@ export default function Work() {
             Built for businesses that needed to grow up, online.
           </h2>
           <p className="lede mt-6">
-            A short list across sectors. Each project shipped with goals defined first, performance
-            measured after, and the kind of finish that doesn’t need a redesign at twelve months.
+            Platforms, storefronts, and internal tools across eight sectors. Each one shipped,
+            measured, and still running.
           </p>
         </div>
       </header>

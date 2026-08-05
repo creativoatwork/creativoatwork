@@ -64,7 +64,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-baseline justify-between gap-y-3 border-t border-[var(--color-night-rule)] pt-6 font-mono text-[11px] text-[oklch(0.86_0.02_85/0.55)]">
-          <span>© {year} Creativo@Work LLC. All rights reserved.</span>
+          <span>
+            © {year} Creativo@Work LLC. All rights reserved. · Made with{' '}
+            <span aria-hidden="true">♥</span>
+            <span className="sr-only">love</span> in New York
+          </span>
           <a
             href="/terms"
             className="text-[var(--color-paper)] underline-offset-4 hover:text-[var(--color-accent)] hover:underline"

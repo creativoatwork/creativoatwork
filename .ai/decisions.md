@@ -6,6 +6,28 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-05 — Reposition the site for technical evaluators
+
+**Decision.** Rewrite the hero capability strip, hero lede, `01 / Services`, `03 / About` prose, and the `02 / Selected work` project set to lead with engineering rather than CMS product names.
+
+**Reasoning.** The operator's stated goal was to convince technical evaluators (CTOs, technical founders) in the buying group. The site anchored on "WordPress · WooCommerce · LMS · Web apps," which prices the studio as an implementation shop, while Services simultaneously claimed "every layer of the stack" — a claim the capability strip undercut.
+
+**Capabilities confirmed by the operator as genuinely deliverable**, and therefore safe to claim: headless / modern JS front-ends (React, TypeScript), custom application engineering, cloud infrastructure and CI/CD, AI/LLM feature work, and legacy application transformation. Nothing beyond this list may be claimed without checking first.
+
+**Changes.**
+
+- Hero strip: `TypeScript · React · Headless CMS · WooCommerce` / `Legacy modernization · AI integration · CI/CD`. The old "Goal oriented · Performance focused" was generic enough to appear on any agency site.
+- Hero lede: leads with custom applications and names modernization; keeps the operator's own "Strategy first / No fluff" cadence.
+- Services: 8 items became 9, reordered engineering-first, adding legacy modernization, headless front-ends, and AI integration. WordPress demoted into the headless entry.
+- About: three paragraphs of agency boilerplate replaced. Retains three operator-approved claims — no account-manager layer, few concurrent projects, modernization as the common entry point.
+- Work: curated from 6 to 8, leading with six platform projects.
+
+**Headlines were deliberately left alone** in both About and Work. The operator kept the About headline when offered a rewrite; treat headlines as theirs unless they ask.
+
+**Standing constraint.** `PRODUCT.md` principle #1 is "show, don't claim." Services now claims AI and modernization work, so `02 / Selected work` must carry visual evidence of it. Adding a capability claim without a matching project is a regression.
+
+---
+
 ## 2026-08-05 — Rate limit the contact endpoint with Cloudflare's native binding
 
 **Decision.** 3 submissions per minute per IP, enforced by the Workers rate-limiting binding declared in `worker/wrangler.toml`. Rejections return HTTP 429 with `Retry-After` and the error code `rate_limited`. No KV, no Turnstile.

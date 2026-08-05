@@ -1,35 +1,39 @@
 const SERVICES = [
   {
-    title: 'WordPress design & development',
-    blurb: 'Custom themes and blocks built for editorial control, not for a page builder to drag around.',
+    title: 'Custom application engineering',
+    blurb: 'Auth, dashboards, APIs, and data models. Software with a real architecture, not a CMS bent into the shape of one.',
   },
   {
-    title: 'eCommerce on WooCommerce',
+    title: 'Legacy platform modernization',
+    blurb: 'Aging codebases moved onto current stacks incrementally, with the business still running while it happens.',
+  },
+  {
+    title: 'Headless & composable front-ends',
+    blurb: 'React and TypeScript against a decoupled CMS, so the editing experience and the front end stop constraining each other.',
+  },
+  {
+    title: 'eCommerce engineering',
     blurb: 'Storefronts that load fast, convert well, and scale with the catalog instead of fighting it.',
   },
   {
-    title: 'Learning management systems',
+    title: 'Learning platforms',
     blurb: 'LMS platforms with the cohort, certification, and reporting features your operation actually uses.',
   },
   {
-    title: 'Web application development',
-    blurb: 'Custom dashboards and internal tools, full stack, with the kind of UX a team will keep using.',
+    title: 'AI feature integration',
+    blurb: 'Retrieval over your own content, assisted workflows, and the evaluation work that tells you whether it’s actually helping.',
   },
   {
-    title: 'UI/UX design',
+    title: 'Cloud infrastructure & delivery',
+    blurb: 'Pipelines, environments, monitoring, and the unglamorous operational work that keeps everything quiet.',
+  },
+  {
+    title: 'Product & interface design',
     blurb: 'Interface design grounded in your audience and your goals, not in last quarter’s component library trends.',
   },
   {
-    title: 'Performance & analytics',
-    blurb: 'Core Web Vitals optimization, instrumentation, and the reporting layer to read what changed and why.',
-  },
-  {
-    title: 'SEO & content strategy',
-    blurb: 'Technical SEO, IA, and content systems that compound over the lifetime of the site.',
-  },
-  {
-    title: 'Server & infrastructure',
-    blurb: 'Hosting, deployments, backups, and the unglamorous server work that keeps everything quiet.',
+    title: 'Performance, SEO & analytics',
+    blurb: 'Core Web Vitals, technical SEO, and instrumentation that reads what changed and why.',
   },
 ];
 
@@ -48,8 +52,8 @@ export default function Services() {
             One studio. <span className="text-[var(--color-ink-3)]">Every layer of the stack.</span>
           </h2>
           <p className="lede mt-6">
-            Whether you’re launching, rebranding, or scaling, we’re the partner across strategy,
-            design, build, and the long tail of optimization that follows.
+            We take on the work most studios hand off — modernizing what exists, building what
+            doesn’t, and running it after launch.
           </p>
         </div>
       </header>

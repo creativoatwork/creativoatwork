@@ -19,9 +19,9 @@ export default function Hero() {
 
       <div className="reveal reveal-3 mt-12 grid items-start gap-x-12 gap-y-6 sm:mt-16 sm:grid-cols-[1fr_auto]">
         <p className="lede">
-          Creativo@Work partners with small to mid-sized companies on corporate sites, scalable
-          eCommerce, and eLearning platforms. Strategy first, craft throughout, performance
-          measured. No fluff. Results that move the business.
+          Creativo@Work builds custom applications, storefronts, and learning platforms for small to
+          mid-sized companies — and modernizes the ones that outgrew their stack. Strategy before
+          code, performance measured after, no fluff in between.
         </p>
         <div className="flex items-center gap-3">
           <a
@@ -43,12 +43,12 @@ export default function Hero() {
       <div className="reveal reveal-4 mt-20 flex items-end justify-between gap-6 border-t border-[var(--color-rule)] pt-6 sm:mt-28">
         <dl className="flex flex-wrap gap-x-10 gap-y-3 font-mono text-[11px] text-[var(--color-ink-3)]">
           <div>
-            <dt className="sr-only">Capabilities</dt>
-            <dd>WordPress · WooCommerce · LMS · Web apps</dd>
+            <dt className="sr-only">Stack</dt>
+            <dd>TypeScript · React · Headless CMS · WooCommerce</dd>
           </div>
           <div>
-            <dt className="sr-only">Approach</dt>
-            <dd>Goal oriented · Performance focused</dd>
+            <dt className="sr-only">Practice</dt>
+            <dd>Legacy modernization · AI integration · CI/CD</dd>
           </div>
         </dl>
         <a
