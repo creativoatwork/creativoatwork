@@ -92,3 +92,17 @@ Manual, from a local machine:
 - Worker: `cd worker && npm run deploy`
 
 Not yet wired to GitHub. This diverges from the preferred GitHub → CI → deploy flow and is tracked in the backlog.
+
+**Live worker URL** (first deployed 2026-08-05):
+
+```
+https://creativoatwork-contact.creativoatwork-contact-worker.workers.dev/contact
+```
+
+This exact string is inlined into the frontend bundle at build time via `.env.production`, which is gitignored and must exist locally before any hosting deploy. **Building without it ships a contact form with no endpoint** — every submission fails with a generic error. Always confirm the URL is present in `dist/assets/*.js` before deploying.
+
+`RESEND_API_KEY` is set as a Wrangler secret on the worker. Verify with `wrangler secret list`; an empty `[]` means email will 502.
+
+Cloudflare account ID: `7e69b4714d0b27bdee429db2ccde9f7a`. Firebase auth is `creativoatwork@gmail.com`.
+
+A workers.dev subdomain must be registered on the account for the worker to be reachable; without it DNS resolves but TLS fails with a handshake error, which looks like an outage rather than a config gap.
