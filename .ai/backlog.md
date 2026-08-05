@@ -39,6 +39,6 @@ Both `/terms` and `/privacy` are live, public, linked from the footer, and index
 
 ## Documentation
 
-- `PRODUCT.md` has an empty **Register** section ("brand") that reads as a placeholder — confirm whether it is intentional.
-- `PRODUCT.md` still describes the studio as building "corporate sites, eCommerce, and LMS platforms" and the audience section predates the repositioning toward technical evaluators. The site has moved on; the product document has not.
+- `PRODUCT.md`'s **Register** section contains only the word "brand". It may be a deliberate one-word value for the document's voice register rather than an unfinished field — never confirmed either way. Worth one sentence from the founder to settle it.
+- `PRODUCT.md` was realigned to the new positioning on 2026-08-05 and now carries a **Capabilities** list that is the authority on what the site may claim. Anything added to Services must appear there first.
 - No accessibility audit has been run against the WCAG 2.2 AA floor `PRODUCT.md` sets. The code shows deliberate a11y work, but "verified" is a stronger claim than anything currently supports.
