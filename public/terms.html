@@ -5,8 +5,13 @@
     <link rel="icon" type="image/png" href="/img/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f6f1e8" />
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content="index, follow" />
     <title>Terms of Service — Creativo@Work</title>
+    <meta
+      name="description"
+      content="Terms of Service governing use of the Creativo@Work website, operated by Creativo@Work LLC, Brooklyn, New York."
+    />
+    <link rel="canonical" href="https://creativoatwork.com/terms" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,7 +28,7 @@
         --accent: oklch(0.66 0.14 50);
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      html { -webkit-text-size-adjust: 100%; }
+      html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
       body {
         font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
         background: var(--paper);
@@ -83,16 +88,48 @@
         gap: 1.5rem;
         flex-wrap: wrap;
       }
-      .draft {
+      .lede {
         margin-top: 2rem;
-        padding: 1rem 1.25rem;
-        border: 1px dashed var(--rule);
-        font-family: "Geist Mono", ui-monospace, monospace;
-        font-size: 12px;
-        color: var(--ink-3);
+        font-size: 1.05rem;
+        color: var(--ink-2);
+      }
+      .callout {
+        margin-top: 2rem;
+        padding: 1.15rem 0 0;
+        border-top: 1px solid var(--rule);
+        font-size: 0.95rem;
+      }
+      .toc {
+        margin-top: 2.5rem;
+        padding: 1.25rem 1.35rem;
+        border: 1px solid var(--rule);
         border-radius: 4px;
       }
-      section { margin-top: 2.5rem; }
+      .toc h2 {
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+      }
+      .toc ol {
+        columns: 2;
+        column-gap: 2rem;
+        font-size: 0.85rem;
+        list-style: none;
+        counter-reset: toc;
+      }
+      .toc li { counter-increment: toc; break-inside: avoid; padding: 0.12rem 0; }
+      .toc li::before {
+        content: counter(toc, decimal-leading-zero) " ";
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 10px;
+        color: var(--ink-3);
+      }
+      @media (max-width: 600px) { .toc ol { columns: 1; } }
+      section { margin-top: 2.75rem; scroll-margin-top: 1.5rem; }
       h2 {
         font-weight: 500;
         letter-spacing: -0.02em;
@@ -107,7 +144,31 @@
         margin-right: 0.75rem;
         font-weight: 400;
       }
+      h3 {
+        font-weight: 500;
+        color: var(--ink);
+        font-size: 1rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.4rem;
+      }
       p + p { margin-top: 0.85rem; }
+      ol.clauses, ul.clauses { margin: 0.75rem 0 0 1.35rem; }
+      ol.clauses li, ul.clauses li { margin-top: 0.5rem; padding-left: 0.25rem; }
+      strong { font-weight: 600; color: var(--ink); }
+      .caps {
+        margin-top: 0.85rem;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.01em;
+        line-height: 1.65;
+      }
+      address {
+        font-style: normal;
+        margin-top: 0.85rem;
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 0.8rem;
+        line-height: 1.8;
+      }
       footer {
         padding: 1.75rem 0;
         border-top: 1px solid var(--rule);
@@ -133,72 +194,722 @@
       <p class="eyebrow">Legal</p>
       <h1>Terms of Service</h1>
       <div class="meta">
-        <span>Last updated: TBD</span>
+        <span>Effective date: August 5, 2026</span>
         <span>Governing law: New York</span>
       </div>
 
-      <div class="draft">
-        Placeholder document. Replace these sections with your reviewed terms before linking
-        publicly. Not legal advice.
+      <p class="lede">
+        These Terms of Service constitute a legally binding agreement between you and Creativo@Work
+        LLC governing your access to and use of the website located at creativoatwork.com and any
+        associated subdomains, pages, forms, and functionality. Please read them carefully. By
+        accessing or using the Site, you accept these Terms in their entirety.
+      </p>
+
+      <div class="callout">
+        <strong>Please read Section 21 carefully.</strong> It contains a binding individual
+        arbitration provision, a waiver of class and representative actions, and a waiver of trial
+        by jury. These provisions affect how disputes between you and the Company are resolved and
+        limit the forums available to you. Section 21.7 explains how you may opt out of arbitration
+        within thirty (30) days.
       </div>
 
-      <section>
-        <h2><span class="num">01</span>Acceptance</h2>
+      <nav class="toc" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#s1">Agreement to Terms</a></li>
+          <li><a href="#s2">Definitions</a></li>
+          <li><a href="#s3">Eligibility and Authority</a></li>
+          <li><a href="#s4">Scope; Separate Engagement Agreements</a></li>
+          <li><a href="#s5">Limited Licence to Use the Site</a></li>
+          <li><a href="#s6">Prohibited Conduct</a></li>
+          <li><a href="#s7">Intellectual Property</a></li>
+          <li><a href="#s8">Third-Party Marks and Portfolio Content</a></li>
+          <li><a href="#s9">Submissions and Non-Confidentiality</a></li>
+          <li><a href="#s10">Unsolicited Ideas</a></li>
+          <li><a href="#s11">Electronic Communications</a></li>
+          <li><a href="#s12">Privacy and Data Handling</a></li>
+          <li><a href="#s13">Third-Party Links and Services</a></li>
+          <li><a href="#s14">No Advice; No Reliance</a></li>
+          <li><a href="#s15">Availability and Modification</a></li>
+          <li><a href="#s16">Disclaimer of Warranties</a></li>
+          <li><a href="#s17">Limitation of Liability</a></li>
+          <li><a href="#s18">Indemnification</a></li>
+          <li><a href="#s19">Force Majeure</a></li>
+          <li><a href="#s20">Termination and Suspension</a></li>
+          <li><a href="#s21">Dispute Resolution and Arbitration</a></li>
+          <li><a href="#s22">Governing Law and Venue</a></li>
+          <li><a href="#s23">Limitation Period</a></li>
+          <li><a href="#s24">Copyright Complaints</a></li>
+          <li><a href="#s25">Export Control and Sanctions</a></li>
+          <li><a href="#s26">Accessibility</a></li>
+          <li><a href="#s27">Assignment</a></li>
+          <li><a href="#s28">Severability and Reformation</a></li>
+          <li><a href="#s29">No Waiver</a></li>
+          <li><a href="#s30">Entire Agreement; Interpretation</a></li>
+          <li><a href="#s31">Notices</a></li>
+          <li><a href="#s32">Changes to These Terms</a></li>
+          <li><a href="#s33">Contact</a></li>
+        </ol>
+      </nav>
+
+      <section id="s1">
+        <h2><span class="num">01</span>Agreement to Terms</h2>
         <p>
-          By using the Creativo@Work website or engaging the studio for services, you agree to the
-          terms described on this page.
+          These Terms of Service (the &ldquo;<strong>Terms</strong>&rdquo;) are entered into by and
+          between Creativo@Work LLC, a limited liability company organised under the laws of the
+          State of New York, together with its affiliates, subsidiaries, parents, successors, and
+          permitted assigns (collectively, the &ldquo;<strong>Company</strong>,&rdquo;
+          &ldquo;<strong>we</strong>,&rdquo; &ldquo;<strong>us</strong>,&rdquo; or
+          &ldquo;<strong>our</strong>&rdquo;), and you, whether personally or on behalf of an entity
+          (&ldquo;<strong>you</strong>&rdquo; or &ldquo;<strong>User</strong>&rdquo;), concerning
+          your access to and use of the Site.
+        </p>
+        <p>
+          By accessing, browsing, viewing, downloading from, transmitting to, or otherwise using the
+          Site in any manner, or by submitting any inquiry through any form made available on the
+          Site, you acknowledge that you have read, understood, and agree to be bound by these
+          Terms and by all documents incorporated herein by reference. If you do not agree with all
+          of these Terms, you are expressly prohibited from using the Site and must discontinue use
+          immediately.
+        </p>
+        <p>
+          Your continued use of the Site following the posting of any revised Terms constitutes your
+          acceptance of such revisions, whether or not you have reviewed them.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">02</span>Services</h2>
+      <section id="s2">
+        <h2><span class="num">02</span>Definitions</h2>
+        <p>For purposes of these Terms, the following capitalised terms have the meanings set out below:</p>
+        <ul class="clauses">
+          <li><strong>&ldquo;Content&rdquo;</strong> means all text, copy, prose, headings, code, source code, object code, markup, stylesheets, scripts, layouts, wireframes, designs, graphics, illustrations, photographs, imagery, screenshots, logos, typography, audio, video, data compilations, and any other material made available on or through the Site.</li>
+          <li><strong>&ldquo;Engagement Agreement&rdquo;</strong> means any separately executed written agreement, statement of work, master services agreement, proposal, purchase order, or similar instrument between the Company and a client governing the provision of professional services.</li>
+          <li><strong>&ldquo;Site&rdquo;</strong> means the website located at creativoatwork.com, together with all subdomains, associated pages, sub-pages, forms, endpoints, application programming interfaces, and successor properties operated by the Company.</li>
+          <li><strong>&ldquo;Submission&rdquo;</strong> means any information, communication, brief, message, description, file, idea, concept, requirement, specification, or other material that you transmit to the Company through the Site or by electronic mail in connection with the Site.</li>
+          <li><strong>&ldquo;Third-Party Materials&rdquo;</strong> means any content, service, website, application, dependency, library, hosting provider, network, or resource that is owned, controlled, or operated by a party other than the Company.</li>
+        </ul>
+      </section>
+
+      <section id="s3">
+        <h2><span class="num">03</span>Eligibility and Authority</h2>
         <p>
-          Creativo@Work LLC offers web design, development, and related digital services. The
-          scope, timeline, and deliverables for any engagement are set out in a separate written
-          agreement between the studio and the client.
+          You represent, warrant, and covenant that: (a) you are at least eighteen (18) years of age
+          or the age of legal majority in your jurisdiction of residence, whichever is greater; (b)
+          you possess the full legal capacity, right, power, and authority to enter into and perform
+          under these Terms; (c) if you are accessing or using the Site on behalf of a corporation,
+          partnership, limited liability company, governmental body, or other legal entity, you are
+          duly authorised to bind such entity to these Terms, and references to
+          &ldquo;you&rdquo; shall refer jointly and severally to you and such entity; (d) you are
+          not barred from using the Site under the laws of the United States, your jurisdiction of
+          residence, or any other applicable jurisdiction; and (e) your access to and use of the
+          Site will comply at all times with these Terms and with all applicable federal, state,
+          local, and international laws, statutes, ordinances, rules, and regulations.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">03</span>Intellectual property</h2>
+      <section id="s4">
+        <h2><span class="num">04</span>Scope; Separate Engagement Agreements</h2>
         <p>
-          Site content, including text, code, layout, and imagery, is the property of
-          Creativo@Work LLC unless credited otherwise. Client deliverables are governed by the
-          terms of the underlying engagement.
+          The Site is an informational and promotional property. It exists to describe the Company,
+          present selected examples of prior work, and permit prospective clients to initiate
+          contact. Nothing contained on the Site constitutes an offer capable of acceptance, a
+          quotation, a binding proposal, a commitment to perform services, or an undertaking to
+          enter into any commercial relationship.
+        </p>
+        <p>
+          <strong>No professional services are provided under these Terms.</strong> All professional
+          services rendered by the Company, including without limitation design, development,
+          engineering, modernisation, integration, hosting, maintenance, consulting, and advisory
+          services, are governed exclusively by a separately executed Engagement Agreement. In the
+          event of any conflict, inconsistency, or ambiguity between these Terms and an executed
+          Engagement Agreement, the Engagement Agreement shall govern and control with respect to
+          the subject matter of that engagement, and these Terms shall continue to govern all
+          matters relating to use of the Site.
+        </p>
+        <p>
+          No contractual, fiduciary, advisory, agency, partnership, joint venture, employment, or
+          confidential relationship of any kind is created, formed, or implied by your access to or
+          use of the Site, by your transmission of any Submission, or by any response or
+          acknowledgement issued by the Company.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">04</span>Privacy</h2>
+      <section id="s5">
+        <h2><span class="num">05</span>Limited Licence to Use the Site</h2>
         <p>
-          Information shared through the contact form is used to respond to inquiries. We do not
-          sell or share it with third parties. A separate privacy notice will be linked here when
-          published.
+          Subject to your continuous compliance with these Terms, the Company grants you a limited,
+          personal, non-exclusive, non-transferable, non-sublicensable, revocable licence to access
+          and view the Site and its Content solely for your own internal, informational,
+          non-commercial purposes. This licence terminates automatically and without notice upon any
+          breach of these Terms.
+        </p>
+        <p>
+          No other right, title, interest, or licence is granted, whether by implication, estoppel,
+          exhaustion, or otherwise. All rights not expressly granted herein are reserved by the
+          Company and its licensors.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">05</span>Liability</h2>
+      <section id="s6">
+        <h2><span class="num">06</span>Prohibited Conduct</h2>
+        <p>You agree that you shall not, and shall not permit, encourage, enable, or assist any third party to:</p>
+        <ol class="clauses">
+          <li>reproduce, duplicate, copy, sell, resell, licence, sublicense, distribute, publicly display, publicly perform, transmit, broadcast, or otherwise exploit the Site or any Content for any commercial purpose without the Company's prior express written consent;</li>
+          <li>modify, adapt, translate, port, reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code, underlying ideas, algorithms, structure, or organisation of the Site, except to the limited extent such restriction is expressly prohibited by applicable law;</li>
+          <li>remove, obscure, alter, or circumvent any copyright, trademark, watermark, attribution, or other proprietary rights notice;</li>
+          <li>employ any robot, spider, scraper, crawler, offline reader, data-mining tool, automated script, or other automated means to access, index, harvest, scrape, or extract data from the Site, other than by publicly available search engines and artificial intelligence crawlers operating in good-faith compliance with the Site's robots.txt directives;</li>
+          <li>use the Site, any Submission facility, or any contact address to transmit unsolicited commercial communications, bulk electronic mail, chain messages, pyramid schemes, advertising, solicitations, or any other form of spam;</li>
+          <li>upload, transmit, or introduce any virus, worm, trojan horse, logic bomb, ransomware, keystroke logger, corrupted file, or other malicious, harmful, or destructive code or routine;</li>
+          <li>interfere with, disrupt, disable, overburden, or impair the Site, any server or network connected to the Site, or any security, authentication, rate-limiting, or access-control measure, including by means of denial-of-service or distributed denial-of-service activity;</li>
+          <li>attempt to gain unauthorised access to any portion of the Site, any account, computer system, or network, whether through hacking, password mining, credential stuffing, injection, or any other means;</li>
+          <li>probe, scan, or test the vulnerability of the Site or breach or otherwise circumvent any security or authentication measure, except pursuant to a written authorisation issued by the Company;</li>
+          <li>frame, mirror, or otherwise incorporate any part of the Site into any other website or application without prior express written consent;</li>
+          <li>impersonate any person or entity, misrepresent your affiliation with any person or entity, or forge headers or otherwise manipulate identifiers to disguise the origin of any transmission;</li>
+          <li>collect, harvest, or store personal information about other users or any person named on the Site;</li>
+          <li>use the Site in any manner that is unlawful, fraudulent, defamatory, libellous, obscene, harassing, threatening, discriminatory, or that infringes or misappropriates the intellectual property, privacy, publicity, or other rights of any person; or</li>
+          <li>use the Site in any manner that could damage, disable, overburden, or impair the Site or interfere with any other party's use and enjoyment of it.</li>
+        </ol>
         <p>
-          The site is provided as is, without warranty of any kind. Creativo@Work LLC is not
-          liable for indirect or consequential damages arising from use of the site.
+          The Company reserves the right, but assumes no obligation, to investigate any suspected
+          violation of this Section and to take any action it deems appropriate, including reporting
+          suspected unlawful activity to law enforcement authorities and disclosing any information
+          necessary or appropriate to such authorities.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">06</span>Changes</h2>
+      <section id="s7">
+        <h2><span class="num">07</span>Intellectual Property</h2>
         <p>
-          We may update these terms from time to time. The most current version will always be
-          available at this URL.
+          The Site and all Content are and shall remain the sole and exclusive property of the
+          Company and its licensors, and are protected by United States and international copyright,
+          trademark, trade dress, patent, trade secret, and other intellectual property and unfair
+          competition laws and treaties. The compilation, selection, arrangement, coordination, and
+          presentation of all Content is the exclusive property of the Company and is protected as a
+          collective work.
+        </p>
+        <p>
+          &ldquo;Creativo@Work,&rdquo; the Creativo@Work logo, and all associated names, marks,
+          logos, designs, and slogans are trademarks or trade dress of the Company. You are granted
+          no right or licence to use any of them without the Company's prior express written
+          consent.
+        </p>
+        <p>
+          Ownership of deliverables, work product, source code, and materials produced in the course
+          of a client engagement is determined exclusively by the applicable Engagement Agreement
+          and is not addressed, granted, transferred, or implied by these Terms.
         </p>
       </section>
 
-      <section>
-        <h2><span class="num">07</span>Contact</h2>
+      <section id="s8">
+        <h2><span class="num">08</span>Third-Party Marks and Portfolio Content</h2>
         <p>
-          Questions about these terms can be sent to
-          <a href="mailto:hello@creativoatwork.com">hello@creativoatwork.com</a>.
+          The Site may display client names, project names, brand names, trademarks, service marks,
+          logos, screenshots, and depictions of work performed for or in collaboration with third
+          parties. All such marks and materials remain the property of their respective owners.
+          Their appearance on the Site is for identification, attribution, and portfolio purposes
+          only and does not constitute, imply, or suggest any endorsement, sponsorship, affiliation,
+          partnership, certification, or approval by those owners of the Company, the Site, or any
+          product or service.
         </p>
+        <p>
+          Screenshots and depictions of prior work reflect the state of such work as at the time of
+          capture and may not reflect the current appearance, functionality, ownership, availability,
+          or condition of any third-party property. The Company makes no representation or warranty
+          concerning any third-party property depicted on the Site.
+        </p>
+        <p>
+          If you are a rights holder and believe that material displayed on the Site should be
+          removed or corrected, please contact us at the address set out in Section 33 and we will
+          review the matter in good faith.
+        </p>
+      </section>
+
+      <section id="s9">
+        <h2><span class="num">09</span>Submissions and Non-Confidentiality</h2>
+        <p>
+          <strong>Submissions are not confidential.</strong> Except where a separately executed
+          written non-disclosure agreement is in force between you and the Company and expressly
+          covers the material in question, any Submission you transmit through the Site or by
+          electronic mail shall be treated as non-confidential and non-proprietary. You should not
+          transmit through the Site any information that is confidential, proprietary, trade secret,
+          privileged, export-controlled, subject to a third-party confidentiality obligation, or
+          otherwise sensitive, including without limitation personal health information, financial
+          account credentials, government identification numbers, or authentication credentials of
+          any kind.
+        </p>
+        <p>
+          By transmitting a Submission, you grant the Company a worldwide, perpetual, irrevocable,
+          non-exclusive, royalty-free, fully paid-up, transferable, sublicensable licence to use,
+          store, reproduce, modify, adapt, translate, publish, and create derivative works from such
+          Submission for the purposes of responding to your inquiry, evaluating a potential
+          engagement, maintaining business records, and improving the Company's services, in each
+          case subject to applicable law.
+        </p>
+        <p>
+          You represent and warrant that each Submission is accurate, that you own or otherwise
+          control all rights necessary to grant the foregoing licence, and that the Submission does
+          not infringe, misappropriate, or violate the intellectual property, privacy, publicity,
+          contractual, or other rights of any third party, and does not violate any applicable law.
+        </p>
+      </section>
+
+      <section id="s10">
+        <h2><span class="num">10</span>Unsolicited Ideas</h2>
+        <p>
+          The Company does not accept, solicit, or consider unsolicited ideas, proposals,
+          suggestions, concepts, inventions, designs, or materials. If, notwithstanding this policy,
+          you transmit any such material, you acknowledge and agree that: (a) it shall not be
+          subject to any obligation of confidence; (b) the Company shall be under no obligation to
+          review, respond to, return, or compensate you for it; (c) the Company shall be free to use,
+          disclose, and exploit it for any purpose without restriction, attribution, or compensation;
+          and (d) no confidential or fiduciary relationship is created by your transmission of it.
+          The Company independently develops and receives ideas from many sources, and any similarity
+          between such material and the Company's independent work shall not give rise to any claim.
+        </p>
+      </section>
+
+      <section id="s11">
+        <h2><span class="num">11</span>Electronic Communications</h2>
+        <p>
+          When you use the Site or send electronic mail to the Company, you are communicating with
+          us electronically and you consent to receive communications from us electronically. You
+          agree that all agreements, notices, disclosures, and other communications that we provide
+          to you electronically satisfy any legal requirement that such communication be in writing.
+          You further consent to the use of electronic signatures, contracts, orders, and other
+          records, and to the electronic delivery of notices, policies, and records of transactions,
+          and you hereby waive any rights or requirements under any statute, regulation, rule,
+          ordinance, or other law in any jurisdiction that requires an original signature or the
+          delivery or retention of non-electronic records.
+        </p>
+      </section>
+
+      <section id="s12">
+        <h2><span class="num">12</span>Privacy and Data Handling</h2>
+        <p>
+          Information you transmit through the contact form on the Site is used solely to respond to
+          your inquiry, to evaluate a potential engagement, and to maintain ordinary business
+          records. The Company does not sell personal information. Submissions are transmitted
+          through and processed by third-party service providers, including edge compute and
+          transactional electronic mail providers, whose own terms and privacy practices apply to
+          their processing.
+        </p>
+        <p>
+          The Site is not directed to children under the age of thirteen (13), and the Company does
+          not knowingly collect personal information from children. If you believe a child has
+          provided personal information to us, please contact us and we will take reasonable steps
+          to delete it.
+        </p>
+        <p>
+          No method of transmission over the internet or method of electronic storage is completely
+          secure. While the Company employs commercially reasonable measures to protect information
+          transmitted through the Site, the Company cannot and does not guarantee the absolute
+          security of any information and disclaims all liability for unauthorised access to,
+          interception of, or alteration of any transmission or data, to the fullest extent permitted
+          by law.
+        </p>
+      </section>
+
+      <section id="s13">
+        <h2><span class="num">13</span>Third-Party Links and Services</h2>
+        <p>
+          The Site may contain links, references, or integrations to Third-Party Materials. Such
+          links and integrations are provided solely for your convenience. The Company does not
+          own, operate, control, endorse, guarantee, monitor, or assume responsibility for any
+          Third-Party Materials, including their content, accuracy, legality, availability, privacy
+          practices, security posture, or the products or services they offer.
+        </p>
+        <p>
+          Your access to and use of Third-Party Materials is entirely at your own risk and is
+          governed exclusively by the terms and policies of the applicable third party. The Company
+          shall not be liable, directly or indirectly, for any loss, damage, cost, or expense caused
+          or alleged to be caused by or in connection with your use of or reliance upon any
+          Third-Party Materials.
+        </p>
+      </section>
+
+      <section id="s14">
+        <h2><span class="num">14</span>No Advice; No Reliance</h2>
+        <p>
+          All Content is provided for general informational purposes only. Nothing on the Site
+          constitutes legal, financial, tax, accounting, regulatory, security, architectural,
+          engineering, or other professional advice, and nothing on the Site should be relied upon
+          as a substitute for advice from a qualified professional retained in respect of your
+          particular circumstances.
+        </p>
+        <p>
+          Descriptions of capabilities, technologies, methodologies, timelines, outcomes, and prior
+          work are illustrative and are not representations, warranties, guarantees, or predictions
+          of any particular result. Past performance in any engagement is not indicative of, and
+          creates no expectation of, future results. You assume full and sole responsibility for any
+          decision or action taken or omitted in reliance upon the Content.
+        </p>
+      </section>
+
+      <section id="s15">
+        <h2><span class="num">15</span>Availability and Modification</h2>
+        <p>
+          The Company reserves the right, in its sole and absolute discretion and without notice or
+          liability, to modify, suspend, discontinue, restrict, or terminate the Site or any portion,
+          feature, or Content thereof; to impose limits on certain features or restrict access; to
+          correct or decline to correct any error, inaccuracy, or omission; and to change these
+          Terms as provided in Section 32.
+        </p>
+        <p>
+          The Company does not warrant that the Site will be available at any particular time or
+          location, will be uninterrupted or continuous, or will be free of error, defect, or
+          interruption. The Site may be unavailable from time to time for maintenance, updates,
+          provider outages, or reasons outside the Company's control.
+        </p>
+      </section>
+
+      <section id="s16">
+        <h2><span class="num">16</span>Disclaimer of Warranties</h2>
+        <p class="caps">
+          The site and all content are provided on an &ldquo;as is,&rdquo; &ldquo;as
+          available,&rdquo; and &ldquo;with all faults&rdquo; basis, without warranty, condition, or
+          representation of any kind, whether express, implied, statutory, or arising from course of
+          dealing, course of performance, usage, or trade practice. To the fullest extent permitted
+          by applicable law, the company, on its own behalf and on behalf of its members, managers,
+          officers, employees, contractors, agents, suppliers, and licensors, expressly disclaims all
+          warranties, conditions, and representations, including without limitation any implied
+          warranties of merchantability, fitness for a particular purpose, title, quiet enjoyment,
+          accuracy, system integration, and non-infringement.
+        </p>
+        <p class="caps">
+          Without limiting the foregoing, the company makes no warranty, representation, or
+          undertaking that the site will meet your requirements; that access will be uninterrupted,
+          timely, secure, or error free; that any defect or error will be corrected; that the site or
+          any server used in connection with it is free of viruses or other harmful components; or
+          that the content is accurate, complete, reliable, current, or free of error. Any content
+          obtained through the site is accessed at your own discretion and risk, and you are solely
+          responsible for any resulting damage to any device or system or loss of data.
+        </p>
+        <p>
+          Some jurisdictions do not permit the exclusion of certain warranties or conditions.
+          Accordingly, some of the above exclusions may not apply to you, and you may have additional
+          rights. In such case the exclusions in this Section shall apply to the fullest extent
+          permitted by the law of your jurisdiction.
+        </p>
+      </section>
+
+      <section id="s17">
+        <h2><span class="num">17</span>Limitation of Liability</h2>
+        <p class="caps">
+          To the fullest extent permitted by applicable law, in no event shall the company or its
+          members, managers, officers, directors, employees, contractors, agents, suppliers, service
+          providers, or licensors be liable to you or to any third party for any indirect,
+          incidental, special, exemplary, punitive, or consequential damages whatsoever, or for any
+          loss of profits, revenue, goodwill, business opportunity, anticipated savings, use, data,
+          or business interruption, whether arising in contract, tort (including negligence), strict
+          liability, warranty, statute, or otherwise, and whether or not the company has been advised
+          of the possibility of such damages, and regardless of whether any limited remedy is found
+          to have failed of its essential purpose.
+        </p>
+        <p class="caps">
+          To the fullest extent permitted by applicable law, the aggregate liability of the company
+          and the parties described above, arising out of or relating in any way to these terms or to
+          your access to or use of the site, whether in contract, tort, or otherwise, shall not
+          exceed the greater of (a) the total amount actually paid by you to the company for access
+          to the site during the twelve (12) months immediately preceding the event giving rise to
+          the claim, or (b) one hundred United States dollars (US $100.00).
+        </p>
+        <p>
+          The limitations in this Section apply to the fullest extent permitted by applicable law and
+          shall survive any termination or expiration of these Terms. Nothing in these Terms
+          excludes or limits any liability that cannot lawfully be excluded or limited, including
+          liability for fraud or fraudulent misrepresentation, for death or personal injury caused
+          by negligence, or for gross negligence or wilful misconduct where such exclusion is
+          prohibited by applicable law. Some jurisdictions do not allow the exclusion or limitation
+          of incidental or consequential damages, so the above may not apply to you in whole.
+        </p>
+        <p>
+          You acknowledge and agree that the disclaimers and limitations set out in Sections 16 and
+          17 are fundamental elements of the basis of the bargain between you and the Company, that
+          the Company would not make the Site available on an unpaid basis without them, and that
+          they reflect a reasonable and agreed allocation of risk.
+        </p>
+      </section>
+
+      <section id="s18">
+        <h2><span class="num">18</span>Indemnification</h2>
+        <p>
+          You agree to defend, indemnify, and hold harmless the Company and its members, managers,
+          officers, directors, employees, contractors, agents, suppliers, service providers,
+          licensors, successors, and assigns from and against any and all claims, demands, actions,
+          proceedings, investigations, liabilities, damages, judgments, awards, settlements, losses,
+          costs, and expenses of every kind, including reasonable attorneys' fees, expert fees, and
+          costs of investigation and defence, arising out of or relating to: (a) your access to or
+          use of the Site; (b) your breach or alleged breach of these Terms or of any representation
+          or warranty made herein; (c) any Submission you transmit; (d) your violation of any
+          applicable law or regulation; or (e) your violation or alleged violation of the rights of
+          any third party, including intellectual property, privacy, and publicity rights.
+        </p>
+        <p>
+          The Company reserves the right, at your expense, to assume the exclusive defence and
+          control of any matter otherwise subject to indemnification by you, in which event you agree
+          to cooperate fully with such defence. You shall not settle any matter in a manner that
+          imposes any obligation or admission upon the Company without the Company's prior written
+          consent. This obligation shall survive termination of these Terms.
+        </p>
+      </section>
+
+      <section id="s19">
+        <h2><span class="num">19</span>Force Majeure</h2>
+        <p>
+          The Company shall not be liable for any delay, failure, interruption, or inability to
+          perform arising out of or attributable to any cause beyond its reasonable control,
+          including without limitation acts of God, natural disaster, fire, flood, earthquake,
+          severe weather, epidemic, pandemic, public health emergency, war, invasion, hostilities,
+          terrorism, riot, civil disturbance, insurrection, embargo, sanction, governmental or
+          regulatory action, change in law, labour dispute, strike, shortage of materials, failure or
+          degradation of telecommunications or internet infrastructure, power failure, cyberattack,
+          denial-of-service attack, or failure, outage, suspension, or discontinuation of any hosting,
+          edge compute, electronic mail, domain, certificate, or other third-party service provider.
+        </p>
+      </section>
+
+      <section id="s20">
+        <h2><span class="num">20</span>Termination and Suspension</h2>
+        <p>
+          These Terms remain in full force and effect while you use the Site. The Company may, in its
+          sole and absolute discretion and without notice, warning, or liability, deny, restrict,
+          suspend, or terminate your access to the Site, in whole or in part, for any reason or no
+          reason, including for any actual or suspected breach of these Terms or of any applicable
+          law.
+        </p>
+        <p>
+          Upon termination, the licence granted in Section 5 terminates immediately. All provisions
+          which by their nature should survive termination shall survive, including Sections 7, 9,
+          10, 14, 16, 17, 18, 21, 22, 23, 28, 29, and 30.
+        </p>
+      </section>
+
+      <section id="s21">
+        <h2><span class="num">21</span>Dispute Resolution and Arbitration</h2>
+        <p>
+          <strong>21.1 Informal resolution.</strong> Before commencing any arbitration or
+          proceeding, you agree to first contact the Company in writing at the address in Section 33
+          with a description of the dispute, the relief sought, and your contact information, and to
+          negotiate in good faith for a period of sixty (60) days. This informal resolution process
+          is a condition precedent to the commencement of arbitration.
+        </p>
+        <p>
+          <strong>21.2 Binding arbitration.</strong> Except as provided in Sections 21.4 and 21.5,
+          any dispute, claim, or controversy arising out of or relating to these Terms or to the
+          Site, including the formation, interpretation, breach, enforcement, or validity thereof,
+          shall be determined by final and binding individual arbitration administered by the
+          American Arbitration Association under its Commercial Arbitration Rules then in effect,
+          before a single arbitrator, with the seat and any in-person hearing in New York County or
+          Kings County, New York. Judgment on the award may be entered in any court of competent
+          jurisdiction.
+        </p>
+        <p>
+          <strong>21.3 Class action and jury waiver.</strong> To the fullest extent permitted by
+          applicable law, you and the Company each waive any right to a trial by jury and agree that
+          all claims shall be brought solely in an individual capacity, and not as a plaintiff or
+          class member in any purported class, collective, consolidated, coordinated, private
+          attorney general, or representative proceeding. The arbitrator shall have no authority to
+          consolidate claims or to preside over any form of representative proceeding. If this
+          Section 21.3 is found unenforceable as to any claim or request for relief, that claim or
+          request shall be severed and heard in a court of competent jurisdiction, and all remaining
+          claims shall proceed in arbitration.
+        </p>
+        <p>
+          <strong>21.4 Small claims.</strong> Either party may bring an individual action in a small
+          claims court of competent jurisdiction in lieu of arbitration, provided the action remains
+          in that court and is brought on an individual basis.
+        </p>
+        <p>
+          <strong>21.5 Injunctive relief.</strong> Nothing in this Section shall prevent either
+          party from seeking temporary or preliminary injunctive or other equitable relief in a court
+          of competent jurisdiction to prevent actual or threatened infringement, misappropriation,
+          or violation of intellectual property rights or unauthorised access to systems or data.
+        </p>
+        <p>
+          <strong>21.6 Costs.</strong> Each party shall bear its own attorneys' fees and costs except
+          to the extent the arbitrator determines otherwise under applicable law or the applicable
+          rules.
+        </p>
+        <p>
+          <strong>21.7 Right to opt out.</strong> You may opt out of the arbitration and class-waiver
+          provisions of this Section by sending written notice to the Company at the address in
+          Section 33 within thirty (30) days of first accepting these Terms, stating your name,
+          address, and an unambiguous statement that you decline arbitration. Opting out will not
+          affect any other provision of these Terms and will not adversely affect your use of the
+          Site.
+        </p>
+      </section>
+
+      <section id="s22">
+        <h2><span class="num">22</span>Governing Law and Venue</h2>
+        <p>
+          These Terms and any dispute arising out of or relating to them or to the Site shall be
+          governed by and construed in accordance with the laws of the State of New York and, where
+          applicable, the Federal Arbitration Act and other federal law of the United States,
+          without regard to any conflict-of-laws principle that would require the application of the
+          law of another jurisdiction. The United Nations Convention on Contracts for the
+          International Sale of Goods does not apply.
+        </p>
+        <p>
+          Subject to Section 21, you and the Company irrevocably consent and submit to the exclusive
+          personal jurisdiction and venue of the state and federal courts located in Kings County,
+          New York, and waive any objection based on lack of personal jurisdiction, improper venue,
+          or forum non conveniens. You access the Site on your own initiative and are responsible
+          for compliance with local law to the extent it applies.
+        </p>
+      </section>
+
+      <section id="s23">
+        <h2><span class="num">23</span>Limitation Period</h2>
+        <p>
+          To the fullest extent permitted by applicable law, any claim or cause of action arising out
+          of or relating to these Terms or to the Site must be commenced within one (1) year after
+          the claim or cause of action accrues, failing which such claim or cause of action is
+          permanently barred, notwithstanding any statute of limitations or similar law to the
+          contrary.
+        </p>
+      </section>
+
+      <section id="s24">
+        <h2><span class="num">24</span>Copyright Complaints</h2>
+        <p>
+          The Company respects the intellectual property rights of others. If you believe in good
+          faith that material available on the Site infringes a copyright you own or control, you may
+          submit a written notification to the address in Section 33 containing: (a) a physical or
+          electronic signature of the owner or a person authorised to act on the owner's behalf; (b)
+          identification of the copyrighted work claimed to have been infringed; (c) identification
+          of the material claimed to be infringing and information reasonably sufficient to locate it;
+          (d) your contact information; (e) a statement that you have a good-faith belief that the use
+          is not authorised by the owner, its agent, or the law; and (f) a statement, made under
+          penalty of perjury, that the information in the notification is accurate and that you are
+          the owner or authorised to act on the owner's behalf.
+        </p>
+        <p>
+          The Company will respond to properly submitted notifications in accordance with applicable
+          law and may remove or disable access to allegedly infringing material. The Company may
+          terminate the access of any party determined to be a repeat infringer.
+        </p>
+      </section>
+
+      <section id="s25">
+        <h2><span class="num">25</span>Export Control and Sanctions</h2>
+        <p>
+          You represent and warrant that you are not located in, under the control of, or a national
+          or resident of any country or territory subject to comprehensive United States sanctions or
+          embargo, and that you are not identified on any United States government list of prohibited
+          or restricted parties, including the Specially Designated Nationals and Blocked Persons
+          List maintained by the Office of Foreign Assets Control. You agree to comply with all
+          applicable export control, sanctions, and anti-boycott laws and regulations in connection
+          with your access to and use of the Site.
+        </p>
+      </section>
+
+      <section id="s26">
+        <h2><span class="num">26</span>Accessibility</h2>
+        <p>
+          The Company endeavours to make the Site usable by the widest practicable audience and takes
+          reasonable measures directed at conformance with recognised accessibility guidance. The
+          Company does not warrant that the Site conforms to any particular standard or level of
+          accessibility at any given time. If you encounter a barrier to access, please contact us at
+          the address in Section 33 and we will make reasonable efforts to address it.
+        </p>
+      </section>
+
+      <section id="s27">
+        <h2><span class="num">27</span>Assignment</h2>
+        <p>
+          You may not assign, delegate, novate, or otherwise transfer these Terms or any right or
+          obligation hereunder, by operation of law or otherwise, without the Company's prior written
+          consent, and any purported assignment in violation of this Section is void. The Company may
+          freely assign, delegate, novate, or transfer these Terms, in whole or in part, without
+          restriction or notice, including in connection with any merger, acquisition, reorganisation,
+          change of control, or sale of all or substantially all of its assets. These Terms bind and
+          inure to the benefit of the parties and their permitted successors and assigns.
+        </p>
+      </section>
+
+      <section id="s28">
+        <h2><span class="num">28</span>Severability and Reformation</h2>
+        <p>
+          If any provision of these Terms is held invalid, illegal, void, or unenforceable by a court
+          or arbitrator of competent jurisdiction, that provision shall be modified and interpreted
+          so as to best accomplish its objectives to the greatest extent permitted by applicable law,
+          or, if such modification is not possible, shall be severed. In either case, the remaining
+          provisions shall continue in full force and effect. The invalidity of a provision in one
+          jurisdiction shall not affect its validity in any other jurisdiction.
+        </p>
+      </section>
+
+      <section id="s29">
+        <h2><span class="num">29</span>No Waiver</h2>
+        <p>
+          No failure, delay, or omission by the Company in exercising any right, power, or remedy
+          under these Terms shall operate as a waiver thereof, nor shall any single or partial
+          exercise preclude any further exercise of that or any other right, power, or remedy. No
+          waiver shall be effective unless in writing and signed by an authorised representative of
+          the Company, and no waiver of any breach shall constitute a waiver of any subsequent
+          breach. All rights and remedies are cumulative and not exclusive of any other right or
+          remedy available at law or in equity.
+        </p>
+      </section>
+
+      <section id="s30">
+        <h2><span class="num">30</span>Entire Agreement; Interpretation</h2>
+        <p>
+          These Terms, together with any document expressly incorporated by reference, constitute the
+          entire agreement and understanding between you and the Company with respect to the Site and
+          supersede all prior and contemporaneous understandings, agreements, representations, and
+          warranties, whether written or oral, with respect to that subject matter. This Section does
+          not limit or supersede any Engagement Agreement, which governs its own subject matter as
+          provided in Section 4.
+        </p>
+        <p>
+          Section headings are for convenience only and do not affect interpretation. The words
+          &ldquo;including,&rdquo; &ldquo;includes,&rdquo; and &ldquo;such as&rdquo; are to be read as
+          followed by &ldquo;without limitation.&rdquo; Words in the singular include the plural and
+          vice versa. These Terms shall be construed without regard to any presumption or rule
+          requiring construction against the party drafting them, and you waive any right to assert
+          the doctrine of contra proferentem. No provision is intended to confer any right or remedy
+          upon any person other than the parties and the indemnified parties named in Section 18.
+        </p>
+      </section>
+
+      <section id="s31">
+        <h2><span class="num">31</span>Notices</h2>
+        <p>
+          The Company may provide notice to you by posting on the Site or by electronic mail to any
+          address you have provided. Notice is deemed given twenty-four (24) hours after posting or
+          transmission, unless the sending party is notified that the message was not delivered. You
+          must provide notice to the Company in writing by electronic mail to
+          <a href="mailto:hello@creativoatwork.com">hello@creativoatwork.com</a> or by certified
+          mail, return receipt requested, to the postal address set out in Section 33, and such
+          notice is deemed given upon actual receipt.
+        </p>
+      </section>
+
+      <section id="s32">
+        <h2><span class="num">32</span>Changes to These Terms</h2>
+        <p>
+          The Company reserves the right, in its sole discretion, to amend, revise, supplement, or
+          replace these Terms at any time and for any reason. Any such change becomes effective
+          immediately upon posting of the revised Terms at this URL, and the &ldquo;Effective
+          date&rdquo; above will be updated accordingly. It is your responsibility to review these
+          Terms periodically. Your continued access to or use of the Site after any revision
+          constitutes your acceptance of the revised Terms and your agreement to be bound by them.
+          If you do not agree to the revised Terms, you must discontinue use of the Site.
+        </p>
+      </section>
+
+      <section id="s33">
+        <h2><span class="num">33</span>Contact</h2>
+        <p>Questions, notices, and complaints concerning these Terms should be directed to:</p>
+        <address>
+          Creativo@Work LLC<br />
+          195 Plymouth Street, Suite 5/5<br />
+          Brooklyn, NY 11201<br />
+          United States<br />
+          <a href="mailto:hello@creativoatwork.com">hello@creativoatwork.com</a>
+        </address>
       </section>
     </main>
 
