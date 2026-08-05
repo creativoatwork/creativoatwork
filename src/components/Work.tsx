@@ -50,14 +50,14 @@ const PROJECTS: Project[] = [
     span: 'std',
   },
   {
-    src: '/img/img_cw/siscc.png',
+    src: '/img/img_cw/siscc.webp',
     client: 'SISCC Academy',
     sector: 'Education · LMS',
     scope: 'Course platform',
     span: 'std',
   },
   {
-    src: '/img/img_cw/cyrus-preview.png',
+    src: '/img/img_cw/cyrus-preview.webp',
     client: 'Cyrus Company',
     sector: 'Furniture · Italy',
     scope: 'Brand site & catalog',
@@ -81,7 +81,7 @@ export default function Work() {
         <div className="font-mono text-xs text-[var(--color-ink-3)]">02 / Selected work</div>
         <div>
           <h2 className="display-md max-w-[16ch]">
-            Built for businesses that needed to grow up, online.
+            Platforms we designed, built, and still run.
           </h2>
           <p className="lede mt-6">
             Platforms, storefronts, and internal tools across eight sectors. Each one shipped,

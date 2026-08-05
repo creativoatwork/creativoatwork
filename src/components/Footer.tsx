@@ -17,8 +17,8 @@ export default function Footer() {
               />
             </a>
             <p className="mt-5 max-w-[40ch] text-sm leading-relaxed">
-              A small studio building considered websites and platforms for small to mid-sized
-              companies. From idea to launch, and well past it.
+              A small New York studio building custom applications, storefronts, and learning
+              platforms — and keeping them running long after launch.
             </p>
           </div>
 
