@@ -23,7 +23,7 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 
 ## Content
 
-- **Six work images are missing — blocks deploy.** `Work.tsx` references `myonlinecopyright.png`, `clima.png`, `landusup.png`, `edge.png`, `fellow-alumni-network.png`, and `newyork-partners.png` in `public/img/img_cw/`. None exist yet, so those six cards render as empty boxes. **Do not deploy hosting until they are added.** `myonlinecopyright` is the `wide` card and wants ~2:1; the rest are ~4:3. Keep each under ~150KB — the page claims Core Web Vitals work.
+- **`siscc.png` and `cyrus-preview.png` are 400×250.** They render in cards that are 390×260 CSS pixels, so on any retina display they are upscaled roughly 2× and will look soft beside the six new WebP images at 1000–1600px. Re-export both at ~1000px wide and convert to WebP (`cwebp -q 80 -resize 1000 0`) to match. Currently 136KB and 115KB as PNG — more than five times the weight of the sharper WebP files.
 - **`02 / Selected work` heading not updated.** Still "Built for businesses that needed to grow up, online," which undersells a set that is now mostly platforms. Proposed but not applied: "Platforms we designed, built, and still run." Headlines are the operator's call.
 - **Project `scope` strings are inferred.** The six new entries were written from a single hero screenshot each and have not been confirmed against what was actually built.
 

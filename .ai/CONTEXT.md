@@ -53,6 +53,14 @@ Worker validation: `name` 1–100, `email` 5–200 plus regex, `message` 5–500
 
 CORS is allowlisted to `creativoatwork.com`, `www.creativoatwork.com`, the two Firebase domains, and any localhost/127.0.0.1 port.
 
+## Work imagery
+
+Project previews live in `public/img/img_cw/`. New ones should be WebP, ~1000px wide for `std` cards and ~1600px for `wide`, produced with `cwebp -q 80 -resize <width> 0 in.png -o out.webp`. Typical output is 20–45KB.
+
+`sips` on this machine has **no WebP encoder** — use `cwebp`, which is installed.
+
+The card caption puts client name and `scope` on one flex row. **Keep `scope` under ~23 characters**; longer strings wrap and collide with the client name on 390px cards. Existing values run 15–23 characters.
+
 ## Rate limiting
 
 3 submissions per minute per IP, via the `CONTACT_RATE_LIMITER` binding in `wrangler.toml` (`[[unsafe.bindings]]`, type `ratelimit`). Keyed on `CF-Connecting-IP`, which Cloudflare overwrites at the edge and a client therefore cannot spoof. Exceeding it returns 429 with `Retry-After: 60`.
