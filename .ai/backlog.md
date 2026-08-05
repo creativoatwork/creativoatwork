@@ -21,13 +21,24 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 
 - **Manual deploys.** Both targets deploy from a local machine. Preferred flow is GitHub → CI → deploy for the frontend, and a checked Worker deploy. Would also close the CI gap above.
 
+## Legal
+
+Both `/terms` and `/privacy` are live, public, linked from the footer, and indexable. All of the following are open.
+
+- **Neither document has been reviewed by counsel.** They were drafted from common commercial practice and, for the Privacy Policy, from the actual stack. That is not the same as being enforceable or complete for this business.
+- **No EU representative appointed.** GDPR Article 27 may require one given work for Cyrus (Italy) and the Transatlantic Innovation Hub, which explicitly targets European companies entering the US. The Privacy Policy cannot substitute for the appointment.
+- **DMCA designated agent not registered.** Terms Section 24 describes the notice procedure, but safe harbour requires registering an agent with the US Copyright Office (about $6). Without it the section is procedure without protection.
+- **The arbitration clause is a deliberate trade-off, not free protection.** It blocks class actions but exposes the company to mass-arbitration cost, and consumer-facing clauses attract scrutiny. Worth a conscious decision with counsel rather than leaving by default.
+- **Terms Section 12 incorporates the Privacy Policy by reference.** Changing one may require reviewing the other.
+
 ## Content
 
-- **`siscc.png` and `cyrus-preview.png` are 400×250.** They render in cards that are 390×260 CSS pixels, so on any retina display they are upscaled roughly 2× and will look soft beside the six new WebP images at 1000–1600px. Re-export both at ~1000px wide and convert to WebP (`cwebp -q 80 -resize 1000 0`) to match. Currently 136KB and 115KB as PNG — more than five times the weight of the sharper WebP files.
-- **`02 / Selected work` heading not updated.** Still "Built for businesses that needed to grow up, online," which undersells a set that is now mostly platforms. Proposed but not applied: "Platforms we designed, built, and still run." Headlines are the operator's call.
-- **Project `scope` strings are inferred.** The six new entries were written from a single hero screenshot each and have not been confirmed against what was actually built.
+- **Six pool images are only 400×250** — `siscc`, `cyrus-preview`, `gallery-preview`, `podcastfarm`, `mariottistudio`, `donnsterling-preview`. They were converted to WebP where possible, which fixed weight but not sharpness; upscaling cannot add detail. They render into cards 390×260 CSS pixels wide, so they are soft on retina beside the ten sources at 1000–1600px. The draw is weighted to show at most two at a time and never in the wide slot, which contains the problem rather than solving it. A real fix needs fresh screenshots of the live sites at 1000px or more.
+- **`siscc.png` and `cyrus-preview.png` are unreferenced but retained** at the operator's explicit request. The `.webp` versions are what `Work.tsx` uses. They still deploy, costing about 250KB.
+- **Project `scope` strings are inferred.** Every entry added after the original six was written from a single hero screenshot and has not been confirmed against what was actually built.
 
 ## Documentation
 
 - `PRODUCT.md` has an empty **Register** section ("brand") that reads as a placeholder — confirm whether it is intentional.
+- `PRODUCT.md` still describes the studio as building "corporate sites, eCommerce, and LMS platforms" and the audience section predates the repositioning toward technical evaluators. The site has moved on; the product document has not.
 - No accessibility audit has been run against the WCAG 2.2 AA floor `PRODUCT.md` sets. The code shows deliberate a11y work, but "verified" is a stronger claim than anything currently supports.

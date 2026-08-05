@@ -2,7 +2,9 @@
 
 Current project state. Update when architecture, integrations, or workflow change.
 
-_Last reconciled against the repository: 2026-08-05 (commit `879f567`)._
+_Last reconciled against the repository: 2026-08-05 (commit `0037272`)._
+
+**Production status:** both targets are live. The Worker was first deployed 2026-08-05 (version `c8b9692c`) — before that, commit `879f567` had been written but never shipped, so the contact backend did not exist in production. Hosting is deployed and serving the prerendered site, both legal pages, and the crawler files.
 
 ## What this is
 
@@ -64,6 +66,28 @@ Everything rendered at build time must be SSR-safe: no `window` or `document` du
 The hero is `min-h-[calc(100svh-69px)]` / `sm:min-h-[calc(100svh-73px)]`. Those constants are the header's exact height — logo (`h-9` / `sm:h-10`) plus `py-4` plus its 1px bottom border. The header is `sticky`, so it sits in flow and consumes that space. **Change the header's height or padding and these two numbers must change with it**, or the first screen stops being exactly one viewport.
 
 `.display` scales on height as well as width (`clamp(2.6rem, min(8.5vw, 12svh), 7.5rem)`) so the hero still fits on short laptop screens. Width-only scaling pushed the capability strip below the fold at 1280×720.
+
+## Work grid rotation
+
+`Work.tsx` holds a pool of 16 projects and shows 8 per visit, redrawn on every load.
+
+Three constraints hold it together, and breaking any of them is a regression:
+
+1. **Hydration.** The build prerenders, so randomising during render would make server and client markup disagree. The first render is a fixed `PROJECTS.slice(0, VISIBLE)`; the shuffle runs once in `useEffect` after mount. The section is below the fold, so the swap lands before it is scrolled to.
+2. **Tiling.** Span is assigned by *position* — index 0 is `sm:col-span-2`, the rest standard — not stored per project. One wide plus seven standard is nine grid cells, which fills three rows exactly at desktop. A second wide card leaves holes.
+3. **Resolution.** `MIN_SHARP = 6` guarantees six high-resolution cards per draw, and the wide slot is filled only from entries flagged `wideOk`. Six pool entries are 400×250 and look soft stretched across two columns.
+
+The first eight entries in the array are what crawlers and no-JavaScript visitors see, since prerendering happens before any shuffle. Keep the strongest work at the top.
+
+**Adding a project takes two steps**: drop the image in `public/img/img_cw/` *and* add an entry to `PROJECTS`. A card needs client, sector, and scope, none of which can be derived from a filename.
+
+## Legal pages
+
+`public/terms.html` (33 sections) and `public/privacy.html` (21 sections) are standalone HTML, served at `/terms` and `/privacy` via Hosting `cleanUrls`. They share the site's CSS variables but do not use Tailwind or React.
+
+They cross-reference each other by section number, and Terms Section 12 incorporates the Privacy Policy by reference. **Renumbering sections in either document breaks references in the other.** Both are indexed, canonicalised, and listed in `sitemap.xml`.
+
+Neither has been reviewed by counsel. See `backlog.md` before relying on either.
 
 ## Work imagery
 

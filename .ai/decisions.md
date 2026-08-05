@@ -6,6 +6,34 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-05 — Publish Terms of Service and Privacy Policy
+
+**Decision.** Replace the seven-section placeholder at `/terms` with a 33-section document, and add a 21-section Privacy Policy at `/privacy`. Both are standalone HTML in `public/`, linked from the site footer and from each other, indexed, and listed in the sitemap.
+
+**Reasoning.** The operator asked for terms that protect the company. Three clauses do most of the real work for this specific business: Terms Section 4 separates the site terms from client engagement agreements; Section 8 disclaims the third-party client marks the portfolio necessarily displays; Section 9 makes contact-form submissions expressly non-confidential, which is the protection that matters when a prospect emails an idea and later claims it was taken.
+
+The Privacy Policy exists because the Terms could not close that gap. The contact form collects personal data, the Worker keys a rate limiter on IP, and there is at least one EU client, so GDPR is plausibly in scope.
+
+**Position worth protecting.** The site sets no cookies, runs no analytics, and does no tracking, and the Policy says so plainly. Adding any analytics package makes Section 4 false and creates a consent-banner obligation.
+
+**Stated plainly, not hedged:** neither document has been reviewed by counsel, and "ironclad" was not achievable. Liability caps cannot exclude fraud and, in most jurisdictions, gross negligence; the Terms concede this explicitly rather than overreaching, because a clause pretending to exclude everything is likelier to be struck. Outstanding legal items are in `backlog.md`.
+
+---
+
+## 2026-08-05 — Rotate the work grid instead of curating a fixed eight
+
+**Decision.** `Work.tsx` draws 8 of 16 projects at random per page load, weighted so at least 6 are high-resolution and the double-width slot always is.
+
+**Reasoning.** The operator wanted more work visible without lengthening the section, and wanted newly added clients to surface without re-curating. Rotation does that; the previously retired projects returned to the pool rather than being deleted.
+
+**The non-obvious constraint** is that the site prerenders. Randomising during render would make the server and client markup disagree and break hydration, so the first render is deterministic and the shuffle runs after mount. Anyone editing this component needs to understand that before touching the render path.
+
+**Weighting was added after observing the failure.** An unweighted draw put five 400×250 images on screen at once, which read worse than the curated set it replaced. `MIN_SHARP = 6` bounds it.
+
+**Rules out** storing `span` per project. Span is positional, which is what keeps the three-row tiling intact for any draw.
+
+---
+
 ## 2026-08-05 — Prerender the site at build time for search and AI discoverability
 
 **Decision.** `npm run build` now runs a client build, an SSR build of `src/entry-server.tsx`, and `scripts/prerender.mjs`, which injects the rendered markup into `dist/index.html`. The client hydrates instead of mounting from scratch.
