@@ -150,14 +150,33 @@ function shuffled<T>(items: T[]): T[] {
 }
 
 /**
- * Picks the visit's line-up. The first slot is double width, so it is filled
- * from the high-resolution entries; everything else is drawn at random.
+ * Minimum number of high-resolution cards per visit, the wide one included.
+ * Six of the pool are only 400px wide and look soft on a retina display; an
+ * unweighted draw could surface five of them at once, which reads worse than
+ * the curated set it replaced.
+ */
+const MIN_SHARP = 6;
+
+/**
+ * Picks the visit's line-up. The double-width first slot always gets
+ * high-resolution art, at least MIN_SHARP cards are high-resolution overall,
+ * and the remaining slots are drawn from whatever is left. Positions after the
+ * first are shuffled so the softer cards do not always cluster at the end.
  */
 function pickLineup(pool: Project[]): Project[] {
-  const rest = shuffled(pool);
-  const heroIndex = rest.findIndex((p) => p.wideOk);
-  const [hero] = rest.splice(heroIndex === -1 ? 0 : heroIndex, 1);
-  return [hero, ...rest].slice(0, VISIBLE);
+  const sharp = shuffled(pool.filter((p) => p.wideOk));
+  const soft = shuffled(pool.filter((p) => !p.wideOk));
+
+  const hero = sharp.shift() ?? soft.shift();
+  if (!hero) return [];
+
+  const guaranteed = sharp.splice(0, Math.max(0, MIN_SHARP - 1));
+  const filler = shuffled([...sharp, ...soft]).slice(
+    0,
+    Math.max(0, VISIBLE - 1 - guaranteed.length),
+  );
+
+  return [hero, ...shuffled([...guaranteed, ...filler])];
 }
 
 export default function Work() {
