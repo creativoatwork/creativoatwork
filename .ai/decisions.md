@@ -6,6 +6,25 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-05 — Prerender the site at build time for search and AI discoverability
+
+**Decision.** `npm run build` now runs a client build, an SSR build of `src/entry-server.tsx`, and `scripts/prerender.mjs`, which injects the rendered markup into `dist/index.html`. The client hydrates instead of mounting from scratch.
+
+**Reasoning.** The built page shipped `<body><div id="root"></div></body>`. Google generally executes JavaScript, but the AI crawlers — GPTBot, ClaudeBot, PerplexityBot, CCBot — largely do not. The site was effectively invisible to them, which directly contradicted the goal of being findable through assistants. No amount of meta-tag work fixes an empty body.
+
+**Why not a plugin.** `react-dom/server` is already present via `react-dom`, so this needs no new dependency, no headless browser, and no framework migration. The whole mechanism is one 40-line script.
+
+**Consequences and hazards.**
+
+- `src/main.tsx` calls `hydrateRoot` when the root already has children and `createRoot` otherwise. The fallback matters: `vite dev` serves an empty root.
+- Anything rendered during the build must be SSR-safe. No `window` or `document` access during render — effects are fine, since they don't run server-side. `Footer` calls `new Date().getFullYear()`, which is evaluated at build time.
+- `scripts/prerender.mjs` **throws** if the root div is missing or the render is under 1000 bytes, rather than silently shipping a blank page. Do not soften that.
+- `npm run build:client` still exists for a client-only build.
+
+**Also added:** canonical URL, Open Graph and Twitter cards with a 1200×630 `og-card.jpg`, schema.org `ProfessionalService` and `WebSite` JSON-LD including the full service catalog, `robots.txt` explicitly allowing AI crawlers, `sitemap.xml`, and `llms.txt`.
+
+---
+
 ## 2026-08-05 — Reposition the site for technical evaluators
 
 **Decision.** Rewrite the hero capability strip, hero lede, `01 / Services`, `03 / About` prose, and the `02 / Selected work` project set to lead with engineering rather than CMS product names.

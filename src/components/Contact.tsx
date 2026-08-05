@@ -141,7 +141,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={status === 'sending'}
-                  className="group inline-flex items-center gap-3 rounded-full bg-[var(--color-accent)] px-6 py-3.5 text-sm font-medium text-[var(--color-night)] transition-colors hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="group inline-flex items-center gap-3 rounded-lg bg-[var(--color-accent)] px-6 py-3.5 text-sm font-medium text-[var(--color-night)] transition-colors hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {status === 'sending' ? 'Sending…' : 'Send the brief'}
                   <span

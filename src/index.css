@@ -83,7 +83,9 @@
     letter-spacing: -0.035em;
     line-height: 0.96;
     color: var(--color-ink);
-    font-size: clamp(2.6rem, 8.5vw, 7.5rem);
+    /* Scales on height as well as width so the hero still fits one viewport on
+       short laptop screens, where width-only scaling pushed content below the fold. */
+    font-size: clamp(2.6rem, min(8.5vw, 12svh), 7.5rem);
   }
 
   .display-md {

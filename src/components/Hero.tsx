@@ -2,11 +2,14 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="gutter relative flex min-h-[88svh] flex-col justify-end pb-16 pt-32 sm:pb-24 sm:pt-40"
+      /* Header is sticky and therefore in flow, so subtract its exact height to
+         make header + hero occupy precisely one viewport.
+         Header = logo (h-9 / sm:h-10) + py-4 (32px) + 1px bottom border. */
+      className="gutter relative flex min-h-[calc(100svh-69px)] flex-col justify-end pb-8 pt-20 sm:min-h-[calc(100svh-73px)] sm:pb-10 sm:pt-28 [@media(max-height:820px)]:pt-12 [@media(max-height:820px)]:sm:pt-14"
     >
       <div className="reveal reveal-1 flex items-center gap-3 font-mono text-xs text-[var(--color-ink-3)]">
         <span aria-hidden className="h-px w-8 bg-[var(--color-rule-strong)]" />
-        <span>A Brooklyn web development studio</span>
+        <span>A New York Web and Platform Development Studio</span>
       </div>
 
       <h1 className="reveal reveal-2 display mt-8 max-w-[18ch]">
@@ -26,21 +29,21 @@ export default function Hero() {
         <div className="flex items-center gap-3">
           <a
             href="#work"
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-paper)] transition-colors hover:bg-[var(--color-accent)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ink)] px-5 py-3 text-sm font-medium text-[var(--color-paper)] transition-colors hover:bg-[var(--color-accent)]"
           >
             See the work
             <span aria-hidden>↘</span>
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-rule-strong)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]"
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-rule-strong)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)]"
           >
             Start a conversation
           </a>
         </div>
       </div>
 
-      <div className="reveal reveal-4 mt-20 flex items-end justify-between gap-6 border-t border-[var(--color-rule)] pt-6 sm:mt-28">
+      <div className="reveal reveal-4 mt-12 flex items-end justify-between gap-6 sm:mt-16">
         <dl className="flex flex-wrap gap-x-10 gap-y-3 font-mono text-[11px] text-[var(--color-ink-3)]">
           <div>
             <dt className="sr-only">Stack</dt>

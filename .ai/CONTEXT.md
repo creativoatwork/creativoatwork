@@ -53,6 +53,18 @@ Worker validation: `name` 1–100, `email` 5–200 plus regex, `message` 5–500
 
 CORS is allowlisted to `creativoatwork.com`, `www.creativoatwork.com`, the two Firebase domains, and any localhost/127.0.0.1 port.
 
+## Build pipeline
+
+`npm run build` is three steps: client build, SSR build to `dist-ssr/`, then `scripts/prerender.mjs` injects the rendered HTML into `dist/index.html` and deletes `dist-ssr/`. A successful run prints `prerender: injected N bytes`. **If that line is missing, the deploy would ship an empty page to crawlers.**
+
+Everything rendered at build time must be SSR-safe: no `window` or `document` during render. Effects are fine.
+
+## Hero sizing
+
+The hero is `min-h-[calc(100svh-69px)]` / `sm:min-h-[calc(100svh-73px)]`. Those constants are the header's exact height — logo (`h-9` / `sm:h-10`) plus `py-4` plus its 1px bottom border. The header is `sticky`, so it sits in flow and consumes that space. **Change the header's height or padding and these two numbers must change with it**, or the first screen stops being exactly one viewport.
+
+`.display` scales on height as well as width (`clamp(2.6rem, min(8.5vw, 12svh), 7.5rem)`) so the hero still fits on short laptop screens. Width-only scaling pushed the capability strip below the fold at 1280×720.
+
 ## Work imagery
 
 Project previews live in `public/img/img_cw/`. New ones should be WebP, ~1000px wide for `std` cards and ~1600px for `wide`, produced with `cwebp -q 80 -resize <width> 0 in.png -o out.webp`. Typical output is 20–45KB.

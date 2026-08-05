@@ -1,0 +1,42 @@
+# Creativo@Work
+
+> A New York web and platform development studio. We build custom web applications, headless commerce, and learning platforms for small to mid-sized companies — and modernize legacy systems that outgrew their stack.
+
+Creativo@Work LLC is a small studio based at 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, founded in 2020. We deliberately stay small: the people who scope a project are the people who build it, with no account-manager layer between the brief and the code. Most engagements start with something that already exists — a platform that outgrew its stack, a site nobody can edit without a developer, an internal tool held together by spreadsheets.
+
+## Services
+
+- **Custom application engineering** — auth, dashboards, APIs, and data models. Software with a real architecture, not a CMS bent into the shape of one.
+- **Legacy platform modernization** — aging codebases moved onto current stacks incrementally, in production, without a year-long rewrite.
+- **Headless and composable front-ends** — React and TypeScript against a decoupled CMS, including headless WordPress.
+- **eCommerce engineering** — WooCommerce storefronts that load fast and scale with the catalog.
+- **Learning platforms** — LMS builds with cohort, certification, and reporting features.
+- **AI feature integration** — retrieval over your own content, assisted workflows, and the evaluation work to know whether it helps.
+- **Cloud infrastructure and delivery** — pipelines, environments, monitoring.
+- **Product and interface design** — interface design grounded in your audience and goals.
+- **Performance, SEO and analytics** — Core Web Vitals, technical SEO, and instrumentation.
+
+## Technology
+
+TypeScript, React, headless CMS architecture, WordPress, WooCommerce, cloud infrastructure and CI/CD, AI and LLM feature integration.
+
+## Selected work
+
+- **MyOnlineCopyright** — LegalTech / IP. Cryptographic sealing and certificate verification for proof of authorship.
+- **CLIMA Foundation** — global climate research. Tiered-access platform for international data sharing.
+- **LandUsUp** — US company incorporation. Multilingual onboarding flow for founders worldwide.
+- **EDGE Market Insights** — market intelligence SaaS. Subscription platform and report delivery.
+- **Fellow Alumni Network** — nonprofit, Americas. Member directory and mentor matching.
+- **New York & Partners** — advisory, New York. Consultancy platform and client intake.
+- **SISCC Academy** — education. LMS course platform.
+- **Cyrus Company** — furniture, Italy. Brand site and product catalog.
+
+## Who we work with
+
+Founders, marketing leads, and creative directors at small-to-midsize companies who need a partner across strategy, design, build, and the long tail of optimization after launch.
+
+## Contact
+
+- Email: hello@creativoatwork.com
+- Website: https://creativoatwork.com
+- Hours: Monday–Friday, 09:00–18:00 ET, async-friendly across time zones
