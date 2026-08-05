@@ -4,7 +4,9 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 
 ## Security / correctness
 
-- **No rate limiting on the contact endpoint.** The honeypot is the only abuse control. A trivial script can drive Resend spend and flood `hello@`. Options: Cloudflare Rate Limiting rules, a Turnstile challenge, or a KV-backed per-IP counter in the Worker. Highest-value gap.
+- **No sustained rate cap.** A 3/min per-IP burst limit shipped 2026-08-05 (see `decisions.md`), which closes the runaway-spend risk. What remains: a bot pacing under 3/min can drip mail into `hello@` indefinitely. Closing it needs an hourly counter, which needs storage — a KV namespace keyed `rl:<ip>:<unix-hour>` was the designed approach. Deferred as setup overhead.
+- **No bot-quality control beyond the honeypot.** Invisible Turnstile was designed and deliberately deferred: it requires creating a Turnstile site, a public site key (`VITE_TURNSTILE_SITE_KEY`), and a `TURNSTILE_SECRET_KEY` Wrangler secret. Revisit if spam actually starts landing.
+- **Rate limiting is per-colo, not global.** Inherent to the native binding. A distributed attacker gets a higher effective ceiling. Only Durable Objects would count exactly; not worth it at this traffic.
 - **No idempotency on send.** A double-submitted or retried request sends two emails. The client guards against double-submit in the UI (`status === 'sending'`), which is not a server-side guarantee.
 - **`VITE_CONTACT_URL` is build-time only.** If the Worker URL changes, a stale deployed bundle points at a dead endpoint until the frontend is rebuilt and redeployed. Worth documenting in the deploy runbook, or fronting the Worker with a stable custom domain.
 

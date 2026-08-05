@@ -1,5 +1,11 @@
+/** Cloudflare's built-in rate limiter. Counted per colo, not globally. */
+interface RateLimiter {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
 interface Env {
   RESEND_API_KEY: string;
+  CONTACT_RATE_LIMITER: RateLimiter;
 }
 
 const ALLOWED_ORIGINS = [
@@ -14,6 +20,9 @@ const LOCALHOST_RE = /^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/;
 const MAIL_TO = 'hello@creativoatwork.com';
 const MAIL_FROM = 'Creativo@Work <hello@creativoatwork.com>';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Must match `period` on the ratelimit binding in wrangler.toml; used for Retry-After.
+const RATE_LIMIT_PERIOD_SECONDS = 60;
 
 interface ContactPayload {
   name?: unknown;
@@ -99,6 +108,24 @@ export default {
 
     if (!EMAIL_RE.test(email)) {
       return jsonResponse({ ok: false, error: 'invalid_email' }, 400, cors);
+    }
+
+    // Burst limit, checked only once a submission is otherwise valid — a visitor
+    // fixing a typo shouldn't spend their budget on rejected attempts.
+    // Fails open: a limiter outage must never cost a real inquiry.
+    const clientIp = request.headers.get('CF-Connecting-IP');
+    if (clientIp) {
+      try {
+        const { success } = await env.CONTACT_RATE_LIMITER.limit({ key: clientIp });
+        if (!success) {
+          return jsonResponse({ ok: false, error: 'rate_limited' }, 429, {
+            ...cors,
+            'Retry-After': String(RATE_LIMIT_PERIOD_SECONDS),
+          });
+        }
+      } catch (err) {
+        console.error('Rate limiter unavailable, allowing request', err);
+      }
     }
 
     const safeName = escapeHtml(name);

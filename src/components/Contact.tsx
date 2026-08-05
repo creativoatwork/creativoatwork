@@ -5,6 +5,7 @@ type Status = 'idle' | 'sending' | 'ok' | 'error';
 const ERROR_COPY: Record<string, string> = {
   invalid_input: 'Please fill in your name, email, and a short message.',
   invalid_email: 'That email address looks off — mind double-checking?',
+  rate_limited: 'That’s a few messages in quick succession — give it a minute, then try again.',
   send_failed: 'Our mailer hiccuped. Try again in a moment, or write us directly.',
   internal_error: 'Something broke on our end. Try again, or write us directly.',
   network: 'Network problem — check your connection and try again.',

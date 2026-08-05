@@ -9,5 +9,20 @@ compatibility_date = "2024-10-22"
 #   https://creativoatwork-contact.<account>.workers.dev/contact
 # Use that URL as VITE_CONTACT_URL in the frontend .env.production.
 
+# Per-IP burst limit for POST /contact. Enforced by Cloudflare at the edge:
+# nothing to provision, no storage, no cost. `namespace_id` is an arbitrary
+# per-worker identifier, not an account resource. `period` accepts only 10 or 60.
+#
+# Counted per colo rather than globally, so a geographically distributed
+# attacker gets a higher effective ceiling. Acceptable here: this exists to cap
+# runaway spend, not to guarantee an exact quota.
+#
+# Keep `period` in sync with RATE_LIMIT_PERIOD_SECONDS in src/index.ts.
+[[unsafe.bindings]]
+name = "CONTACT_RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }
+
 [observability]
 enabled = true

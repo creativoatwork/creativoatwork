@@ -6,6 +6,27 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-05 — Rate limit the contact endpoint with Cloudflare's native binding
+
+**Decision.** 3 submissions per minute per IP, enforced by the Workers rate-limiting binding declared in `worker/wrangler.toml`. Rejections return HTTP 429 with `Retry-After` and the error code `rate_limited`. No KV, no Turnstile.
+
+**Reasoning.** Design exploration first landed on a layered scheme — 3/min burst, 10/hour sustained cap, and invisible Turnstile. The operator then constrained the work to "free, no added headaches, no complexity," which rules out anything needing provisioning: a KV namespace, a Turnstile site and key pair, or a new secret. The native binding requires none of those; it is declared entirely in config and costs nothing.
+
+**Accepted trade-offs, explicitly.**
+
+- **No sustained cap.** A bot pacing itself under 3/min can still drip mail into `hello@` indefinitely. This is the known hole.
+- **No bot-quality control** beyond the existing honeypot. Turnstile was dropped, so a well-built bot that leaves the honeypot blank still gets through.
+- **Per-colo counting.** The limit is enforced per Cloudflare edge location, not globally, so a geographically distributed attacker gets a higher effective ceiling.
+- **Experimental binding.** It lives under `[[unsafe.bindings]]`; wrangler prints a warning on every run and the shape could change.
+
+**Fail-open by design.** A limiter error is logged via `console.error` and the submission proceeds. Rationale: the failure cost is asymmetric — losing a real prospect costs far more than accepting a spam email during a rare outage.
+
+**Placement.** The check sits after honeypot and field validation, so a visitor correcting a typo doesn't burn their budget on rejected attempts.
+
+**Not ruled out permanently.** If spam materializes, the layered design is recorded in `backlog.md` and can be revisited.
+
+---
+
 ## 2026-08-05 — Adopt `.ai/` structured memory and a README
 
 **Decision.** Bootstrap `.ai/` (`CLAUDE.md`, `CONTEXT.md`, `decisions.md`, `backlog.md`, `sessions/`) and add a human-facing `README.md`.

@@ -47,11 +47,21 @@ There is **no** Firebase Auth, Firestore, Storage, or Cloud Functions in this pr
 
 Client posts `{ name, email, message, company }` as JSON. `company` is a honeypot — non-empty means bot, and the worker returns `{ ok: true }` without sending.
 
-Worker responses are `{ ok: true }` or `{ ok: false, error: <code> }` with codes `invalid_json`, `not_found`, `method_not_allowed`, `invalid_input`, `invalid_email`, `send_failed`, `internal_error`. The client adds a local `network` code. Every code shown to users needs matching copy in `ERROR_COPY` in `src/components/Contact.tsx` — adding a worker code without the copy falls back to a generic message.
+Worker responses are `{ ok: true }` or `{ ok: false, error: <code> }` with codes `invalid_json`, `not_found`, `method_not_allowed`, `invalid_input`, `invalid_email`, `rate_limited`, `send_failed`, `internal_error`. The client adds a local `network` code. Every code shown to users needs matching copy in `ERROR_COPY` in `src/components/Contact.tsx` — adding a worker code without the copy falls back to a generic message.
 
 Worker validation: `name` 1–100, `email` 5–200 plus regex, `message` 5–5000 characters, all trimmed. User input is HTML-escaped before templating into the email. `reply_to` is set to the sender.
 
 CORS is allowlisted to `creativoatwork.com`, `www.creativoatwork.com`, the two Firebase domains, and any localhost/127.0.0.1 port.
+
+## Rate limiting
+
+3 submissions per minute per IP, via the `CONTACT_RATE_LIMITER` binding in `wrangler.toml` (`[[unsafe.bindings]]`, type `ratelimit`). Keyed on `CF-Connecting-IP`, which Cloudflare overwrites at the edge and a client therefore cannot spoof. Exceeding it returns 429 with `Retry-After: 60`.
+
+`RATE_LIMIT_PERIOD_SECONDS` in `index.ts` must stay in sync with `period` in `wrangler.toml`; the binding accepts only 10 or 60.
+
+The check runs **after** honeypot and validation, so rejected attempts don't consume a visitor's budget. It **fails open** — a limiter error logs and lets the message through.
+
+Two limits to be honest about: counting is per-colo rather than global, and there is no cap longer than 60 seconds, so a bot pacing under the limit is not stopped. See `backlog.md`.
 
 ## Configuration and secrets
 
