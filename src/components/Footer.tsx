@@ -69,12 +69,20 @@ export default function Footer() {
             <span aria-hidden="true">♥</span>
             <span className="sr-only">love</span> in New York
           </span>
-          <a
-            href="/terms"
-            className="text-[var(--color-paper)] underline-offset-4 hover:text-[var(--color-accent)] hover:underline"
-          >
-            Terms of Service
-          </a>
+          <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+            <a
+              href="/privacy"
+              className="text-[var(--color-paper)] underline-offset-4 hover:text-[var(--color-accent)] hover:underline"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="/terms"
+              className="text-[var(--color-paper)] underline-offset-4 hover:text-[var(--color-accent)] hover:underline"
+            >
+              Terms of Service
+            </a>
+          </span>
         </div>
       </div>
     </footer>
