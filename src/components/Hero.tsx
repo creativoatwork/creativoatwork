@@ -47,7 +47,7 @@ export default function Hero() {
         <dl className="flex flex-wrap gap-x-10 gap-y-3 font-mono text-[11px] text-[var(--color-ink-3)]">
           <div>
             <dt className="sr-only">Stack</dt>
-            <dd>TypeScript · React · Headless CMS · WooCommerce</dd>
+            <dd>TypeScript · React · Headless CMS · eCommerce</dd>
           </div>
           <div>
             <dt className="sr-only">Practice</dt>

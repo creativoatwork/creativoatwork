@@ -9,7 +9,7 @@
     <title>Frequently Asked Questions — Creativo@Work, New York Web Development Studio</title>
     <meta
       name="description"
-      content="Answers to common questions about working with Creativo@Work: what custom web applications cost, how long projects take, legacy platform modernization, headless WordPress, WooCommerce, LMS builds, AI integration, and post-launch support."
+      content="Answers to common questions about working with Creativo@Work: what custom web applications cost, how long projects take, legacy platform modernization, headless and composable front-ends, commerce platforms, learning systems, AI integration, and post-launch support."
     />
     <link rel="canonical" href="https://creativoatwork.com/faq" />
 
@@ -233,15 +233,15 @@
                 "name": "What does Creativo@Work do?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Creativo@Work is a web and platform development studio in Brooklyn, New York. We build custom web applications, headless and composable front-ends, WooCommerce storefronts, and learning platforms for small to mid-sized companies — and we modernize existing systems that have outgrown their stack. Most engagements cover strategy, design, build, and the long tail of optimization after launch, rather than a single phase handed off to someone else. We deliberately stay small, so the people who scope a project are the people who write the code. There is no account-management layer between your brief and the engineers building against it. In practice that means fewer projects running at once, direct access to the people doing the work, and architectural decisions you can still reverse eighteen months from now."
+                  "text": "Creativo@Work is a web and platform development studio in New York. We build custom web applications, headless and composable front-ends, commerce platforms, and learning systems for small to mid-sized companies — and we modernize existing platforms that have outgrown their stack. Most engagements cover strategy, design, build, and the long tail of optimization after launch, rather than a single phase handed off to someone else. We deliberately stay small, so the people who scope a project are the people who write the code. There is no account-management layer between your brief and the engineers building against it. In practice that means fewer projects running at once, direct access to the people doing the work, and architectural decisions you can still reverse eighteen months from now."
                 }
               },
               {
                 "@type": "Question",
-                "name": "Where is Creativo@Work located, and do you work with clients outside New York?",
+                "name": "Do you work with clients outside New York?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Our studio is at 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, and we work with clients well beyond New York. Being in New York matters for the clients who want to sit in a room together; it does not limit who we take on. We run engagements remotely as a matter of course, and our client work spans the United States, Europe, and Latin America. Studio hours are Monday to Friday, 09:00 to 18:00 Eastern Time, and we work async-friendly across time zones — written updates, recorded walkthroughs, and shared environments you can check on your own schedule rather than meetings scheduled at inconvenient hours. If you are local to New York City and prefer to meet in person, we are happy to."
+                  "text": "Yes. We are a New York studio, and we work with clients anywhere in the world — that has been true from the beginning rather than something we added later. Our engagements have spanned North America, Europe, and Latin America, across sectors as different as legal technology, climate research, market intelligence, education, and consumer commerce. Distance has never been the thing that decides whether a project works. What decides it is how a team communicates, and remote work is the default we build around rather than a compromise we tolerate. In practice that means written updates you can read when it suits you, recorded walkthroughs instead of meetings that exist only to be attended, and shared staging environments you can open at any hour to see exactly where the work stands. Decisions get documented where you can find them later, not lost in a call you missed. We overlap with European mornings and Latin American afternoons comfortably, and we plan around the hours a client actually keeps. If your team is somewhere we have not worked before, that is not an obstacle — it is most of our portfolio."
                 }
               },
               {
@@ -270,18 +270,18 @@
               },
               {
                 "@type": "Question",
-                "name": "What is headless WordPress, and is it right for our site?",
+                "name": "What is a headless or composable front end, and is it right for our site?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Headless WordPress means keeping WordPress as the editing environment while the public site is rendered by a separate front end — in our case React and TypeScript — which talks to WordPress over an API. Your team keeps the editor it already knows; the front end is no longer constrained by themes, plugin conflicts, or PHP rendering. It is the right choice when the editorial experience and the front-end experience are pulling against each other: when the site needs to be faster than the theme allows, when the design has outgrown what a theme can express, or when the same content needs to feed a site, an app, and a partner integration. It is the wrong choice when a well-built conventional WordPress theme would do the job — going headless adds a deployment pipeline and a second codebase to maintain. We will tell you which situation you are in before you spend money on the more complex option."
+                  "text": "A headless architecture separates the system your team writes content in from the system your visitors actually see. The front end is built as a real application — React and TypeScript, rendered fast and deployed independently — and it pulls content over an API rather than being generated by the content tool itself. Your editors keep an interface designed for editing; the public experience is no longer limited by what a template system was willing to produce. It is the right choice when the editorial experience and the front-end experience are pulling against each other: when the site needs to be faster than a template layer allows, when the design has outgrown what templates can express, or when the same content has to feed a website, a product, and a partner integration without being written three times. It is the wrong choice when a single conventional site would do the job — decoupling adds a deployment pipeline and a second codebase to maintain. We will tell you which situation you are in before you spend money on the more complex option."
                 }
               },
               {
                 "@type": "Question",
-                "name": "Do you build WooCommerce stores, and can WooCommerce handle a large catalog?",
+                "name": "Do you build online stores, and can they handle a large catalog?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes, we build and rebuild WooCommerce storefronts, and WooCommerce handles large catalogs well when it is engineered for it. Most slow WooCommerce stores are not slow because of WooCommerce; they are slow because of accumulated plugins, unindexed database queries, uncached product pages, and images shipped at full resolution. Those are engineering problems with engineering fixes. Our commerce work focuses on the things that actually move revenue: catalog and search performance as the number of products grows, checkout that does not lose people on mobile, correct handling of variations and inventory, and Core Web Vitals measured on real devices rather than a lab score. We are equally willing to tell you when a headless storefront in front of WooCommerce is worth the added complexity and when it is not."
+                  "text": "Yes, we build and rebuild commerce platforms, and a large catalog is an engineering question rather than a limit you run into. Storefronts rarely slow down because of the number of products. They slow down because of accumulated extensions nobody audits, database queries running without the right indexes, product pages rebuilt on every request instead of cached, and images shipped at far higher resolution than any screen will use. Every one of those has a fix. Our commerce work focuses on the things that actually move revenue: catalog and search performance as the number of products grows, checkout that does not lose people on mobile, correct handling of variations and inventory, and Core Web Vitals measured on real devices rather than a lab score. We choose the commerce stack to fit the catalog and the team that has to run it, and we are equally willing to tell you when a decoupled storefront is worth the added complexity and when it is not."
                 }
               },
               {
@@ -335,7 +335,7 @@
       <h1>Frequently Asked Questions</h1>
       <div class="meta">
         <span>Last reviewed: August 10, 2026</span>
-        <span>Studio: Brooklyn, New York</span>
+        <span>Studio: New York</span>
       </div>
 
       <p class="lede">
@@ -347,12 +347,12 @@
         <h2>On this page</h2>
         <ol>
           <li><a href="#what-we-do">What does Creativo@Work do?</a></li>
-          <li><a href="#location">Where are you located, and do you work with clients outside New York?</a></li>
+          <li><a href="#global">Do you work with clients outside New York?</a></li>
           <li><a href="#cost">How much does a custom web application or website cost?</a></li>
           <li><a href="#timeline">How long does a typical project take?</a></li>
           <li><a href="#legacy">Can you modernize a legacy platform without rebuilding from scratch?</a></li>
-          <li><a href="#headless-wordpress">What is headless WordPress, and is it right for our site?</a></li>
-          <li><a href="#woocommerce">Do you build WooCommerce stores, and can WooCommerce handle a large catalog?</a></li>
+          <li><a href="#headless">What is a headless or composable front end, and is it right for our site?</a></li>
+          <li><a href="#commerce">Do you build online stores, and can they handle a large catalog?</a></li>
           <li><a href="#lms">Can you build a custom learning platform instead of using an off-the-shelf LMS?</a></li>
           <li><a href="#ai">What does AI feature integration actually mean for a smaller company?</a></li>
           <li><a href="#support">Do you maintain and support what you build after launch?</a></li>
@@ -362,10 +362,10 @@
       <section id="what-we-do">
         <h2><span class="num">01</span>What does Creativo@Work do?</h2>
         <p>
-          <strong>Creativo@Work is a web and platform development studio in Brooklyn, New York.</strong>
-          We build custom web applications, headless and composable front-ends, WooCommerce
-          storefronts, and learning platforms for small to mid-sized companies — and we modernize
-          existing systems that have outgrown their stack. Most engagements cover strategy, design,
+          <strong>Creativo@Work is a web and platform development studio in New York.</strong>
+          We build custom web applications, headless and composable front-ends, commerce platforms,
+          and learning systems for small to mid-sized companies — and we modernize existing
+          platforms that have outgrown their stack. Most engagements cover strategy, design,
           build, and the long tail of optimization after launch, rather than a single phase handed
           off to someone else.
         </p>
@@ -378,22 +378,29 @@
         </p>
       </section>
 
-      <section id="location">
-        <h2><span class="num">02</span>Where is Creativo@Work located, and do you work with clients outside New York?</h2>
+      <section id="global">
+        <h2><span class="num">02</span>Do you work with clients outside New York?</h2>
         <p>
           <strong>
-            Our studio is at 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, and we work with
-            clients well beyond New York.
+            Yes. We are a New York studio, and we work with clients anywhere in the world
           </strong>
-          Being in New York matters for the clients who want to sit in a room together; it does not
-          limit who we take on. We run engagements remotely as a matter of course, and our client
-          work spans the United States, Europe, and Latin America.
+          — that has been true from the beginning rather than something we added later. Our
+          engagements have spanned North America, Europe, and Latin America, across sectors as
+          different as legal technology, climate research, market intelligence, education, and
+          consumer commerce.
         </p>
         <p>
-          Studio hours are Monday to Friday, 09:00 to 18:00 Eastern Time, and we work async-friendly
-          across time zones — written updates, recorded walkthroughs, and shared environments you can
-          check on your own schedule rather than meetings scheduled at inconvenient hours. If you are
-          local to New York City and prefer to meet in person, we are happy to.
+          Distance has never been the thing that decides whether a project works. What decides it is
+          how a team communicates, and remote work is the default we build around rather than a
+          compromise we tolerate. In practice that means written updates you can read when it suits
+          you, recorded walkthroughs instead of meetings that exist only to be attended, and shared
+          staging environments you can open at any hour to see exactly where the work stands.
+          Decisions get documented where you can find them later, not lost in a call you missed.
+        </p>
+        <p>
+          We overlap with European mornings and Latin American afternoons comfortably, and we plan
+          around the hours a client actually keeps. If your team is somewhere we have not worked
+          before, that is not an obstacle — it is most of our portfolio.
         </p>
       </section>
 
@@ -458,47 +465,50 @@
         </p>
       </section>
 
-      <section id="headless-wordpress">
-        <h2><span class="num">06</span>What is headless WordPress, and is it right for our site?</h2>
+      <section id="headless">
+        <h2><span class="num">06</span>What is a headless or composable front end, and is it right for our site?</h2>
         <p>
           <strong>
-            Headless WordPress means keeping WordPress as the editing environment while the public
-            site is rendered by a separate front end
+            A headless architecture separates the system your team writes content in from the system
+            your visitors actually see.
           </strong>
-          — in our case React and TypeScript — which talks to WordPress over an API. Your team keeps
-          the editor it already knows; the front end is no longer constrained by themes, plugin
-          conflicts, or PHP rendering.
+          The front end is built as a real application — React and TypeScript, rendered fast and
+          deployed independently — and it pulls content over an API rather than being generated by
+          the content tool itself. Your editors keep an interface designed for editing; the public
+          experience is no longer limited by what a template system was willing to produce.
         </p>
         <p>
           It is the right choice when the editorial experience and the front-end experience are
-          pulling against each other: when the site needs to be faster than the theme allows, when
-          the design has outgrown what a theme can express, or when the same content needs to feed a
-          site, an app, and a partner integration.
+          pulling against each other: when the site needs to be faster than a template layer allows,
+          when the design has outgrown what templates can express, or when the same content has to
+          feed a website, a product, and a partner integration without being written three times.
         </p>
         <p>
-          It is the wrong choice when a well-built conventional WordPress theme would do the job —
-          going headless adds a deployment pipeline and a second codebase to maintain. We will tell
-          you which situation you are in before you spend money on the more complex option.
+          It is the wrong choice when a single conventional site would do the job — decoupling adds
+          a deployment pipeline and a second codebase to maintain. We will tell you which situation
+          you are in before you spend money on the more complex option.
         </p>
       </section>
 
-      <section id="woocommerce">
-        <h2><span class="num">07</span>Do you build WooCommerce stores, and can WooCommerce handle a large catalog?</h2>
+      <section id="commerce">
+        <h2><span class="num">07</span>Do you build online stores, and can they handle a large catalog?</h2>
         <p>
           <strong>
-            Yes, we build and rebuild WooCommerce storefronts, and WooCommerce handles large catalogs
-            well when it is engineered for it.
+            Yes, we build and rebuild commerce platforms, and a large catalog is an engineering
+            question rather than a limit you run into.
           </strong>
-          Most slow WooCommerce stores are not slow because of WooCommerce; they are slow because of
-          accumulated plugins, unindexed database queries, uncached product pages, and images shipped
-          at full resolution. Those are engineering problems with engineering fixes.
+          Storefronts rarely slow down because of the number of products. They slow down because of
+          accumulated extensions nobody audits, database queries running without the right indexes,
+          product pages rebuilt on every request instead of cached, and images shipped at far higher
+          resolution than any screen will use. Every one of those has a fix.
         </p>
         <p>
           Our commerce work focuses on the things that actually move revenue: catalog and search
           performance as the number of products grows, checkout that does not lose people on mobile,
           correct handling of variations and inventory, and Core Web Vitals measured on real devices
-          rather than a lab score. We are equally willing to tell you when a headless storefront in
-          front of WooCommerce is worth the added complexity and when it is not.
+          rather than a lab score. We choose the commerce stack to fit the catalog and the team that
+          has to run it, and we are equally willing to tell you when a decoupled storefront is worth
+          the added complexity and when it is not.
         </p>
       </section>
 
@@ -569,9 +579,7 @@
           reply within one business day, and a scoping conversation costs nothing.
         </p>
         <address>
-          Creativo@Work LLC<br />
-          195 Plymouth Street, Suite 5/5<br />
-          Brooklyn, NY 11201 · USA<br />
+          Creativo@Work LLC · New York<br />
           <a href="mailto:hello@creativoatwork.com">hello@creativoatwork.com</a>
         </address>
         <a class="button" href="/#contact">Start a conversation →</a>
