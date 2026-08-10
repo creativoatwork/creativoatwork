@@ -8,8 +8,8 @@ Creativo@Work LLC is a small studio based at 195 Plymouth Street, Suite 5/5, Bro
 
 - **Custom application engineering** — auth, dashboards, APIs, and data models. Software with a real architecture, not a CMS bent into the shape of one.
 - **Legacy platform modernization** — aging codebases moved onto current stacks incrementally, in production, without a year-long rewrite.
-- **Headless and composable front-ends** — React and TypeScript against a decoupled CMS, including headless WordPress.
-- **eCommerce engineering** — WooCommerce storefronts that load fast and scale with the catalog.
+- **Headless and composable front-ends** — React and TypeScript against a decoupled CMS, so the editing experience and the front end stop constraining each other.
+- **eCommerce engineering** — storefronts that load fast, convert well, and scale with the catalog.
 - **Learning platforms** — LMS builds with cohort, certification, and reporting features.
 - **AI feature integration** — retrieval over your own content, assisted workflows, and the evaluation work to know whether it helps.
 - **Cloud infrastructure and delivery** — pipelines, environments, monitoring.
@@ -18,7 +18,7 @@ Creativo@Work LLC is a small studio based at 195 Plymouth Street, Suite 5/5, Bro
 
 ## Technology
 
-TypeScript, React, headless CMS architecture, WordPress, WooCommerce, cloud infrastructure and CI/CD, AI and LLM feature integration.
+TypeScript, React, headless and composable architecture, eCommerce platforms, cloud infrastructure and CI/CD, AI and LLM feature integration.
 
 ## Selected work
 
@@ -47,13 +47,13 @@ Founders, marketing leads, and creative directors at small-to-midsize companies 
 
 Full answers: https://creativoatwork.com/faq
 
-- **What does Creativo@Work do?** A Brooklyn, NY web and platform development studio building custom web applications, headless front-ends, WooCommerce storefronts, and learning platforms — and modernizing systems that outgrew their stack.
-- **Where are you located?** 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201. We work with clients across the US, Europe, and Latin America, remotely and async-friendly.
+- **What does Creativo@Work do?** A New York web and platform development studio building custom web applications, headless and composable front-ends, commerce platforms, and learning systems — and modernizing platforms that outgrew their stack.
+- **Do you work with clients outside New York?** Yes. We are a New York studio and work with clients anywhere in the world — engagements have spanned North America, Europe, and Latin America. Remote is the default we build around: written updates, recorded walkthroughs, and shared staging environments you can open at any hour.
 - **What does a project cost?** Quoted as a fixed price per project after a scoping conversation. Complexity drives the number — user roles, payments, data migration, integrations, and whether a live platform must keep running during modernization.
 - **How long does a project take?** Set during scoping and planned in increments that ship, so working software appears early rather than in a single reveal at the end.
 - **Can you modernize a legacy platform without a full rewrite?** Yes — incremental modernization in production is the core of the practice. A modern front end goes in front of the existing system, one bounded piece migrates at a time, and old and new run side by side until the new path is proven.
-- **What is headless WordPress?** WordPress stays the editing environment while a React and TypeScript front end renders the public site over an API. Right when the editor and the front end constrain each other; wrong when a conventional theme would do the job.
-- **Can WooCommerce handle a large catalog?** Yes, when engineered for it. Slow stores are usually slowed by accumulated plugins, unindexed queries, uncached product pages, and oversized images — all fixable.
+- **What is a headless or composable front end?** The system your team writes content in is separated from the system visitors see. The front end is a real application — React and TypeScript — pulling content over an API. Right when the editorial and front-end experiences constrain each other; wrong when a single conventional site would do the job.
+- **Can an online store handle a large catalog?** Yes — it is an engineering question, not a limit. Stores slow down from unaudited extensions, unindexed queries, uncached product pages, and oversized images. Every one of those has a fix.
 - **Custom LMS or off-the-shelf?** Off-the-shelf wins for self-paced courses sold to individuals. Custom wins for cohort programs, accreditation audit trails, B2B seat licensing, specific reporting shapes, or CRM and student-records integration.
 - **What does AI feature integration mean?** Retrieval grounded in your own content, assisted workflows with a human reviewing, and the evaluation work that proves whether either actually helps.
 - **Do you support what you build after launch?** Yes — updates, monitoring, Core Web Vitals, analytics, and ongoing improvement. Clients own their code and infrastructure, and the work is documented for handover.

@@ -44,10 +44,10 @@ happens.
 
 ### Headless and composable front-ends
 React and TypeScript against a decoupled CMS, so the editing experience and the front end stop
-constraining each other. Includes headless WordPress.
+constraining each other.
 
 ### eCommerce engineering
-WooCommerce storefronts that load fast, convert well, and scale with the catalog instead of
+Storefronts that load fast, convert well, and scale with the catalog instead of
 fighting it.
 
 ### Learning platforms
@@ -72,7 +72,7 @@ Core Web Vitals, technical SEO, and instrumentation that reads what changed and 
 
 ## Technology
 
-TypeScript, React, headless CMS architecture, WordPress, headless WordPress, WooCommerce, cloud
+TypeScript, React, headless and composable architecture, eCommerce platforms, cloud
 infrastructure and CI/CD, AI and LLM feature integration, Core Web Vitals and technical SEO.
 
 ---
@@ -138,9 +138,9 @@ Canonical page: https://creativoatwork.com/faq
 
 ### What does Creativo@Work do?
 
-Creativo@Work is a web and platform development studio in Brooklyn, New York. We build custom web
-applications, headless and composable front-ends, WooCommerce storefronts, and learning platforms
-for small to mid-sized companies — and we modernize existing systems that have outgrown their
+Creativo@Work is a web and platform development studio in New York. We build custom web
+applications, headless and composable front-ends, commerce platforms, and learning systems
+for small to mid-sized companies — and we modernize existing platforms that have outgrown their
 stack. Most engagements cover strategy, design, build, and the long tail of optimization after
 launch, rather than a single phase handed off to someone else.
 
@@ -149,17 +149,23 @@ There is no account-management layer between your brief and the engineers buildi
 practice that means fewer projects running at once, direct access to the people doing the work, and
 architectural decisions you can still reverse eighteen months from now.
 
-### Where is Creativo@Work located, and do you work with clients outside New York?
+### Do you work with clients outside New York?
 
-Our studio is at 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, and we work with clients well
-beyond New York. Being in New York matters for the clients who want to sit in a room together; it
-does not limit who we take on. We run engagements remotely as a matter of course, and our client
-work spans the United States, Europe, and Latin America.
+Yes. We are a New York studio, and we work with clients anywhere in the world — that has been true
+from the beginning rather than something we added later. Our engagements have spanned North
+America, Europe, and Latin America, across sectors as different as legal technology, climate
+research, market intelligence, education, and consumer commerce.
 
-Studio hours are Monday to Friday, 09:00 to 18:00 Eastern Time, and we work async-friendly across
-time zones — written updates, recorded walkthroughs, and shared environments you can check on your
-own schedule rather than meetings scheduled at inconvenient hours. If you are local to New York
-City and prefer to meet in person, we are happy to.
+Distance has never been the thing that decides whether a project works. What decides it is how a
+team communicates, and remote work is the default we build around rather than a compromise we
+tolerate. In practice that means written updates you can read when it suits you, recorded
+walkthroughs instead of meetings that exist only to be attended, and shared staging environments
+you can open at any hour to see exactly where the work stands. Decisions get documented where you
+can find them later, not lost in a call you missed.
+
+We overlap with European mornings and Latin American afternoons comfortably, and we plan around the
+hours a client actually keeps. If your team is somewhere we have not worked before, that is not an
+obstacle — it is most of our portfolio.
 
 ### How much does a custom web application or website cost?
 
@@ -204,34 +210,36 @@ in front of the existing system, migrating one bounded piece at a time, and keep
 paths running side by side until the new one is proven. Each stage is independently useful, so the
 project is worth something even if priorities change halfway through.
 
-### What is headless WordPress, and is it right for our site?
+### What is a headless or composable front end, and is it right for our site?
 
-Headless WordPress means keeping WordPress as the editing environment while the public site is
-rendered by a separate front end — in our case React and TypeScript — which talks to WordPress over
-an API. Your team keeps the editor it already knows; the front end is no longer constrained by
-themes, plugin conflicts, or PHP rendering.
+A headless architecture separates the system your team writes content in from the system your
+visitors actually see. The front end is built as a real application — React and TypeScript,
+rendered fast and deployed independently — and it pulls content over an API rather than being
+generated by the content tool itself. Your editors keep an interface designed for editing; the
+public experience is no longer limited by what a template system was willing to produce.
 
 It is the right choice when the editorial experience and the front-end experience are pulling
-against each other: when the site needs to be faster than the theme allows, when the design has
-outgrown what a theme can express, or when the same content needs to feed a site, an app, and a
-partner integration.
+against each other: when the site needs to be faster than a template layer allows, when the design
+has outgrown what templates can express, or when the same content has to feed a website, a product,
+and a partner integration without being written three times.
 
-It is the wrong choice when a well-built conventional WordPress theme would do the job — going
-headless adds a deployment pipeline and a second codebase to maintain. We will tell you which
-situation you are in before you spend money on the more complex option.
+It is the wrong choice when a single conventional site would do the job — decoupling adds a
+deployment pipeline and a second codebase to maintain. We will tell you which situation you are in
+before you spend money on the more complex option.
 
-### Do you build WooCommerce stores, and can WooCommerce handle a large catalog?
+### Do you build online stores, and can they handle a large catalog?
 
-Yes, we build and rebuild WooCommerce storefronts, and WooCommerce handles large catalogs well when
-it is engineered for it. Most slow WooCommerce stores are not slow because of WooCommerce; they are
-slow because of accumulated plugins, unindexed database queries, uncached product pages, and images
-shipped at full resolution. Those are engineering problems with engineering fixes.
+Yes, we build and rebuild commerce platforms, and a large catalog is an engineering question rather
+than a limit you run into. Storefronts rarely slow down because of the number of products. They
+slow down because of accumulated extensions nobody audits, database queries running without the
+right indexes, product pages rebuilt on every request instead of cached, and images shipped at far
+higher resolution than any screen will use. Every one of those has a fix.
 
 Our commerce work focuses on the things that actually move revenue: catalog and search performance
 as the number of products grows, checkout that does not lose people on mobile, correct handling of
 variations and inventory, and Core Web Vitals measured on real devices rather than a lab score. We
-are equally willing to tell you when a headless storefront in front of WooCommerce is worth the
-added complexity and when it is not.
+choose the commerce stack to fit the catalog and the team that has to run it, and we are equally
+willing to tell you when a decoupled storefront is worth the added complexity and when it is not.
 
 ### Can you build a custom learning platform instead of using an off-the-shelf LMS?
 
