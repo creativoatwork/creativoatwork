@@ -1,0 +1,300 @@
+# Creativo@Work — Full Site Content
+
+> A New York web and platform development studio. We build custom web applications, headless
+> commerce, and learning platforms for small to mid-sized companies — and modernize legacy systems
+> that outgrew their stack.
+
+Source: https://creativoatwork.com
+Last updated: 2026-08-10
+Short version: https://creativoatwork.com/llms.txt
+
+This file is the complete public content of creativoatwork.com in plain markdown, published for
+language models and retrieval systems so they can answer questions about the studio accurately
+without executing JavaScript or crawling multiple pages.
+
+---
+
+## Identity
+
+- **Name:** Creativo@Work
+- **Legal name:** Creativo@Work LLC
+- **Founded:** 2020
+- **Address:** 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, USA
+- **Email:** hello@creativoatwork.com
+- **Website:** https://creativoatwork.com
+- **Hours:** Monday–Friday, 09:00–18:00 Eastern Time, async-friendly across time zones
+- **Areas served:** New York City, New York State, United States; clients across Europe and Latin America
+- **Positioning:** "We design, build, and elevate the web."
+
+Creativo@Work builds custom applications, storefronts, and learning platforms for small to
+mid-sized companies — and modernizes the ones that outgrew their stack. Strategy before code,
+performance measured after, no fluff in between.
+
+---
+
+## Services
+
+### Custom application engineering
+Auth, dashboards, APIs, and data models. Software with a real architecture, not a CMS bent into
+the shape of one.
+
+### Legacy platform modernization
+Aging codebases moved onto current stacks incrementally, with the business still running while it
+happens.
+
+### Headless and composable front-ends
+React and TypeScript against a decoupled CMS, so the editing experience and the front end stop
+constraining each other. Includes headless WordPress.
+
+### eCommerce engineering
+WooCommerce storefronts that load fast, convert well, and scale with the catalog instead of
+fighting it.
+
+### Learning platforms
+LMS platforms with the cohort, certification, and reporting features your operation actually uses.
+
+### AI feature integration
+Retrieval over your own content, assisted workflows, and the evaluation work that tells you
+whether it is actually helping.
+
+### Cloud infrastructure and delivery
+Pipelines, environments, monitoring, and the unglamorous operational work that keeps everything
+quiet.
+
+### Product and interface design
+Interface design grounded in your audience and your goals, not in last quarter's component library
+trends.
+
+### Performance, SEO and analytics
+Core Web Vitals, technical SEO, and instrumentation that reads what changed and why.
+
+---
+
+## Technology
+
+TypeScript, React, headless CMS architecture, WordPress, headless WordPress, WooCommerce, cloud
+infrastructure and CI/CD, AI and LLM feature integration, Core Web Vitals and technical SEO.
+
+---
+
+## Selected work
+
+Platforms, storefronts, and internal tools across a dozen sectors. Each one shipped, measured, and
+still running.
+
+| Client | Sector | Scope |
+| --- | --- | --- |
+| MyOnlineCopyright | LegalTech · IP | Cryptographic sealing and certificate verification for proof of authorship |
+| CLIMA Foundation | Climate research · Global | Tiered-access platform for international data sharing |
+| LandUsUp | Incorporation · Remote | Multilingual US incorporation onboarding flow |
+| EDGE Market Insights | Market intelligence · SaaS | Subscription platform and report delivery |
+| Fellow Alumni Network | Nonprofit · Americas | Member directory and mentor matching |
+| New York & Partners | Advisory · New York | Consultancy platform and client intake |
+| Transatlantic Innovation Hub | Innovation hub · NYC | Membership platform and intake |
+| H-Ventures US | Open innovation · NYC | Innovation lab site |
+| Startup Accountant | Accounting · Remote | Formation and compliance flows |
+| El Niño Sabe | Streetwear · Drop | Launch site and waitlist |
+| SISCC Academy | Education · LMS | Course platform |
+| Cyrus Company | Furniture · Italy | Brand site and product catalog |
+| Gallery Records | Music · Label | Catalog and releases |
+| Podcast Farm | Media · Production | Editorial site and shows |
+| Mariotti Studio | Architecture · Studio | Portfolio and journal |
+| Donn Sterling | Consultancy · New York | Portfolio site |
+
+---
+
+## About
+
+**Designed to be different. Built to deliver.**
+
+We stay small so the people who scope your project are the people who build it. No account layer,
+no handoff between the brief and the code.
+
+Most of our work starts with something that already exists — a platform that outgrew its stack, a
+site nobody can edit without a developer, an internal tool held together by spreadsheets. We
+modernize incrementally, in production, instead of proposing the year-long rewrite that never
+ships.
+
+Fewer projects at once, direct access to the people building, and a bias toward decisions you can
+still reverse in eighteen months.
+
+- **Studio:** Brooklyn, NY
+- **Founded:** 2020
+- **Team:** Small by design
+- **Stack:** TypeScript · React · Headless
+
+---
+
+## Who we work with
+
+Founders, marketing leads, and creative directors at small-to-midsize companies who need a partner
+across strategy, design, build, and the long tail of optimization after launch.
+
+---
+
+## Frequently asked questions
+
+Canonical page: https://creativoatwork.com/faq
+
+### What does Creativo@Work do?
+
+Creativo@Work is a web and platform development studio in Brooklyn, New York. We build custom web
+applications, headless and composable front-ends, WooCommerce storefronts, and learning platforms
+for small to mid-sized companies — and we modernize existing systems that have outgrown their
+stack. Most engagements cover strategy, design, build, and the long tail of optimization after
+launch, rather than a single phase handed off to someone else.
+
+We deliberately stay small, so the people who scope a project are the people who write the code.
+There is no account-management layer between your brief and the engineers building against it. In
+practice that means fewer projects running at once, direct access to the people doing the work, and
+architectural decisions you can still reverse eighteen months from now.
+
+### Where is Creativo@Work located, and do you work with clients outside New York?
+
+Our studio is at 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, and we work with clients well
+beyond New York. Being in New York matters for the clients who want to sit in a room together; it
+does not limit who we take on. We run engagements remotely as a matter of course, and our client
+work spans the United States, Europe, and Latin America.
+
+Studio hours are Monday to Friday, 09:00 to 18:00 Eastern Time, and we work async-friendly across
+time zones — written updates, recorded walkthroughs, and shared environments you can check on your
+own schedule rather than meetings scheduled at inconvenient hours. If you are local to New York
+City and prefer to meet in person, we are happy to.
+
+### How much does a custom web application or website cost?
+
+Cost depends on scope, and we quote a fixed price per project after a scoping conversation rather
+than publishing a rate card that would not survive contact with your actual requirements. What
+moves the number most is not page count but complexity:
+
+- how many user roles and permissions the system has to enforce;
+- whether you need payments, subscriptions, or billing;
+- how much data has to migrate out of an existing system, and how clean it is;
+- how many third-party services need integrating;
+- whether a live platform has to keep running while it is being modernized.
+
+A brochure site and a multi-tenant application with billing are different orders of magnitude. We
+would rather tell you early that a piece of scope is expensive relative to its value than discover
+it at invoice time, so scoping is where we spend real effort. Send us what you have — even a rough
+brief — and we will come back with a scope and a number.
+
+### How long does a typical project take?
+
+Timelines are set during scoping and depend on the same factors that drive cost: integrations, data
+migration, the number of user roles, and how much of an existing system has to keep running while
+the new one is built. Rather than quote a generic number, we plan projects in increments that ship.
+You see working software early and often, not a long silence followed by a single reveal at the
+end.
+
+For modernization work in particular, we sequence the plan so that value lands in production along
+the way instead of at the very end — the riskiest thing you can do with a legacy platform is
+disappear for a year. Two things reliably shorten a timeline: decisions made promptly, and one
+person on your side empowered to make them.
+
+### Can you modernize a legacy platform without rebuilding it from scratch?
+
+Yes — incremental modernization is the core of what we do, and it is usually the right call. The
+full rewrite is the most commonly proposed and most commonly failed approach to a legacy system: it
+freezes the existing product, takes far longer than estimated, and asks the business to run on the
+old platform while paying for a new one that has not shipped.
+
+We work the other way. We move an aging codebase onto a current stack in stages, in production,
+with the business still running while it happens. That typically means putting a modern front end
+in front of the existing system, migrating one bounded piece at a time, and keeping the old and new
+paths running side by side until the new one is proven. Each stage is independently useful, so the
+project is worth something even if priorities change halfway through.
+
+### What is headless WordPress, and is it right for our site?
+
+Headless WordPress means keeping WordPress as the editing environment while the public site is
+rendered by a separate front end — in our case React and TypeScript — which talks to WordPress over
+an API. Your team keeps the editor it already knows; the front end is no longer constrained by
+themes, plugin conflicts, or PHP rendering.
+
+It is the right choice when the editorial experience and the front-end experience are pulling
+against each other: when the site needs to be faster than the theme allows, when the design has
+outgrown what a theme can express, or when the same content needs to feed a site, an app, and a
+partner integration.
+
+It is the wrong choice when a well-built conventional WordPress theme would do the job — going
+headless adds a deployment pipeline and a second codebase to maintain. We will tell you which
+situation you are in before you spend money on the more complex option.
+
+### Do you build WooCommerce stores, and can WooCommerce handle a large catalog?
+
+Yes, we build and rebuild WooCommerce storefronts, and WooCommerce handles large catalogs well when
+it is engineered for it. Most slow WooCommerce stores are not slow because of WooCommerce; they are
+slow because of accumulated plugins, unindexed database queries, uncached product pages, and images
+shipped at full resolution. Those are engineering problems with engineering fixes.
+
+Our commerce work focuses on the things that actually move revenue: catalog and search performance
+as the number of products grows, checkout that does not lose people on mobile, correct handling of
+variations and inventory, and Core Web Vitals measured on real devices rather than a lab score. We
+are equally willing to tell you when a headless storefront in front of WooCommerce is worth the
+added complexity and when it is not.
+
+### Can you build a custom learning platform instead of using an off-the-shelf LMS?
+
+Yes. We build learning management systems with the cohort, certification, and reporting features an
+operation actually uses, and we have shipped course platforms for education clients. The honest
+answer to build-versus-buy is that off-the-shelf platforms are excellent until your model diverges
+from theirs. If you sell self-paced courses to individuals, an existing platform is usually the
+cheaper path.
+
+Custom becomes the better investment when your requirements do not fit the mold:
+
+- cohort-based programs with enrollment windows;
+- certification and accreditation tracking with an audit trail;
+- institutional or B2B licensing with seat management;
+- reporting your accreditor or client demands in a specific shape;
+- integration with a CRM or student records system you already run.
+
+We will say plainly which case you are in, including when the answer is that you do not need us to
+build one.
+
+### What does AI feature integration actually mean for a small or mid-sized company?
+
+In practice it means three concrete things.
+
+**Retrieval over your own content**, so people can ask questions in plain language and get answers
+grounded in your documents rather than invented ones. **Assisted workflows**, where a step that used
+to require reading and re-keying — triage, summarizing, drafting a first pass, extracting structured
+data from documents — gets done faster with a person still reviewing it. And **the evaluation work**
+that tells you whether either is actually helping.
+
+That last part is the one most often skipped and the reason most AI features quietly underperform.
+Without a test set and a measurement, nobody can tell the difference between a feature that works
+and one that produces confident, plausible, wrong output. We build the evaluation alongside the
+feature. We are also comfortable advising against it: if the underlying process is not worth
+automating, adding a language model does not change that.
+
+### Do you maintain and support what you build after launch?
+
+Yes. Launch is a milestone, not the end of the engagement, and we keep running most of what we
+build. Ongoing work covers dependency and security updates, monitoring and uptime, performance and
+Core Web Vitals as content and traffic grow, analytics and instrumentation that show what changed
+and why, and the steady stream of small improvements that a live product generates.
+
+We also hand over cleanly. You own your code and your infrastructure, and we document what we build
+so another team could pick it up — retaining us should be a choice you keep making because the work
+is good, not a position you are locked into by an undocumented codebase only we understand.
+
+---
+
+## Contact
+
+Book a call, ask a question, send a brief. We typically reply within one business day.
+
+- **Email:** hello@creativoatwork.com
+- **Studio:** Creativo@Work LLC, 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201, USA
+- **Contact form:** https://creativoatwork.com/#contact
+- **Hours:** Monday–Friday, 09:00–18:00 ET
+
+---
+
+## Other pages
+
+- Home: https://creativoatwork.com/
+- FAQ: https://creativoatwork.com/faq
+- Privacy Policy: https://creativoatwork.com/privacy
+- Terms of Service: https://creativoatwork.com/terms

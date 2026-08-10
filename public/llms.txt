@@ -28,15 +28,44 @@ TypeScript, React, headless CMS architecture, WordPress, WooCommerce, cloud infr
 - **EDGE Market Insights** — market intelligence SaaS. Subscription platform and report delivery.
 - **Fellow Alumni Network** — nonprofit, Americas. Member directory and mentor matching.
 - **New York & Partners** — advisory, New York. Consultancy platform and client intake.
+- **Transatlantic Innovation Hub** — innovation hub, NYC. Membership platform and intake.
+- **H-Ventures US** — open innovation, NYC. Innovation lab site.
+- **Startup Accountant** — accounting, remote. Formation and compliance flows.
+- **El Niño Sabe** — streetwear. Launch site and drop waitlist.
 - **SISCC Academy** — education. LMS course platform.
 - **Cyrus Company** — furniture, Italy. Brand site and product catalog.
+- **Gallery Records** — music label. Catalog and releases.
+- **Podcast Farm** — media production. Editorial site and shows.
+- **Mariotti Studio** — architecture. Portfolio and journal.
+- **Donn Sterling** — consultancy, New York. Portfolio site.
 
 ## Who we work with
 
 Founders, marketing leads, and creative directors at small-to-midsize companies who need a partner across strategy, design, build, and the long tail of optimization after launch.
 
+## Frequently asked questions
+
+Full answers: https://creativoatwork.com/faq
+
+- **What does Creativo@Work do?** A Brooklyn, NY web and platform development studio building custom web applications, headless front-ends, WooCommerce storefronts, and learning platforms — and modernizing systems that outgrew their stack.
+- **Where are you located?** 195 Plymouth Street, Suite 5/5, Brooklyn, NY 11201. We work with clients across the US, Europe, and Latin America, remotely and async-friendly.
+- **What does a project cost?** Quoted as a fixed price per project after a scoping conversation. Complexity drives the number — user roles, payments, data migration, integrations, and whether a live platform must keep running during modernization.
+- **How long does a project take?** Set during scoping and planned in increments that ship, so working software appears early rather than in a single reveal at the end.
+- **Can you modernize a legacy platform without a full rewrite?** Yes — incremental modernization in production is the core of the practice. A modern front end goes in front of the existing system, one bounded piece migrates at a time, and old and new run side by side until the new path is proven.
+- **What is headless WordPress?** WordPress stays the editing environment while a React and TypeScript front end renders the public site over an API. Right when the editor and the front end constrain each other; wrong when a conventional theme would do the job.
+- **Can WooCommerce handle a large catalog?** Yes, when engineered for it. Slow stores are usually slowed by accumulated plugins, unindexed queries, uncached product pages, and oversized images — all fixable.
+- **Custom LMS or off-the-shelf?** Off-the-shelf wins for self-paced courses sold to individuals. Custom wins for cohort programs, accreditation audit trails, B2B seat licensing, specific reporting shapes, or CRM and student-records integration.
+- **What does AI feature integration mean?** Retrieval grounded in your own content, assisted workflows with a human reviewing, and the evaluation work that proves whether either actually helps.
+- **Do you support what you build after launch?** Yes — updates, monitoring, Core Web Vitals, analytics, and ongoing improvement. Clients own their code and infrastructure, and the work is documented for handover.
+
 ## Contact
 
 - Email: hello@creativoatwork.com
 - Website: https://creativoatwork.com
+- FAQ: https://creativoatwork.com/faq
 - Hours: Monday–Friday, 09:00–18:00 ET, async-friendly across time zones
+
+## Full content
+
+The complete site content, including full FAQ answers, is available as markdown at
+https://creativoatwork.com/llms-full.txt

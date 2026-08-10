@@ -32,6 +32,7 @@ export default function Footer() {
                 ['Work', '#work'],
                 ['About', '#about'],
                 ['Contact', '#contact'],
+                ['FAQ', '/faq'],
               ].map(([label, href]) => (
                 <li key={href}>
                   <a
