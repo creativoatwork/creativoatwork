@@ -86,6 +86,27 @@ const PROJECTS: Project[] = [
     wideOk: true,
   },
   {
+    src: '/img/img_cw/corporateoutpost.webp',
+    client: 'Corporate Outpost NYC',
+    sector: 'Soft landing · NYC',
+    scope: 'US base for EU firms',
+    wideOk: true,
+  },
+  {
+    src: '/img/img_cw/sis-cc.webp',
+    client: 'SIS-CC',
+    sector: 'Official statistics · Global',
+    scope: 'Community platform',
+    wideOk: true,
+  },
+  {
+    src: '/img/img_cw/unrelatedmedia.webp',
+    client: 'Unrelated Media',
+    sector: 'Media holding · Culture',
+    scope: 'Divisions & projects',
+    wideOk: true,
+  },
+  {
     src: '/img/img_cw/startupaccountant.webp',
     client: 'Startup Accountant',
     sector: 'Accounting · Remote',
@@ -243,7 +264,7 @@ export default function Work() {
 
       <div className="mt-10 flex items-center justify-between border-t border-[var(--color-rule)] pt-6 text-sm">
         <span className="font-mono text-xs text-[var(--color-ink-3)]">
-          {String(VISIBLE).padStart(2, '0')} of {PROJECTS.length}
+          {String(VISIBLE).padStart(2, '0')} of many
         </span>
         <a
           href="#contact"

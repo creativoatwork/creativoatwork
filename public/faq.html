@@ -322,15 +322,29 @@
       }
     </script>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HVKWKWB0X"></script>
+    <!-- Google tag (gtag.js), gated by Consent Mode v2.
+         The default must be set before the tag configures, or it writes a
+         cookie before anyone has agreed to one. public/consent.js draws the
+         banner and flips analytics_storage to granted on accept. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
+      var cwConsent = null;
+      try { cwConsent = localStorage.getItem('cw-consent'); } catch (e) {}
+
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: cwConsent === 'granted' ? 'granted' : 'denied'
+      });
+
+      gtag('js', new Date());
       gtag('config', 'G-7HVKWKWB0X');
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HVKWKWB0X"></script>
+    <script defer src="/consent.js"></script>
   </head>
   <body>
     <header>
