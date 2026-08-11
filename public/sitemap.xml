@@ -5,7 +5,7 @@
 >
   <url>
     <loc>https://creativoatwork.com/</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -65,8 +65,20 @@
       <image:title>Podcast Farm — editorial and shows</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://creativoatwork.com/img/img_cw/mariottistudio.jpg</image:loc>
-      <image:title>Mariotti Studio — architecture portfolio and journal</image:title>
+      <image:loc>https://creativoatwork.com/img/img_cw/mariottistudio.webp</image:loc>
+      <image:title>Mariotti Studio — interior design portfolio and journal</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://creativoatwork.com/img/img_cw/corporateoutpost.webp</image:loc>
+      <image:title>Corporate Outpost NYC — US base for European companies</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://creativoatwork.com/img/img_cw/sis-cc.webp</image:loc>
+      <image:title>SIS-CC — official statistics community platform</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://creativoatwork.com/img/img_cw/unrelatedmedia.webp</image:loc>
+      <image:title>Unrelated Media — media holding divisions and projects</image:title>
     </image:image>
     <image:image>
       <image:loc>https://creativoatwork.com/img/img_cw/donnsterling-preview.png</image:loc>
@@ -75,7 +87,7 @@
   </url>
   <url>
     <loc>https://creativoatwork.com/faq</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

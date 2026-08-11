@@ -145,10 +145,11 @@ const PROJECTS: Project[] = [
     scope: 'Editorial & shows',
   },
   {
-    src: '/img/img_cw/mariottistudio.jpg',
+    src: '/img/img_cw/mariottistudio.webp',
     client: 'Mariotti Studio',
-    sector: 'Architecture · Studio',
+    sector: 'Interior design · Studio',
     scope: 'Portfolio & journal',
+    wideOk: true,
   },
   {
     src: '/img/img_cw/donnsterling-preview.png',
