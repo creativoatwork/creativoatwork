@@ -199,16 +199,16 @@ person on your side empowered to make them.
 
 ### Can you modernize a legacy platform without rebuilding it from scratch?
 
-Yes — incremental modernization is the core of what we do, and it is usually the right call. The
-full rewrite is the most commonly proposed and most commonly failed approach to a legacy system: it
-freezes the existing product, takes far longer than estimated, and asks the business to run on the
-old platform while paying for a new one that has not shipped.
+Yes. Incremental modernization is our core specialty, and for most businesses, it’s the smartest
+strategy.
 
-We work the other way. We move an aging codebase onto a current stack in stages, in production,
-with the business still running while it happens. That typically means putting a modern front end
-in front of the existing system, migrating one bounded piece at a time, and keeping the old and new
-paths running side by side until the new one is proven. Each stage is independently useful, so the
-project is worth something even if priorities change halfway through.
+A complete rewrite is risky: it freezes your existing product, drags on for months (or years), and
+forces you to pay for a new system while your business relies on an aging one.
+
+At Creativo@Work, we modernize your software step-by-step in production—without disrupting your
+live operations. We isolate core features, update them onto modern architecture, and run old and
+new systems seamlessly together until the new system is fully proven. You get immediate value at
+every phase, zero downtime, and total risk control.
 
 ### What is a headless or composable front end, and is it right for our site?
 
