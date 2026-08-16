@@ -1,0 +1,93 @@
+rules_version = '2';
+
+// Access control for /admindash.
+//
+// THIS FILE IS THE GATE. The email check in src/admin/config.ts only hides the UI; anyone signed
+// in to any Google account can call the Firestore REST API directly with the public project ID,
+// and only these rules refuse them.
+//
+// The enum lists and length limits below are duplicated in src/admin/data/types.ts.
+// THE TWO FILES MUST CHANGE TOGETHER — adding a value there alone produces writes rejected here
+// with permission-denied.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Deploy-time placeholders. No real UID matches these, so a first deployment is deny-all,
+    // which is the intended starting state. Sign in at /admindash, read the UID off the card,
+    // and replace them. See the spec, section 9.2 steps 8-9.
+    function adminUids() {
+      return [
+        'UID_PLACEHOLDER_1',
+        'UID_PLACEHOLDER_2',
+      ];
+    }
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in adminUids();
+    }
+
+    function fields() {
+      return ['name', 'description', 'repoUrl', 'domain', 'host',
+              'frontend', 'database', 'status', 'notes', 'createdAt', 'updatedAt'];
+    }
+
+    function validShape(d) {
+      // hasAll AND hasOnly: hasOnly alone would permit *omitting* a required field, letting a
+      // client drop createdAt entirely.
+      return d.keys().hasAll(fields())
+        && d.keys().hasOnly(fields())
+        && d.name        is string && d.name.size() > 0 && d.name.size() <= 200
+        && d.description is string && d.description.size() <= 2000
+        && d.domain      is string && d.domain.size() > 0 && d.domain.size() <= 253
+        && d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{0,57}[a-z0-9])$')
+        && d.repoUrl     is string && d.repoUrl.size() <= 140
+        && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9]+(-[A-Za-z0-9]+)*/[A-Za-z0-9._-]{1,100}$'))
+        && d.notes       is string && d.notes.size() <= 10000
+        && d.host     in ['firebase', 'digitalocean', 'lovable', 'vercel', 'netlify',
+                          'cloudflare', 'aws', 'wordpress-host', 'other', 'unknown']
+        && d.frontend in ['react', 'next', 'vue', 'svelte', 'astro', 'wordpress',
+                          'static', 'other', 'unknown']
+        && d.database in ['postgres', 'mysql', 'firestore', 'mongo', 'sqlite',
+                          'wordpress-mysql', 'none', 'unknown']
+        && d.status   in ['active', 'maintenance', 'archived']
+        && d.createdAt is timestamp
+        && d.updatedAt is timestamp;
+    }
+
+    match /projects/{projectId} {
+      allow read: if isAdmin();
+
+      // Timestamps must not be in the future. serverTimestamp() from the app resolves exactly to
+      // request.time and satisfies this; the restore script writes original historical values,
+      // which is why these are <= rather than ==.
+      //
+      // An earlier draft pinned both to request.time, which made restore impossible without
+      // temporarily deploying weakened rules to production. Accepting the past instead of
+      // temporarily accepting anything removes that hazard. The cost is that an owner account can
+      // backdate a timestamp: cosmetic on a private single-user tool.
+      allow create: if isAdmin()
+        && validShape(request.resource.data)
+        && request.resource.data.createdAt <= request.time
+        && request.resource.data.updatedAt <= request.time;
+
+      // createdAt is immutable; updatedAt must be now. Note this means an existing document
+      // CANNOT be overwritten with a historical updatedAt — which is why restore clears the
+      // collection first and then creates, rather than writing over what is there.
+      allow update: if isAdmin()
+        && validShape(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+
+      // Any allowlisted UID can delete. This is inherent — these are the owner accounts, and no
+      // authorization rule can tell an intentional delete from a regretted one. The typed
+      // confirmation in the UI guards against a misclick, not against intent.
+      allow delete: if isAdmin();
+    }
+
+    // Default deny. Adding a collection later requires a deliberate rule, not an oversight.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

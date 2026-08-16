@@ -2,6 +2,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /admindash
 
 # AI crawlers are explicitly welcome — this site is meant to be findable
 # through assistants as well as search engines.

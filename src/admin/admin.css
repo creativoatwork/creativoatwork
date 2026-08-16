@@ -1,0 +1,33 @@
+/* Admin stylesheet.
+ *
+ * Tailwind's content scanning is scoped to src/admin/ only, mirroring the inverse scoping in
+ * src/index.css. The two surfaces therefore generate disjoint utility sets and share only the
+ * design tokens imported below. See the spec, section 3.4.
+ */
+@import "tailwindcss" source(none);
+@source "./";
+@source "../../admindash.html";
+
+@import "../theme.css";
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-paper);
+    color: var(--color-ink-2);
+    line-height: 1.5;
+  }
+
+  /* The accessibility floor in PRODUCT.md applies here too. Private is not an excuse. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}

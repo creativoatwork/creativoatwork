@@ -21,6 +21,14 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
   Fixed 2026-08-16. Memory files can contradict each other, not just the code — a reconcile
   pass should read them against one another, not only against the repository.
 
+## /admindash
+
+- **Domain auto-population was cut before implementation.** The Add Project modal takes a domain and everything else is typed by hand. A server-side `/inspect` endpoint on the Worker was designed, adversarially reviewed, and dropped: eight of fifteen HIGH review findings existed only because of it (JWT verification, JWKS caching, SSRF guards, CORS rework, per-route limiter policy), and it put the live contact endpoint at risk to save a few seconds per project. Revisit only if manual entry actually becomes annoying.
+- **No automated export.** Backups are manual — nobody is reminded. Closing this needs Blaze plus scheduled Firestore exports, or a cron on a machine that is on regularly.
+- **The detail view subscribes to the whole collection** to find one document. Fine at tens of documents; revisit alongside the ~500-document threshold.
+- **`worker/wrangler.toml` still uses `[[unsafe.bindings]]`** for the contact rate limiter. Cloudflare's current GA syntax is `[[ratelimits]]` (needs Wrangler >= 4.36.0; the repo declares ^4.119.0). Verified against Cloudflare docs during the /admindash review. Standalone cleanup, unrelated to the dashboard.
+- **The Cloud Monitoring alert on Firestore read count is designed but not created.** Spark has no budget alerts, but Cloud Monitoring alerting policies work without billing.
+
 ## Validation
 
 - **No test framework.** Contact form state transitions (idle → sending → ok/error, error-code mapping) and Worker request validation are the highest-value units to cover first.

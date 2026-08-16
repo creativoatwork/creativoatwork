@@ -6,6 +6,54 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-16 — /admindash: a second entry point, not a route
+
+**Decision.** The private project dashboard is a separate Vite entry (`admindash.html` →
+`src/admin/main.tsx`), not a route inside the marketing app. Firebase Auth and Firestore are now
+used; Storage and Cloud Functions remain forbidden. `react-router-dom` is added, scoped to
+`src/admin/` only. Vitest is added, scoped to Firestore rules only.
+
+**Reasoning.** A router in the marketing app would have served prerendered marketing HTML at
+`/admindash` and hydrated the admin app into it — a mismatch and a visible flash of the wrong
+page. Separate entries also keep the ~745KB Firebase SDK out of the bundle every marketing
+visitor downloads. Both properties are verified at build time, not assumed: the marketing
+dependency closure contains no Firebase, and the two stylesheets are disjoint.
+
+**The security position.** `firestore.rules` is the access control. The email allowlist in
+`src/admin/config.ts` only hides the UI — anyone signed in to any Google account could call the
+Firestore REST API with the public project ID. The rules pin a UID allowlist and validate every
+field, enum, length and timestamp. 47 emulator-backed tests exercise the production rule text.
+
+**What this rules out.** The marketing site stays a marketing site: no admin concern may enter
+`src/components/` or `src/App.tsx`. `projects` is not wired to the public Work grid — that stays a
+hand-curated array, because putting marketing content behind a database would undo the prerender
+guarantee.
+
+---
+
+## 2026-08-16 — Timestamp rules accept the past so restore needs no rule relaxation
+
+**Decision.** `create` accepts `createdAt <= request.time` and `updatedAt <= request.time` rather
+than pinning both to `request.time`. `update` still freezes `createdAt` and pins `updatedAt` to
+now.
+
+**Reasoning.** Restoring a backup means writing historical timestamps. With both pinned, the only
+way to restore was to deploy weakened rules for the duration of the run and trust the operator to
+put the strict ones back — a window during which production validation is off, with no check
+capable of detecting a relaxation left behind. Three rounds of review kept hardening that
+procedure before the real answer surfaced: the rule was over-strict, not the procedure
+under-defended.
+
+A second, non-obvious consequence: because `update` still requires `updatedAt == request.time`, an
+existing document *cannot* be overwritten with a historical `updatedAt`. `setDoc` on an existing
+document is an update, not a create. That is why `scripts/restore-projects.mjs` validates, then
+clears the collection, then creates — and why a re-run converges.
+
+**Cost, accepted explicitly.** An owner account can backdate a timestamp. Cosmetic on a private
+single-user tool, and a far better trade than a window with validation disabled.
+
+---
+
 ## 2026-08-16 — Adopt CCOS 2.4, and keep the existing memory system as the authority
 
 **Decision.** Install the CCOS 2.4 operating standard at `.ai/CCOS.md` and add a root

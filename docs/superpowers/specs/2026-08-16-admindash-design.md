@@ -262,9 +262,9 @@ service cloud.firestore {
         && d.name        is string && d.name.size() > 0 && d.name.size() <= 200
         && d.description is string && d.description.size() <= 2000
         && d.domain      is string && d.domain.size() > 0 && d.domain.size() <= 253
-        && d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{2,59})$')
+        && d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{0,57}[a-z0-9])$')
         && d.repoUrl     is string && d.repoUrl.size() <= 140
-        && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9._-]{1,39}/[A-Za-z0-9._-]{1,100}$'))
+        && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9]+(-[A-Za-z0-9]+)*/[A-Za-z0-9._-]{1,100}$'))
         && d.notes       is string && d.notes.size() <= 10000
         && d.host     in ['firebase','digitalocean','lovable','vercel','netlify',
                           'cloudflare','aws','wordpress-host','other','unknown']
@@ -416,17 +416,36 @@ under production rules**. No temporary rule relaxation, no service account, no A
   validation disabled, and whose rollback check could not actually detect a lingering
   relaxation. That entire hazard is deleted by making the rule tolerant of the past instead of
   temporarily tolerant of everything.
-- **Idempotent and convergent.** Documents are written by original ID via `setDoc` in
-  `writeBatch` chunks of 500. Re-running produces the same end state. `--force` is required when
-  the collection is non-empty; without it the script refuses. A partial failure names the failed
-  chunk and exits non-zero — re-running is safe and completes the job, because `setDoc` by ID is
-  not additive.
-- **Post-restore assertion.** The script re-reads the collection and compares the document count
-  and every document ID against the file, exiting non-zero on any mismatch. "It seemed to work"
-  is not a restore.
+- **Convergent by construction: validate, then clear, then create.** An original-ID `setDoc`
+  against an *existing* document is an **update**, which §5 requires to carry
+  `updatedAt == request.time` — so replaying a backup's historical `updatedAt` over an existing
+  document is denied. Writing "idempotent `setDoc`" was simply wrong, and it made a partial
+  restore unresumable. The script therefore runs three phases:
 
-The restore path is exercised once against the emulator during rollout, and once more against a
-throwaway collection in the real project. An untested backup is not a backup.
+  1. **Validate the file completely before touching anything** — parse, check `schemaVersion`,
+     assert `projectCount == projects.length`, and validate every document against the same
+     field/enum/length constraints §5 enforces. Nothing is deleted until the whole file is known
+     good.
+  2. **Clear** the collection in batched deletes (admins may delete, per §5).
+  3. **Create** every document by original ID. With the collection empty, every write is a
+     *create*, which accepts historical timestamps — so the original `createdAt` and `updatedAt`
+     are preserved.
+
+  `--force` is required whenever the collection is non-empty; without it the script refuses.
+  Re-running after any failure repeats all three phases and converges, because phase 2 removes
+  whatever a partial phase 3 left behind. The window between phases 2 and 3 is the cost, and it
+  is acceptable only because phase 1 has already proven the source file complete.
+
+- **Post-restore assertion compares content, not just identity.** Counting IDs passes even when
+  every field is wrong. The script re-reads the collection, normalises timestamps to ISO, and
+  deep-compares every document against the file — plus asserts no extra IDs exist. Exits non-zero
+  on any mismatch.
+
+The restore path is exercised against the emulator during rollout, and once in the real project
+**before real data exists**: create two throwaway projects, export, restore, verify, delete. A
+separate "throwaway collection" is impossible — §5's catch-all denies every collection but
+`projects`, so the rehearsal has to happen in `projects` itself while it is still disposable.
+An untested backup is not a backup.
 
 **The trade this makes explicit:** an owner account can write a `createdAt` older than reality.
 On a private single-user tool that is cosmetic, and it buys the removal of a procedure that could
@@ -540,7 +559,7 @@ locally** — a genuine new dependency, noted because the emulator fails confusi
 | Create with a future `createdAt` or `updatedAt` | deny |
 | Create with `createdAt` or `updatedAt` absent | deny |
 | Create with `createdAt`/`updatedAt` a string rather than a timestamp | deny |
-| Create with a client-chosen `createdAt` | deny |
+| Create with a *future* `createdAt` or `updatedAt` | deny |
 | Update that changes `createdAt` | deny |
 | Update with a stale `updatedAt` | deny |
 | Update that drops a field | deny |

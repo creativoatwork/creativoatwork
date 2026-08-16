@@ -19,12 +19,29 @@ Browser → Firebase Hosting (static dist/)
 Contact form → Cloudflare Worker /contact → Resend → hello@creativoatwork.com
 ```
 
-There is **no** Firebase Auth, Firestore, Storage, or Cloud Functions in this project, and no Firebase SDK in the client bundle. Firebase is used purely as a static host. Do not introduce Firebase services speculatively.
+Firebase is a static host for the marketing site. It also now backs one private surface, `/admindash` — see below. There is still **no** Storage and no Cloud Functions, and **no Firebase SDK in the marketing bundle**. Do not introduce Firebase services speculatively.
+
+## /admindash — private project dashboard
+
+A second, isolated application surface added 2026-08-16. Marketing site and dashboard share design tokens and nothing else.
+
+```
+index.html      -> src/main.tsx        marketing, prerendered, zero Firebase
+admindash.html  -> src/admin/main.tsx  dashboard, never prerendered
+```
+
+- **Isolation is a hard requirement, and it is verified.** The marketing dependency closure is `main.css` + shared React + `main.js` — no Firebase. All ~745KB of the SDK lives in the admin-only chunk. The two stylesheets are disjoint, kept apart by `@source` scoping in `src/index.css` and `src/admin/admin.css`; tokens live in `src/theme.css`, imported by both.
+- **`firestore.rules` is the access control.** The email list in `src/admin/config.ts` only hides the UI — anyone signed in could call the Firestore REST API directly. The rules pin a UID allowlist and validate every field, enum, length, and timestamp on every write.
+- **Enum lists and length limits are duplicated** in `firestore.rules` and `src/admin/data/types.ts`. Change them together or writes get rejected with `permission-denied`.
+- **`create` accepts non-future timestamps; `update` pins `updatedAt` to now** and freezes `createdAt`. That asymmetry is deliberate: it lets `scripts/restore-projects.mjs` write historical timestamps under production rules, with no temporary rule relaxation. It also means an existing document cannot be overwritten with a historical `updatedAt` — which is why restore clears the collection before writing.
+- **`npm run test:rules`** runs 47 emulator-backed rules tests. Requires a JDK. It is not part of `npm run build`.
+- Development points at the Firestore emulator (`import.meta.env.DEV`), never the live database.
+- Recovery is the dashboard's "Download JSON" plus `npm run restore:projects`. There is no PITR on the free plan.
 
 ## Stack
 
 - Vite 6, React 18, TypeScript 5.6
-- Tailwind CSS 4 via `@tailwindcss/vite`, CSS-first configuration — tokens live in `@theme` in `src/index.css`. There is no `tailwind.config.js` and one should not be added without cause.
+- Tailwind CSS 4 via `@tailwindcss/vite`, CSS-first configuration — tokens live in `@theme` in **`src/theme.css`**, imported by both `src/index.css` (marketing) and `src/admin/admin.css` (dashboard). Each of those scopes Tailwind's content scanning with `@source` so the two surfaces emit disjoint utilities. There is no `tailwind.config.js` and one should not be added without cause.
 - Geist / Geist Mono loaded from Google Fonts in `index.html`
 - Cloudflare Worker (`worker/`), wrangler 3, `compatibility_date = 2024-10-22`
 - Resend for transactional email
@@ -33,7 +50,9 @@ There is **no** Firebase Auth, Firestore, Storage, or Cloud Functions in this pr
 
 - `src/App.tsx` — fixed section order: Header, [Hero, Services, Work, About, Contact], Footer
 - `src/components/*.tsx` — one file per section, no shared component library
-- `src/index.css` — design tokens plus `base` / `components` / `utilities` layers
+- `src/theme.css` — design tokens, shared by both surfaces
+- `src/index.css` — marketing `base` / `components` / `utilities` layers
+- `src/admin/**` — the /admindash application, the only place Firebase is imported
 - `public/terms.html` — standalone page served at `/terms` via Hosting `cleanUrls`
 - `worker/src/index.ts` — the entire contact endpoint, single file
 

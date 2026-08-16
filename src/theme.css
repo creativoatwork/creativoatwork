@@ -1,0 +1,25 @@
+/* Shared design tokens.
+ *
+ * Imported by BOTH src/index.css (marketing) and src/admin/admin.css (admin) so the two
+ * surfaces share colour and type without sharing generated utility output. Utilities are
+ * kept apart by the @source scoping in each of those files — see the spec, section 3.4.
+ */
+
+@theme {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-paper: oklch(0.97 0.012 85);
+  --color-paper-2: oklch(0.94 0.018 82);
+  --color-ink: oklch(0.32 0.08 263);
+  --color-ink-2: oklch(0.46 0.045 263);
+  --color-ink-3: oklch(0.62 0.025 263);
+  --color-rule: oklch(0.86 0.018 80);
+  --color-rule-strong: oklch(0.76 0.022 80);
+  --color-accent: oklch(0.66 0.14 50);
+  --color-accent-hover: oklch(0.58 0.15 47);
+
+  --color-night: oklch(0.22 0.04 263);
+  --color-night-2: oklch(0.28 0.04 263);
+  --color-night-rule: oklch(0.38 0.04 263);
+}

@@ -11,3 +11,5 @@ _assets_tmp
 .env.local
 .env.development
 .env.production
+firestore-debug.log
+firebase-debug.log
