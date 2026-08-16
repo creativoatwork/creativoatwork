@@ -1,74 +1,90 @@
 # `/admindash` — private multi-project aggregator
 
-**Status:** design, awaiting approval
+**Status:** design v3 — scope reduced, awaiting Codex re-review
 **Date:** 2026-08-16
 **Repo:** creativoatwork (Vite + React + TS + Tailwind 4, Firebase Hosting, Cloudflare Worker)
 
 A private dashboard for tracking the studio's projects — hosting, stack, status, notes — added
 to this repository as a second, isolated application surface.
 
+## Revision history
+
+**v1** proposed the dashboard plus a `/inspect` endpoint on the existing Cloudflare Worker that
+would fetch arbitrary third-party domains to infer their hosting and stack.
+
+**v2** was a rewrite after Codex rejected v1, hardening the Firestore rules, the JWT contract,
+and the SSRF controls.
+
+**v3 deletes the `/inspect` endpoint entirely.** Eight of Codex's fifteen HIGH findings existed
+only because of it. What it bought was pre-filling two dropdowns, once per project, across a
+dataset of a few dozen projects — against the cost of a JWT verifier, a hardened URL-fetching
+surface, and a change to the Worker that serves the live contact form. That trade was wrong, and
+the operator was right to challenge it.
+
+**Consequences of the cut:** this feature now touches **no Cloudflare infrastructure at all**.
+`worker/`, `wrangler.toml`, and the contact form are entirely out of scope, so the production
+email path carries zero risk from this work. The Worker stays as it is — working, deployed, free
+— and Wrangler is needed only if the contact form itself changes.
+
+Auto-population is recorded in `backlog.md` as deliberately deferred, to be revisited only if
+manual entry proves annoying in real use.
+
 ---
 
 ## 1. Rule overrides this feature requires
 
-`.ai/CLAUDE.md` currently forbids three of the things below. Each is overridden by explicit
-instruction, and each override is deliberately narrow. This section exists so the next session
-does not read the feature as a violation and "fix" it.
+`.ai/CLAUDE.md` currently forbids four of the things below. Each is overridden by explicit
+instruction, and each override is deliberately narrow, so a later session does not read the
+feature as a violation and "fix" it.
 
 | Existing rule | Override | Boundary |
 |---|---|---|
-| "This repository is a marketing site, not an application platform." | Lifted for `/admindash` only. | The marketing site remains a marketing site. No admin concern may leak into `src/components/` or `src/App.tsx`. |
-| "Do not add Firebase Auth, Firestore, Storage, or Cloud Functions. Firebase is a static host here." | Auth and Firestore are now in use. | Admin entry point only. The marketing bundle must continue to contain zero Firebase code. Storage and Functions remain forbidden. |
+| "This repository is a marketing site, not an application platform." | Lifted for `/admindash` only. | No admin concern may leak into `src/components/` or `src/App.tsx`. |
+| "Do not add Firebase Auth, Firestore, Storage, or Cloud Functions. Firebase is a static host here." | Auth and Firestore are now in use. | Admin entry point only. The marketing bundle must contain zero Firebase code. Storage and Functions remain forbidden. |
 | "Do not add a state manager, router, component library, or CSS framework alongside Tailwind." | A router is added. | `react-router-dom`, imported only under `src/admin/`. No state manager, no component library. |
+| "The only automated gate is `npm run build`. There are no tests." | A test runner is added. | Vitest, scoped to **Firestore Security Rules only**. Rules are the security boundary and cannot be verified by inspection. This obliges no coverage anywhere else. |
 
-`.ai/CONTEXT.md` states "no Firebase SDK in the client bundle." After this change that remains
-true of the *marketing* bundle and false of the *admin* bundle. Both files get updated at
-implementation time, and the override is recorded in `.ai/decisions.md`.
+`.ai/CONTEXT.md` states "no Firebase SDK in the client bundle." That stays true of the
+*marketing* bundle and becomes false of the *admin* bundle. Both files are updated at
+implementation time; the overrides go in `.ai/decisions.md`.
 
 ---
 
-## 2. Constraints this design had to satisfy
+## 2. Constraints
 
 1. **The marketing build prerenders.** `scripts/prerender.mjs` injects `renderToString(<App/>)`
-   into `dist/index.html` and throws if the result is under 1000 bytes. Any change that breaks
-   the `prerender: injected N bytes` line ships a blank page to crawlers.
-2. **Hosting rewrites `**` → `/index.html`.** A naive `/admindash` route would therefore serve
-   the prerendered *marketing* HTML and hydrate into the admin app — a mismatch and a visible
-   flash of the wrong page.
-3. **Bundle weight is a marketing-site concern.** The public bundle is 168KB / 53KB gzipped
-   today. Firebase Auth + Firestore is roughly 200KB raw. No marketing visitor should pay it.
-4. **CORS makes client-side domain inspection impossible.** A browser `fetch` to a third-party
-   domain returns an opaque response with no readable headers.
-5. **Client-side authorization is not authorization.** Firestore's REST API is reachable by any
-   authenticated user with the public project ID. Security Rules are the only real gate.
-6. **Firestore is not yet provisioned.** `firestore:databases:list` returns 403, API disabled.
-7. **Spark (free) plan.** Firestore and Auth are both available on it. Nothing here requires
-   Blaze.
+   into `dist/index.html` and throws if the result is under 1000 bytes.
+2. **Hosting rewrites `**` → `/index.html`,** so a naive `/admindash` route would serve the
+   prerendered marketing HTML and hydrate into the admin app.
+3. **Bundle weight is a marketing-site concern.** The public bundle is 168KB / 53KB gzipped.
+4. **Client-side authorization is not authorization.** Firestore's REST API is reachable by any
+   authenticated user with the public project ID. Security Rules are the gate for client SDK and
+   REST access. They do **not** constrain the Admin SDK or any principal holding a
+   service-account key or `datastore.user` IAM role. No service-account key is created by this
+   work and none may be committed; project IAM should be reviewed for unexpected principals
+   before launch.
+5. **Firestore is not yet provisioned** — `firestore:databases:list` returns 403, API disabled.
+6. **Spark (free) plan.** Firestore and Auth are both available; quota exposure is in §10.
+7. **The Cloudflare Worker is out of scope.** No file under `worker/` changes.
 
 ---
 
 ## 3. Architecture
 
-Two independent entry points in one Vite build.
+### 3.1 Two entry points
 
 ```
 index.html       →  src/main.tsx        marketing   prerendered   no Firebase
 admindash.html   →  src/admin/main.tsx  admin       never prerendered
 ```
 
-`vite.config.ts` gains a second Rollup input. The two graphs share Tailwind and nothing else;
-Rollup will split common vendor chunks, but no Firebase import is reachable from `src/main.tsx`,
-so the marketing entry's chunk set is unchanged.
+`vite.config.ts` gains a second Rollup input. `scripts/prerender.mjs` is untouched — it reads
+only `dist/index.html`, and the admin entry emits `dist/admindash.html`.
 
-`scripts/prerender.mjs` is untouched. It only ever reads `dist/index.html`, and the admin entry
-produces `dist/admindash.html`, which it never looks at. This is the main reason for choosing
-two entries over a shared router.
+### 3.2 Hosting
 
-### Hosting
-
-`firebase.json` already sets `cleanUrls: true`, which means `/admindash` resolves to
-`dist/admindash.html` natively — no rewrite needed for the index route. Only the sub-route
-needs one, and it must be listed **before** the existing catch-all:
+`cleanUrls: true` already serves `/admindash` from `dist/admindash.html`. Only the sub-route
+needs a rewrite, placed before the catch-all:
 
 ```jsonc
 "rewrites": [
@@ -77,93 +93,103 @@ needs one, and it must be listed **before** the existing catch-all:
 ]
 ```
 
-Additional headers for the admin surface:
+Headers for the admin surface:
 
 ```jsonc
 { "source": "/admindash{,/**}", "headers": [
-  { "key": "X-Robots-Tag",  "value": "noindex, nofollow" },
-  { "key": "Cache-Control", "value": "no-store" }
+  { "key": "X-Robots-Tag",    "value": "noindex, nofollow" },
+  { "key": "Cache-Control",   "value": "no-store" },
+  { "key": "X-Frame-Options", "value": "DENY" },
+  { "key": "Content-Security-Policy", "value":
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googleapis.com https://securetoken.googleapis.com; frame-src https://creativoatwork-54e65.firebaseapp.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" }
 ]}
 ```
 
-`no-store` matters because the existing `must-revalidate` rule for HTML is weaker than it should
-be for a page behind auth.
+`frame-src` is required — `signInWithPopup` uses an auth iframe on the authorized domain. The
+CSP ships only after the popup flow is confirmed working under it in a browser; a CSP that
+breaks sign-in is worse than none.
 
-### Routing
+### 3.3 Routing
 
-`react-router-dom`, mounted only in the admin entry, with `basename="/admindash"`:
+`react-router-dom`, mounted only in the admin entry, `basename="/admindash"`, `createRoot` (no
+hydration — admin HTML is never prerendered).
 
 ```
-/admindash        → ProjectsPage    table, search, filters, Add Project
-/admindash/:id    → ProjectPage     editable detail
+/admindash        → ProjectsPage
+/admindash/:id    → ProjectPage
 /admindash/*      → redirect to /admindash
 ```
 
-### File layout
+### 3.4 CSS separation
+
+Tailwind 4 scans automatically, so a single shared `index.css` would emit admin utilities into
+the marketing stylesheet.
+
+- `src/theme.css` — the `@theme` token block, extracted and shared, so both surfaces use the
+  same colors and type scale.
+- `src/index.css` (marketing) — imports Tailwind with explicit scoping that excludes admin
+  sources: `@import "tailwindcss" source(none);` plus `@source` for `../index.html`,
+  `./components`, `./App.tsx`, `./main.tsx`.
+- `src/admin/admin.css` — imports Tailwind scoped to `./` only, plus `src/theme.css`.
+
+**Verification:** the marketing CSS hash must not move. It is `index-GTZrnxSj.css` today; if it
+changes, admin utilities leaked.
+
+### 3.5 File layout
 
 ```
-admindash.html                    admin entry HTML
+admindash.html
+src/theme.css                     shared @theme tokens only
 src/admin/
   main.tsx                        React root, router, AuthProvider
-  firebase.ts                     app init, auth + db singletons
-  auth/
-    AuthProvider.tsx              onAuthStateChanged → {user, loading, error}
-    SignInCard.tsx                signed-out screen; shows UID after sign-in
-    RequireAuth.tsx               gate; renders SignInCard or children
-  data/
-    projects.ts                   Firestore CRUD, typed
-    types.ts                      Project, HostingProvider, TechStack, Status
-  domain/
-    inspect.ts                    client for the Worker /inspect endpoint
-  pages/
-    ProjectsPage.tsx
-    ProjectPage.tsx
-  components/
-    ProjectTable.tsx
-    FilterBar.tsx
-    AddProjectModal.tsx
-    ProjectForm.tsx
-    Field.tsx                     labeled input primitive
-    States.tsx                    Loading / Empty / ErrorBanner
+  admin.css                       Tailwind scoped to src/admin
+  firebase.ts                     app init, auth + db, explicit persistence, dev emulator
+  config.ts                       public Firebase web config, admin email allowlist
+  auth/  AuthProvider.tsx  SignInCard.tsx  RequireAuth.tsx
+  data/  projects.ts  types.ts  export.ts
+  pages/ ProjectsPage.tsx  ProjectPage.tsx
+  components/ ProjectTable.tsx  FilterBar.tsx  AddProjectModal.tsx
+              ProjectForm.tsx  Field.tsx  States.tsx  DeleteDialog.tsx
 firestore.rules
 firestore.indexes.json
+tests/rules/projects.rules.test.ts
+vitest.config.ts
 ```
 
-Each file has one job. `projects.ts` is the only module that imports `firebase/firestore`;
-pages never touch the SDK directly, which keeps the data layer swappable and testable.
+`projects.ts` is the only module importing `firebase/firestore`; pages never touch the SDK.
 
 ---
 
 ## 4. Authentication
 
-Google sign-in via `signInWithPopup`. The signed-out state is a single card with one button —
-no marketing chrome, no navigation, nothing that leaks the site's design system into a private
-tool.
+Google sign-in via `signInWithPopup`. Signed-out state is a single card — no marketing chrome,
+no navigation.
 
-Two identities are permitted: `creativoatwork@gmail.com` and `simone@creativoatwork.com`.
-Whether the second is a real Google identity is unconfirmed; the allowlist shape below holds
-one or two entries and absorbs either outcome. If Google sign-in fails for it, an
-email/password account is created by hand in the console and its UID added to the same list.
+Permitted identities: `creativoatwork@gmail.com` and `simone@creativoatwork.com`. Whether the
+second is a Google identity is unconfirmed; the allowlist holds one or two UIDs either way.
 
-**The UI check is a convenience, not the gate.** `RequireAuth` compares the signed-in email
-against the allowlist and renders the sign-in card if it does not match. This stops an
-accidental wrong-account session. It stops nothing else, and the code says so in a comment.
+**Email/password fallback is implemented, not hypothetical.** `SignInCard` carries a "Sign in
+with email instead" disclosure with an email/password form calling
+`signInWithEmailAndPassword`. There is no sign-up path and no in-app password reset — accounts
+are created by hand in the console. If the second address turns out to be a Google identity, the
+disclosure stays and goes unused.
 
-**Bootstrap order** (Auth does not depend on Firestore, so there is no cycle):
+**Persistence is explicit:** `setPersistence(auth, browserLocalPersistence)` before any sign-in
+call, stated rather than inherited from the SDK default. A Sign out control is always visible
+when signed in.
 
-1. Enable Firestore, deploy rules that deny everything.
-2. Sign in at `/admindash`. The sign-in card displays the resulting UID.
-3. Paste the UID(s) into `firestore.rules`, deploy.
-4. Reload; the table loads.
+**The UI email check is a convenience, not the gate.** `RequireAuth` compares the signed-in email
+to the allowlist and renders the sign-in card on mismatch. That prevents an accidental
+wrong-account session and nothing more; the code says so in a comment.
 
-The UID display is permanent, not scaffolding — it is the only convenient way to read a UID
-when rules are locked, and it is visible only to someone already signed in.
+**Bootstrap** — Auth does not depend on Firestore, so there is no cycle: sign in → the card
+displays the UID → paste into `firestore.rules` → deploy → reload.
 
 ---
 
 ## 5. Security Rules
 
-These ship and are verified **before** any UI is deployed.
+These ship and are verified before any UI is deployed.
 
 ```
 rules_version = '2';
@@ -171,25 +197,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function adminUids() {
+      return [
+        'UID_PLACEHOLDER_1',
+        // 'UID_PLACEHOLDER_2',
+      ];
+    }
+
     function isAdmin() {
-      return request.auth != null
-        && request.auth.uid in [
-             'UID_PLACEHOLDER_1',
-             // 'UID_PLACEHOLDER_2',
-           ];
+      return request.auth != null && request.auth.uid in adminUids();
+    }
+
+    function fields() {
+      return ['name','description','repoUrl','domain','host',
+              'frontend','database','status','notes','createdAt','updatedAt'];
+    }
+
+    function validShape(d) {
+      return d.keys().hasAll(fields())
+        && d.keys().hasOnly(fields())
+        && d.name        is string && d.name.size() > 0 && d.name.size() <= 200
+        && d.description is string && d.description.size() <= 2000
+        && d.repoUrl     is string && d.repoUrl.size() <= 300
+        && d.domain      is string && d.domain.size() <= 253
+        && d.notes       is string && d.notes.size() <= 10000
+        && d.host     in ['firebase','digitalocean','lovable','vercel','netlify',
+                          'cloudflare','aws','wordpress-host','other','unknown']
+        && d.frontend in ['react','next','vue','svelte','astro','wordpress',
+                          'static','other','unknown']
+        && d.database in ['postgres','mysql','firestore','mongo','sqlite',
+                          'wordpress-mysql','none','unknown']
+        && d.status   in ['active','maintenance','archived']
+        && d.createdAt is timestamp
+        && d.updatedAt is timestamp;
     }
 
     match /projects/{projectId} {
-      allow read: if isAdmin();
-      allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly([
-             'name','description','repoUrl','domain','host',
-             'frontend','database','status','notes',
-             'createdAt','updatedAt'
-           ])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0
-        && request.resource.data.name.size() <= 200;
+      allow read:   if isAdmin();
+
+      allow create: if isAdmin()
+        && validShape(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && validShape(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+
       allow delete: if isAdmin();
     }
 
@@ -200,257 +255,263 @@ service cloud.firestore {
 }
 ```
 
-Three deliberate choices:
+Four deliberate choices:
 
-- **UID allowlist, not email.** A UID is immutable and cannot be reassigned. `token.email`
-  would additionally require an `email_verified` check to be safe.
-- **The `hasOnly` field allowlist** stops a compromised or buggy client from writing arbitrary
-  documents into `projects` — rules validate shape, not just identity.
-- **The global `if false` catch-all** means adding a collection later requires a deliberate rule.
-  Default-deny, not default-open.
+- **UID allowlist, not email.** A UID is immutable. `token.email` would additionally require an
+  `email_verified` check to be safe.
+- **`hasAll` *and* `hasOnly`.** `hasOnly` alone permits *omitting* required fields — a client
+  could drop `createdAt` entirely.
+- **Timestamps pinned to `request.time`.** The client writes `serverTimestamp()`; anything else
+  is rejected. `createdAt` is immutable across updates by direct comparison to `resource.data`,
+  which is stronger and simpler here than `diff().affectedKeys()` given every field is validated
+  on every write.
+- **Global `if false` catch-all.** Adding a collection later requires a deliberate rule.
 
-`firebase.json` gains a `firestore` block pointing at `firestore.rules` and
-`firestore.indexes.json`.
-
-### Rule verification (before UI deploy)
-
-Unauthenticated REST read must be refused:
-
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' \
-  'https://firestore.googleapis.com/v1/projects/creativoatwork-54e65/databases/(default)/documents/projects'
-# expect 403
-```
-
-This is a real check against the deployed rules, not a claim. It runs before and after the
-UID is filled in, and the result goes in the session log.
+Because `updatedAt` is mandatory and pinned, the §6 `orderBy('updatedAt')` cannot silently hide
+documents — a document lacking it cannot exist.
 
 ---
 
 ## 6. Data model
 
-Firestore collection `projects`, one document per project, auto-ID.
+Firestore collection `projects`, one document per project, auto-ID. Fields, types, and limits are
+exactly those enforced in §5.
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | string | required, 1–200 chars |
-| `description` | string | freeform, may be empty |
-| `repoUrl` | string | GitHub URL, validated shape, may be empty |
-| `domain` | string | bare hostname, no scheme; the auto-population input |
-| `host` | enum | `firebase` `digitalocean` `lovable` `vercel` `netlify` `cloudflare` `aws` `wordpress-host` `other` `unknown` |
-| `frontend` | enum | `react` `next` `vue` `svelte` `astro` `wordpress` `static` `other` `unknown` |
-| `database` | enum | `postgres` `mysql` `firestore` `mongo` `sqlite` `wordpress-mysql` `none` `unknown` |
-| `status` | enum | `active` `maintenance` `archived` |
-| `notes` | string | freeform developer/PM notes |
-| `createdAt` | timestamp | `serverTimestamp()` on create |
-| `updatedAt` | timestamp | `serverTimestamp()` on every write |
+Enums are TypeScript union types in `types.ts` with a matching label array driving both the
+filter controls and the form selects. **`firestore.rules` and `types.ts` must change together** —
+adding an enum value to one alone produces writes the rules reject. Each carries a comment
+pointing at the other.
 
-Enums are TypeScript union types with a matching `readonly` label array driving both the filter
-controls and the form selects, so adding a value is a one-line change in `types.ts`.
+`unknown` is a first-class value, not a null; the table renders it as a muted dash. A project
+whose stack has not been established is a normal state.
 
-`unknown` is a first-class value, not a null. A project whose stack has not been established is
-a normal state, and the table renders it as a muted dash rather than blank.
-
-### Querying
-
-Single query: `orderBy('updatedAt', 'desc')`, no `limit`. Search and filtering are **client-side**.
-
-This is deliberate. The realistic dataset is tens of documents, not thousands. Server-side
-filtering across host + stack + status + text would need composite indexes and still could not
-do substring search. Client-side filtering over a small array is instant, needs no indexes, and
-supports search across every field at once. `firestore.indexes.json` ships effectively empty.
-
-If the collection ever passes ~500 documents this needs revisiting; that threshold goes in
-`backlog.md` rather than being pre-built.
+**Querying.** Single query, `orderBy('updatedAt', 'desc')`, no `limit`. Search and filtering are
+client-side: the realistic dataset is tens of documents, server-side filtering across four
+dimensions would need composite indexes, and Firestore cannot do substring search at all.
+`firestore.indexes.json` ships effectively empty. Revisit past ~500 documents — recorded in
+`backlog.md`, not pre-built.
 
 ---
 
-## 7. Domain auto-population
+## 7. UI
 
-### Endpoint
+Dense, keyboard-friendly, and visually distinct from the marketing site. It uses the shared
+`@theme` tokens so it is coherent without being a pastiche of the studio's brand work.
 
-`GET /inspect?domain=<hostname>` added to the existing Cloudflare Worker.
+**Table** — name + domain, host, frontend, database, status pill, updated. Row click navigates.
+Sortable headers, sticky header, `tabular-nums` dates, truncation with `title` on overflow.
 
-Response:
+**Filter bar** — text input across name, domain, description, and notes; three selects (host,
+stack, status); an active-filter count with one-click clear. Filter state lives in the URL query
+string, so a filtered view is linkable and survives reload.
 
-```jsonc
-{ "ok": true,
-  "domain": "goodai.news",
-  "hints": {
-    "host":     { "value": "vercel",  "confidence": "high", "evidence": "x-vercel-id header" },
-    "frontend": { "value": "next",    "confidence": "high", "evidence": "/_next/ assets" },
-    "database": { "value": "unknown", "confidence": "none", "evidence": null }
-  } }
-```
+**Add Project modal** — domain field plus the same form as the detail view. No network call, no
+detection. Sensible defaults (`status: active`, everything else `unknown`), full keyboard entry,
+tab order following the visual order. Domain is the only required field beyond name; everything
+else can be filled in later. Focus trapped, `Esc` closes, focus returns to the trigger, real
+`<label>` elements throughout.
 
-Every hint carries its evidence, and the modal shows it. A field that says "Vercel — because
-`x-vercel-id` was present" is trustworthy in a way that a bare prefilled dropdown is not.
+**Detail view** — the same form component, populated. Explicit Save, no autosave. Dirty state
+blocks navigation with a confirm.
 
-### Signals
+**Delete** — typed confirmation: the project's name must be entered. Never a bare button. Spark
+has no point-in-time recovery, so deletion is unrecoverable (§10).
 
-| Signal | Infers |
-|---|---|
-| `x-vercel-id`, `server: Vercel` | Vercel |
-| `x-nf-request-id` | Netlify |
-| `server: cloudflare` + `cf-ray` | Cloudflare (proxy — low confidence for origin) |
-| `x-served-by: firebase`, `x-firebase-*` | Firebase Hosting |
-| `server: DigitalOcean App Platform` | DigitalOcean |
-| `<meta name="generator" content="WordPress …">`, `/wp-json/` 200 | WordPress + MySQL |
-| `/_next/` asset paths, `__NEXT_DATA__` | Next.js |
-| `<div id="root">` + Vite asset naming | React SPA |
-| `x-powered-by` | varies |
+**Export** — a "Download JSON" action serialising the whole collection. On the free plan this is
+the only backup mechanism available, and it is the honest answer to that gap.
 
-Cloudflare's proxy masks the origin, which is exactly why hints are labeled with confidence
-rather than silently filled. This site is itself behind Cloudflare — inspecting
-`creativoatwork.com` would report "Cloudflare", not "Firebase", and that is correct behavior for
-a header-based probe.
+**States** — skeleton rows on first load, not a spinner. The empty state distinguishes "no
+projects yet" from "no matches". Errors render an inline banner carrying the Firestore error code
+plus a Retry, never a silent failure. Save buttons disable and show progress while writing.
 
-### Abuse controls — the part that matters
+The `PRODUCT.md` accessibility floor applies here too: visible focus rings, keyboard
+reachability, real labels, contrast. Being private is not an excuse to drop it.
 
-An endpoint that fetches arbitrary URLs on request is an open proxy unless constrained. Four
-controls, all required:
-
-1. **Firebase ID token required.** The client sends `Authorization: Bearer <idToken>`. The
-   Worker verifies the RS256 signature against Google's published certs
-   (`https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com`,
-   cached in memory by `kid`), checks `iss`, `aud` = project ID, `exp`, and that `sub` is in the
-   UID allowlist. Rate limiting alone would cap volume without fixing the class of abuse.
-2. **SSRF guards.** Reject anything that is not a public hostname: IP literals, `localhost`,
-   `*.local`, `*.internal`, RFC1918 ranges, `169.254.0.0/16` (cloud metadata), non-`https`
-   schemes, and any port. Re-check after each redirect; cap redirects at 3.
-3. **Rate limit.** A second `[[unsafe.bindings]]` ratelimit binding, separate from the contact
-   form's so abuse of one cannot starve the other.
-4. **Bounded work.** `AbortSignal.timeout(5000)`, response body read to a 64KB cap, `GET` only.
-
-The Worker returns hints only — never the fetched body — so it cannot be used to exfiltrate
-content through your Cloudflare account.
-
-### Client behavior
-
-The modal takes a domain, calls `/inspect`, and prefills. **Every field stays editable**, the
-probe is skippable, and a failed probe is not an error — it opens the form with everything
-`unknown` and a quiet note. The domain is the only required input; a project can be saved with
-nothing else filled in.
-
----
-
-## 8. UI
-
-Dense, keyboard-friendly, and visually distinct from the marketing site — this is a tool, and
-making it look like the studio's brand work would be a category error. It reuses the Tailwind
-tokens already in `index.css` for color and type, so it is coherent without being a pastiche.
-
-**Table** — one row per project: name + domain, host, frontend, database, status pill, updated.
-Row click navigates to the detail view. Column headers sort. Sticky header, `tabular-nums` for
-dates, truncation with `title` on overflow.
-
-**Filter bar** — a text input filtering across name, domain, description, and notes; three
-selects (host, frontend/database, status); an active-filter count with one-click clear. Filter
-state lives in the URL query string, so a filtered view is linkable and survives reload.
-
-**Add Project modal** — domain input → Inspect → prefilled form → Save. Focus trapped, `Esc`
-closes, focus returns to the trigger. Labels are real `<label>` elements.
-
-**Detail view** — the same form component, populated. Explicit Save; no autosave. Dirty state
-blocks navigation with a confirm. Delete sits behind a typed confirmation, not a bare button.
-
-**States** — skeleton rows on first load, not a spinner. Empty state distinguishes "no projects
-yet" from "no matches". Errors render an inline banner with the Firestore error code and a
-Retry, never a silent failure. Save buttons disable and show progress while writing.
-
-The accessibility floor from `PRODUCT.md` applies here too: visible focus rings, keyboard
-reachability, real labels. Being private is not a reason to drop it.
-
----
-
-## 9. Error handling
+### Error handling
 
 | Failure | Behavior |
 |---|---|
 | Not signed in | Sign-in card |
-| Signed in, wrong account | Sign-in card + "that account does not have access", sign-out button |
-| Firestore `permission-denied` | Banner: rules not yet configured for this UID, with the UID shown |
-| Firestore unavailable / offline | Banner + Retry; cached data stays on screen |
-| Write fails | Form stays populated and dirty; error banner; nothing is lost |
-| `/inspect` fails, times out, or 401s | Form opens with `unknown` values and a quiet note |
+| Signed in, wrong account | Sign-in card + "that account does not have access" + Sign out |
+| Firestore `permission-denied` | Banner: rules not configured for this UID, with the UID shown |
+| Firestore unavailable | Banner + Retry; cached data stays on screen |
+| Write fails | Form stays populated and dirty; nothing is lost |
 | Unknown route under `/admindash` | Redirect to `/admindash` |
 
 No `catch {}` that swallows. Every Firestore call surfaces its error code to the UI.
 
 ---
 
-## 10. Build and deploy changes
+## 8. Local development
 
-**Changed files:** `vite.config.ts` (second input), `firebase.json` (rewrite, headers, firestore
-block), `public/robots.txt` (`Disallow: /admindash`), `package.json` (`firebase`,
-`react-router-dom`), `worker/src/index.ts` (`/inspect`), `worker/wrangler.toml` (second rate
-limiter).
+`npm run dev` for the admin entry points at the **Firestore emulator**, not production —
+`firebase.ts` calls `connectFirestoreEmulator` when `import.meta.env.DEV`. Development must not
+run destructive CRUD against the live database.
 
-**New files:** `admindash.html`, everything under `src/admin/`, `firestore.rules`,
-`firestore.indexes.json`.
+Auth stays against the real project in dev, so the real sign-in path is exercised.
+
+---
+
+## 9. Build, test, deploy
+
+### 9.1 Changed and new files
+
+**Changed:** `vite.config.ts`, `firebase.json`, `public/robots.txt` (`Disallow: /admindash`),
+`package.json`, `src/index.css` (scoping only).
+
+**New:** `admindash.html`, `src/theme.css`, `src/admin/**`, `firestore.rules`,
+`firestore.indexes.json`, `vitest.config.ts`, `tests/rules/**`.
 
 **Untouched:** `src/App.tsx`, `src/components/*`, `src/main.tsx`, `src/entry-server.tsx`,
-`scripts/prerender.mjs`, `public/*.html`, `sitemap.xml`.
+`scripts/prerender.mjs`, `public/*.html`, `sitemap.xml`, and **all of `worker/`**.
 
-### Deploy order
+### 9.2 Deploy order
 
-Rules before UI, always:
+Rules before UI, and nothing risky deploys unverified.
 
 1. Enable the Firestore API; create the database (Native mode, `nam5`).
-2. Deploy rules with the allowlist still holding only placeholder strings — no real UID matches,
-   so this is a deny-all deployment. Verify the 403 curl.
-3. Build and deploy Hosting. Confirm `prerender: injected N bytes` still prints.
-4. Sign in, read the UID, fill the allowlist, redeploy rules.
-5. Deploy the Worker (`cd worker && npm install && npx wrangler login && npm run deploy`).
-6. Verify: 403 curl still fails unauthenticated; `/inspect` without a token returns 401.
+2. **Enable the Google sign-in provider** in Firebase Auth and add authorized domains
+   (`creativoatwork.com`, `creativoatwork-54e65.web.app`, `localhost`). Without this, sign-in
+   simply fails.
+3. Deploy `firestore.rules` with placeholder UIDs only — no real UID matches, so this is a
+   deny-all deployment. Verify with the 403 curl in §9.4.
+4. Run the rules test suite against the emulator (§9.3). It must pass before the UI exists.
+5. Build and deploy Hosting. Confirm `prerender: injected N bytes` still prints and the marketing
+   CSS and JS hashes are unchanged.
+6. Sign in at `/admindash`, read the UID(s) off the card.
+7. Fill the UIDs into `firestore.rules`, deploy rules, reload.
+8. Post-deploy verification (§9.4).
 
-### Verification
+**Rollback:** Hosting has one-click release rollback in the console, exercised once during
+rollout so the runbook is known-good. Rules roll back by redeploying the placeholder version,
+which fails closed. Nothing in this feature can break the contact form, because nothing in it
+touches the Worker.
 
-There is no test framework and this design does not add one — that would be a separate decision.
-What gets verified, and how, honestly:
+### 9.3 Rules tests
+
+Vitest plus `@firebase/rules-unit-testing` against the Firestore emulator. **Requires a JDK
+locally** — a genuine new dependency, noted because the emulator fails confusingly without it.
+
+| Case | Expect |
+|---|---|
+| Unauthenticated read / write | deny |
+| Authenticated non-allowlisted UID, every operation | deny |
+| Admin read | allow |
+| Admin create, valid document | allow |
+| Create missing a required field | deny |
+| Create with an extra field | deny |
+| Create with a bad enum value | deny |
+| Create with `name` empty or >200 chars | deny |
+| Create with a client-chosen `createdAt` | deny |
+| Update that changes `createdAt` | deny |
+| Update with a stale `updatedAt` | deny |
+| Admin update, valid | allow |
+| Admin delete | allow |
+| Any write to a different collection | deny |
+
+`npm run test:rules` is the entry point. It is **not** wired into `npm run build` — the build
+gate stays exactly what it is today.
+
+### 9.4 Verification
+
+Nothing below is claimed as passing until it has actually been run.
 
 - `npm run build` — type-check, both entries, prerender line present
-- `cd worker && npm run typecheck`
-- Marketing bundle contains no Firebase — the marketing chunk must match zero times:
-  `grep -c firebase dist/assets/index-*.js` (the admin chunk is expected to match; the entry
-  loaded by `index.html` must not)
-- Unauthenticated Firestore REST read → 403
-- `/inspect` with no token → 401; with a token, against a known domain → sensible hints
-- Browser: sign in, wrong-account rejection, create, edit, delete, filter, deep-link a filtered
-  URL, reload the detail view directly, keyboard-only pass through the modal
+- **Marketing bundle isolation by dependency graph, not filename glob:** parse `dist/index.html`
+  for its entry and modulepreload chunks, walk their static imports, and assert no chunk in that
+  closure contains `firebase`. Grepping `index-*.js` alone would miss preloaded sibling chunks
+  and produce a false pass.
+- Marketing CSS hash unchanged (`index-GTZrnxSj.css`)
+- Unauthenticated Firestore REST read → 403:
+  ```bash
+  curl -s -o /dev/null -w '%{http_code}\n' \
+    'https://firestore.googleapis.com/v1/projects/creativoatwork-54e65/databases/(default)/documents/projects'
+  ```
+- `npm run test:rules` green
+- **Contact form still works** — not because this touched it, but because it is the site's only
+  conversion path and a Hosting deploy did occur: `OPTIONS /contact` → 204, and one real
+  submission end to end.
+- Browser: sign in; wrong-account rejection; CSP does not break the popup; create, edit, delete;
+  filter; deep-link a filtered URL; reload a detail view directly; keyboard-only pass through the
+  modal
 - `/admindash` returns `X-Robots-Tag: noindex`
-- The marketing site still renders identically — the JS hash should be unchanged
 
-Nothing here is claimed as passing until it has actually been run.
+---
+
+## 10. Operational exposure
+
+**Firestore on Spark:** 50k reads, 20k writes, 20k deletes per day; 1GiB storage. The unbounded
+`orderBy` query costs one read per document per load — at tens of documents and a single user
+that is roughly three orders of magnitude inside the daily quota. Revisit alongside the
+~500-document threshold in §6.
+
+**Auth on Spark:** unlimited for Google and email/password.
+
+**No backup or PITR without billing.** The JSON export in §7 is the mitigation, and delete is
+gated behind typed confirmation. Stated plainly: an accidental delete is permanent.
+
+**Revocation runbook:** to remove access, delete the UID from `firestore.rules` and deploy —
+that is the entire gate. Revoking a Google account's refresh tokens additionally requires the
+Firebase console. Because `/inspect` is gone, there is no second allowlist to keep in sync.
 
 ---
 
 ## 11. Out of scope
 
 Multiple users or roles; audit logging; project logos or file upload; pagination or virtual
-scrolling; offline persistence; bulk import; automated dependency or uptime checks; any link
+scrolling; offline persistence; bulk import; automated uptime or dependency checks; **domain
+auto-population** (dropped in v3, see revision history); any change to `worker/`; any link
 between `projects` and the public Work grid. The Work grid stays a hand-curated array in
-`Work.tsx` — coupling it to Firestore would put the marketing site's content behind a database
-and undo the prerender guarantee.
+`Work.tsx` — coupling it to Firestore would put marketing content behind a database and undo the
+prerender guarantee.
 
-## 12. Risks
+## 12. Open items
 
-| Risk | Mitigation |
-|---|---|
-| Worker change breaks the live contact form | `/inspect` is an additive branch; contact path untouched. Verify contact still works after deploy. |
-| Firebase config mistaken for a secret | Web config is a public identifier. Hard-coded in `src/admin/firebase.ts` with a comment, **not** in a `VITE_` variable — today's `.env.production` incident showed how a missing env var silently breaks a build. |
-| Rules deployed permissively "just to test" | Explicitly forbidden. The 403 check gates the UI deploy. |
-| Admin bundle bloats the marketing site | Verified by grepping the built marketing chunk for `firebase`. |
-| `/admindash` indexed | `X-Robots-Tag: noindex` + `robots.txt`. Neither is security; the rules are. |
+- Whether `simone@creativoatwork.com` is a Google identity — resolved at bootstrap; the
+  email/password path in §4 covers the negative case.
+- Both UIDs are placeholders until deploy step 6.
+- CSP is verified in a browser before it ships (§3.2).
 
-## 13. Open items
+---
 
-- Whether `simone@creativoatwork.com` is a Google identity — resolved at bootstrap.
-- Both UIDs are placeholders until step 4 of the deploy order.
+## 13. Codex review dispositions
 
-## 14. Review
+Adversarial plan review of v1, 2026-08-16. Verdict: rejected as written. Dispositions per
+CCOS §18. Findings marked **REMOVED** are obsolete because v3 deleted the `/inspect` endpoint.
 
-This touches authentication, authorization, and a public endpoint that makes outbound requests
-— high-assurance under CCOS §14. This spec goes to Codex for adversarial plan review (§15)
-before implementation begins, and the implementation gets an independent Codex review (§16)
-before it ships.
+| # | Finding | Sev | Disposition |
+|---|---|---|---|
+| 1 | Rules validate almost none of the schema | HIGH | **FIX** — §5 validates every field, type, enum, length |
+| 2 | `hasOnly` misrepresented as update protection | HIGH | **FIX** — `hasAll` + `hasOnly`; `createdAt` compared to `resource.data` |
+| 3 | SSRF controls incomplete | HIGH | **REMOVED** — no endpoint fetches anything |
+| 4 | Token verification underspecified | HIGH | **REMOVED** |
+| 5 | Cert cache by `kid` → rotation and DoS path | HIGH | **REMOVED** |
+| 6 | Still usable as a scanner | MED | **REMOVED** |
+| 7 | 64KB cap not operationally defined | MED | **REMOVED** |
+| 8 | Auth persistence implicit | MED | **FIX** — explicit `browserLocalPersistence` (§4) |
+| 9 | "Rules are the only gate" ignores IAM/Admin SDK | MED | **FIX** — constraint 4 rewritten; IAM review added |
+| 10 | No defined route from client to `/inspect` | HIGH | **REMOVED** |
+| 11 | CORS preflight will fail | HIGH | **REMOVED** — Worker CORS untouched |
+| 12 | Bundle check is a false-negative test | HIGH | **FIX** — §9.4 walks the dependency graph |
+| 13 | Shared CSS/JS leaks between apps | HIGH | **FIX** — §3.4 separate entries, shared `@theme` only, CSS hash asserted |
+| 14 | Email/password fallback unimplemented | HIGH | **FIX** — §4 implements it |
+| 15 | `updatedAt` absent vs `orderBy` | MED | **FIX** — mandatory and pinned in §5 |
+| 16 | `/inspect` is not additive | HIGH | **REMOVED** — `worker/` is out of scope |
+| 17 | Limiter failure policy must differ by route | HIGH | **REMOVED** |
+| 18 | Pre-auth resource consumption | HIGH | **REMOVED** |
+| 19 | Deploy order never syncs Worker and Rules UIDs | HIGH | **REMOVED** — one allowlist now |
+| 20 | Use GA `[[ratelimits]]` | MED | **REMOVED** from scope. Verified accurate against Cloudflare docs and recorded in `backlog.md` as a standalone cleanup for `worker/wrangler.toml` |
+| 21 | Verification happens after risky deploy | MED | **FIX** — §9.2 verifies rules before the UI exists; the risky Worker deploy no longer exists |
+| 22 | No rules test plan | HIGH | **FIX** — §9.3 emulator-backed suite |
+| 23 | Local dev points at production | HIGH | **FIX** — §8 emulator in dev |
+| 24 | No recovery design on Spark | HIGH | **FIX** — §7 typed-confirm delete + JSON export; §10 states deletion is permanent |
+| 25 | Auth provider provisioning missing | HIGH | **FIX** — §9.2 step 2 |
+| 26 | No Spark quota monitoring | MED | **FIX** — §10 quantified |
+| 27 | Worker CPU budget unassessed | MED | **REMOVED** |
+| 28 | No CSP / clickjacking policy | MED | **FIX** — §3.2, verified before shipping |
+| 29 | No revocation runbook | MED | **FIX** — §10 |
+
+Survived review unchanged and retained in v3: the `request.auth.uid in [...]` membership test,
+the ordering of the `/{document=**}` deny, `cleanUrls` serving `/admindash` from
+`admindash.html`, the rewrite ordering, `prerender.mjs` being genuinely unaffected, and
+`basename="/admindash"` being safe given `createRoot`.
