@@ -130,8 +130,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 if (useEmulator) connectFirestoreEmulator(db, '127.0.0.1', 8080);
 
-const email = await ask('Admin email: ');
-const password = await askHidden('Password: ');   // never echoed - see scripts/prompt.mjs
+let email, password;
+try {
+  email = await ask('Admin email: ');
+  password = await askHidden('Password: ');   // never echoed - see scripts/prompt.mjs
+} catch (e) {
+  die(`${e.message}. This script needs an interactive terminal — run it directly, not through a wrapper that captures output.`);
+}
 
 try {
   await signInWithEmailAndPassword(auth, email.trim(), password);

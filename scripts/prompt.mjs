@@ -12,14 +12,22 @@ const ENTER = ['\r', '\n', '\u0004'];
 const CTRL_C = '\u0003';
 const BACKSPACE = ['\u007f', '\b'];
 
-/** Line-based and echoed. Fine for a username. */
-export async function ask(question) {
-  const rl = createInterface({ input: stdin, output: stdout });
-  try {
-    return (await rl.question(question)).trim();
-  } finally {
-    rl.close();
-  }
+/**
+ * Line-based and echoed. Fine for a username.
+ *
+ * Rejects on EOF rather than hanging: with stdin closed (`< /dev/null`, or a non-interactive
+ * runner) readline's promise never settles, which surfaces as an "unsettled top-level await"
+ * warning and a process that appears stuck for no stated reason.
+ */
+export function ask(question) {
+  return new Promise((resolve, reject) => {
+    const rl = createInterface({ input: stdin, output: stdout });
+    rl.once('close', () => reject(new Error('input closed before a value was entered')));
+    rl.question(question).then(
+      (v) => { rl.close(); resolve(v.trim()); },
+      (e) => { rl.close(); reject(e); },
+    );
+  });
 }
 
 /**
