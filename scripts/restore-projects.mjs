@@ -28,8 +28,7 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { createInterface } from 'node:readline/promises';
-import { stdin, stdout } from 'node:process';
+import { ask, askHidden } from './prompt.mjs';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import {
@@ -131,12 +130,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 if (useEmulator) connectFirestoreEmulator(db, '127.0.0.1', 8080);
 
-const rl = createInterface({ input: stdin, output: stdout });
-const email = await rl.question('Admin email: ');
-// Node has no hidden-input primitive in readline; the password is not echoed to a file or the
-// repo, and is never stored. It exists only for the lifetime of this process.
-const password = await rl.question('Password (input is visible): ');
-rl.close();
+const email = await ask('Admin email: ');
+const password = await askHidden('Password: ');   // never echoed - see scripts/prompt.mjs
 
 try {
   await signInWithEmailAndPassword(auth, email.trim(), password);

@@ -46,7 +46,7 @@ service cloud.firestore {
         && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9]+(-[A-Za-z0-9]+)*/[A-Za-z0-9._-]{1,100}$'))
         && d.notes       is string && d.notes.size() <= 10000
         && d.host     in ['firebase', 'digitalocean', 'lovable', 'vercel', 'netlify',
-                          'cloudflare', 'aws', 'wordpress-host', 'other', 'unknown']
+                          'cloudflare', 'aws', 'gcp', 'wordpress-host', 'other', 'unknown']
         && d.frontend in ['react', 'next', 'vue', 'svelte', 'astro', 'wordpress',
                           'static', 'other', 'unknown']
         && d.database in ['postgres', 'mysql', 'firestore', 'mongo', 'sqlite',

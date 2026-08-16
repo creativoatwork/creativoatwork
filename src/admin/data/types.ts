@@ -8,7 +8,7 @@
 
 export const HOSTS = [
   'firebase', 'digitalocean', 'lovable', 'vercel', 'netlify',
-  'cloudflare', 'aws', 'wordpress-host', 'other', 'unknown',
+  'cloudflare', 'aws', 'gcp', 'wordpress-host', 'other', 'unknown',
 ] as const;
 
 export const FRONTENDS = [

@@ -18,8 +18,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { createInterface } from 'node:readline/promises';
-import { stdin, stdout } from 'node:process';
+import { ask, askHidden } from './prompt.mjs';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import {
@@ -114,6 +113,11 @@ function classifyNs(ns) {
   if (j.includes('domaincontrol')) return 'godaddy';
   if (j.includes('nsone')) return 'ns1';
   if (j.includes('registrar-servers')) return 'namecheap';
+  if (j.includes('porkbun')) return 'porkbun';
+  if (j.includes('dnsimple')) return 'dnsimple';
+  if (j.includes('vercel-dns')) return 'vercel';
+  if (j.includes('digitalocean')) return 'digitalocean';
+  if (j.includes('googledomains') || j.includes('google-domains')) return 'google';
   return ns.length ? 'other' : 'none';
 }
 function classifyHosting(list) {
@@ -124,6 +128,7 @@ function classifyHosting(list) {
   if (j.includes('firebase') || j.includes('web.app')) return 'Firebase Hosting';
   if (j.includes('shopify')) return 'Shopify';
   if (j.includes('wpengine')) return 'WP Engine';
+  if (j.includes('googleusercontent') || j.includes('googlehosted')) return 'Google Cloud';
   return undefined;
 }
 function classifyMail(mx) {
@@ -219,7 +224,7 @@ async function enrichOne(p) {
         const ptr = await doh(`${ips[0].split('.').reverse().join('.')}.in-addr.arpa`, 'PTR');
         if (ptr.length) out.serverHostname = ptr[0];
       }
-      const h = classifyHosting([...cname, ...a]); if (h) out.hostingHint = h;
+      const h = classifyHosting([...cname, ...a, out.serverHostname ?? '']); if (h) out.hostingHint = h;
       const m = classifyMail(mx); if (m) out.mailProvider = m;
     } catch (e) { errors.push(`dns: ${e.message}`); }
   }
@@ -247,6 +252,7 @@ async function enrichOne(p) {
   else if (out.hostingHint === 'Vercel') out.suggestedHost = 'vercel';
   else if (out.hostingHint === 'Netlify') out.suggestedHost = 'netlify';
   else if (out.hostingHint === 'Firebase Hosting') out.suggestedHost = 'firebase';
+  else if (out.hostingHint === 'Google Cloud') out.suggestedHost = 'gcp';
 
   if (out.repoArchived) out.suggestedStatus = 'archived';
 
@@ -260,10 +266,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const rl = createInterface({ input: stdin, output: stdout });
-const email = await rl.question('Admin email: ');
-const password = await rl.question('Password (input is visible): ');
-rl.close();
+const email = await ask('Admin email: ');
+const password = await askHidden('Password: ');   // never echoed - see scripts/prompt.mjs
 
 try {
   await signInWithEmailAndPassword(auth, email.trim(), password);

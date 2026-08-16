@@ -87,6 +87,11 @@ function classifyNameservers(ns: string[]): string {
   if (j.includes('domaincontrol')) return 'godaddy';
   if (j.includes('nsone')) return 'ns1';
   if (j.includes('registrar-servers')) return 'namecheap';
+  if (j.includes('porkbun')) return 'porkbun';
+  if (j.includes('dnsimple')) return 'dnsimple';
+  if (j.includes('vercel-dns')) return 'vercel';
+  if (j.includes('digitalocean')) return 'digitalocean';
+  if (j.includes('googledomains') || j.includes('google-domains')) return 'google';
   return ns.length ? 'other' : 'none';
 }
 
@@ -98,6 +103,7 @@ function classifyHosting(cname: string[], a: string[]): string | undefined {
   if (j.includes('firebase') || j.includes('web.app')) return 'Firebase Hosting';
   if (j.includes('shopify')) return 'Shopify';
   if (j.includes('wpengine')) return 'WP Engine';
+  if (j.includes('googleusercontent') || j.includes('googlehosted')) return 'Google Cloud';
   return undefined;
 }
 
@@ -144,7 +150,7 @@ export async function enrichFromDns(domain: string, f: FetchLike): Promise<Enric
       if (ptr.length) out.serverHostname = ptr[0];
     }
 
-    const hosting = classifyHosting(cname, a);
+    const hosting = classifyHosting(cname, [...a, out.serverHostname ?? '']);
     if (hosting) out.hostingHint = hosting;
     const mail = classifyMail(mx);
     if (mail) out.mailProvider = mail;
@@ -298,6 +304,8 @@ function suggest(e: Enrichment): Enrichment {
   else if (e.hostingHint === 'Netlify') out.suggestedHost = 'netlify';
   else if (e.hostingHint === 'Firebase Hosting') out.suggestedHost = 'firebase';
   else if (e.hostingHint === 'GitHub Pages') out.suggestedHost = 'other';
+  else if (e.hostingHint === 'Google Cloud') out.suggestedHost = 'gcp';
+  else if (e.dnsProvider === 'digitalocean') out.suggestedHost = 'digitalocean';
 
   // Status — the only defensible inference.
   if (e.repoArchived) out.suggestedStatus = 'archived';

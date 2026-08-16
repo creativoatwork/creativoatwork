@@ -23,6 +23,7 @@ const Chips = ({ items }: { items: string[] }) => (
 const dnsLabel: Record<string, string> = {
   cloudflare: 'Cloudflare', route53: 'AWS Route 53', google: 'Google Domains',
   azure: 'Azure DNS', godaddy: 'GoDaddy', ns1: 'NS1', namecheap: 'Namecheap',
+  porkbun: 'Porkbun', dnsimple: 'DNSimple', vercel: 'Vercel', digitalocean: 'DigitalOcean',
   other: 'Other / registrar default', none: 'No NS records found',
 };
 
