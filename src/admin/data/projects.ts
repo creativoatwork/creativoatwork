@@ -5,6 +5,7 @@ import {
 import { db } from '../firebase';
 import { COLLECTION } from '../config';
 import { normalize, type Project, type ProjectFields } from './types';
+import { Timestamp as TS } from 'firebase/firestore';
 
 /**
  * The only module in the admin app that imports firebase/firestore. Pages and components go
@@ -28,6 +29,8 @@ function toProject(snap: QueryDocumentSnapshot<DocumentData>): Project {
     database: d.database ?? 'unknown',
     status: d.status ?? 'active',
     notes: d.notes ?? '',
+    enrichment: (d.enrichment ?? {}) as Project['enrichment'],
+    enrichedAt: asDate(d.enrichedAt),
     createdAt: asDate(d.createdAt),
     updatedAt: asDate(d.updatedAt),
   };
@@ -53,8 +56,10 @@ export function subscribeProjects(
 
 /** createdAt and updatedAt are server-stamped; the rules reject anything in the future. */
 export async function createProject(fields: ProjectFields): Promise<string> {
+  const { enrichedAt, ...rest } = normalize(fields);
   const ref = await addDoc(col(), {
-    ...normalize(fields),
+    ...rest,
+    enrichedAt: enrichedAt ? TS.fromDate(enrichedAt) : null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -70,8 +75,10 @@ export async function updateProject(
   fields: ProjectFields,
   createdAt: Date | null,
 ): Promise<void> {
+  const { enrichedAt, ...rest } = normalize(fields);
   await setDoc(doc(db, COLLECTION, id), {
-    ...normalize(fields),
+    ...rest,
+    enrichedAt: enrichedAt ? Timestamp.fromDate(enrichedAt) : null,
     createdAt: createdAt ? Timestamp.fromDate(createdAt) : serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

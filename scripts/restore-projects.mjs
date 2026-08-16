@@ -100,6 +100,14 @@ backup.projects.forEach((p, i) => {
   if (!FRONTENDS.includes(p.frontend)) problems.push(`${at}: invalid frontend "${p.frontend}"`);
   if (!DATABASES.includes(p.database)) problems.push(`${at}: invalid database "${p.database}"`);
   if (!STATUSES.includes(p.status)) problems.push(`${at}: invalid status "${p.status}"`);
+  if (p.enrichment !== undefined && (typeof p.enrichment !== 'object' || p.enrichment === null || Array.isArray(p.enrichment))) {
+    problems.push(`${at}: enrichment must be an object when present`);
+  } else if (p.enrichment && Object.keys(p.enrichment).length > 25) {
+    problems.push(`${at}: enrichment has more than 25 keys; the rules will refuse it`);
+  }
+  if (p.enrichedAt != null && Number.isNaN(Date.parse(p.enrichedAt))) {
+    problems.push(`${at}: enrichedAt must be an ISO timestamp or null`);
+  }
   for (const k of ['createdAt', 'updatedAt']) {
     const t = Date.parse(p[k]);
     if (Number.isNaN(t)) problems.push(`${at}: ${k} is not an ISO timestamp`);
@@ -173,6 +181,8 @@ for (let i = 0; i < backup.projects.length; i += BATCH_LIMIT) {
       database: p.database,
       status: p.status,
       notes: p.notes,
+      enrichment: p.enrichment ?? {},
+      enrichedAt: p.enrichedAt ? Timestamp.fromDate(new Date(p.enrichedAt)) : null,
       createdAt: Timestamp.fromDate(new Date(p.createdAt)),
       updatedAt: Timestamp.fromDate(new Date(p.updatedAt)),
     });
@@ -198,6 +208,9 @@ for (const p of backup.projects) {
   if (!s) { mismatches.push(`${p.id}: missing after restore`); continue; }
   for (const k of ['name','description','repoUrl','domain','host','frontend','database','status','notes']) {
     if (s[k] !== p[k]) mismatches.push(`${p.id}.${k}: stored "${s[k]}" != file "${p[k]}"`);
+  }
+  if (JSON.stringify(s.enrichment ?? {}) !== JSON.stringify(p.enrichment ?? {})) {
+    mismatches.push(`${p.id}.enrichment: does not match the file`);
   }
   for (const k of ['createdAt','updatedAt']) {
     const got = s[k] instanceof Timestamp ? s[k].toDate().toISOString() : String(s[k]);

@@ -18,7 +18,8 @@ service cloud.firestore {
     // and replace them. See the spec, section 9.2 steps 8-9.
     function adminUids() {
       return [
-        'lj2K2fBmWig6QbEzQn5TVCmrrSg2',
+        'lj2K2fBmWig6QbEzQn5TVCmrrSg2',  // creativoatwork@gmail.com
+        'cq62dfbzb7dhrLbAd0q6e5l62cw1',  // simone@creativoatwork.com
       ];
     }
 
@@ -28,7 +29,8 @@ service cloud.firestore {
 
     function fields() {
       return ['name', 'description', 'repoUrl', 'domain', 'host',
-              'frontend', 'database', 'status', 'notes', 'createdAt', 'updatedAt'];
+              'frontend', 'database', 'status', 'notes', 'createdAt', 'updatedAt',
+              'enrichment', 'enrichedAt'];
     }
 
     function validShape(d) {
@@ -51,7 +53,13 @@ service cloud.firestore {
                           'wordpress-mysql', 'none', 'unknown']
         && d.status   in ['active', 'maintenance', 'archived']
         && d.createdAt is timestamp
-        && d.updatedAt is timestamp;
+        && d.updatedAt is timestamp
+        // Machine-written, owner-only, display-only data. Deliberately validated by type and
+        // size rather than key by key, so adding a new signal needs no rules deploy. The inner
+        // values are never used for authorization or rendered as HTML.
+        && d.enrichment is map
+        && d.enrichment.size() <= 25
+        && (d.enrichedAt == null || d.enrichedAt is timestamp);
     }
 
     match /projects/{projectId} {

@@ -9,7 +9,8 @@
     "build:client": "tsc -b && vite build",
     "preview": "vite preview",
     "test:rules": "firebase emulators:exec --only firestore --config firebase.rules.emulator.json --project demo-admindash \"vitest run\"",
-    "restore:projects": "node scripts/restore-projects.mjs"
+    "restore:projects": "node scripts/restore-projects.mjs",
+    "enrich:projects": "node scripts/enrich-projects.mjs"
   },
   "dependencies": {
     "firebase": "^12.17.1",

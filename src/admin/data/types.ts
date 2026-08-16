@@ -40,6 +40,43 @@ export const DOMAIN_RE =
 export const REPO_RE =
   /^https:\/\/github\.com\/[A-Za-z0-9]+(-[A-Za-z0-9]+)*\/[A-Za-z0-9._-]{1,100}$/;
 
+/**
+ * Machine-written enrichment, read from GitHub and DNS.
+ *
+ * Deliberately loose: the rules validate that this is a map of at most 25 keys and nothing more,
+ * so a new signal can be added without a rules deploy. It is owner-written, display-only, and
+ * never used for authorization. Rendered as text, never as HTML.
+ */
+export interface Enrichment {
+  /** 'github' | 'dns' contributions merged into one map. */
+  repoOwner?: string;
+  repoName?: string;
+  repoPrivate?: boolean;
+  repoArchived?: boolean;
+  repoPushedAt?: string;
+  repoLicense?: string;
+  repoTopics?: string[];
+  /** Byte-share language breakdown, biggest first, e.g. ["TypeScript 78%", "CSS 21%"]. */
+  languages?: string[];
+  /** Frameworks and libraries detected from the dependency manifest, not guessed. */
+  stackFrontend?: string[];
+  stackBackend?: string[];
+  /** Manifest and marker files found at the repo root. */
+  markers?: string[];
+  lastCommitAuthor?: string;
+  lastCommitDate?: string;
+  lastCommitMessage?: string;
+  /** 'cloudflare' | 'route53' | 'google' | 'other' | 'none' */
+  dnsProvider?: string;
+  nameservers?: string[];
+  hostingHint?: string;
+  mailProvider?: string;
+  /** Set when a source could not be read, so a blank panel is never mistaken for a clean result. */
+  errors?: string[];
+  /** Which run wrote this: 'browser' or 'cli'. */
+  source?: string;
+}
+
 /** The editable fields — what a form produces and what the rules validate. */
 export interface ProjectFields {
   name: string;
@@ -51,6 +88,8 @@ export interface ProjectFields {
   database: Database;
   status: Status;
   notes: string;
+  enrichment: Enrichment;
+  enrichedAt: Date | null;
 }
 
 export interface Project extends ProjectFields {
@@ -69,6 +108,8 @@ export const EMPTY_PROJECT: ProjectFields = {
   database: 'unknown',
   status: 'active',
   notes: '',
+  enrichment: {},
+  enrichedAt: null,
 };
 
 const label = (v: string) =>

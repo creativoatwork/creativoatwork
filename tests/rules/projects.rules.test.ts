@@ -48,6 +48,8 @@ const validDoc = (over: Record<string, unknown> = {}) => ({
   database: 'postgres',
   status: 'active',
   notes: 'Notes.',
+  enrichment: {},
+  enrichedAt: null,
   createdAt: serverTimestamp(),
   updatedAt: serverTimestamp(),
   ...over,
@@ -233,6 +235,50 @@ describe('update', () => {
     }) as Record<string, unknown>;
     delete d.notes;
     await assertFails(setDoc(doc(adminDb(), 'projects', 'u'), d));
+  });
+});
+
+describe('enrichment', () => {
+  test('an empty map and a null enrichedAt are accepted', async () => {
+    await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'e1'), validDoc()));
+  });
+
+  test('a populated map with a timestamp is accepted', async () => {
+    await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'e2'), validDoc({
+      enrichment: {
+        source: 'browser', dnsProvider: 'cloudflare',
+        languages: ['TypeScript 78%', 'CSS 21%'],
+        stackFrontend: ['React', 'Vite'], lastCommitAuthor: 'creativoatwork',
+      },
+      enrichedAt: Timestamp.fromDate(new Date('2026-08-16T00:00:00Z')),
+    })));
+  });
+
+  test('a non-map enrichment is refused', async () => {
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'e3'), validDoc({ enrichment: 'nope' })));
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'e4'), validDoc({ enrichment: ['a'] })));
+  });
+
+  test('more than 25 enrichment keys is refused', async () => {
+    const big: Record<string, string> = {};
+    for (let i = 0; i < 26; i++) big[`k${i}`] = 'v';
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'e5'), validDoc({ enrichment: big })));
+  });
+
+  test('exactly 25 keys is accepted', async () => {
+    const ok: Record<string, string> = {};
+    for (let i = 0; i < 25; i++) ok[`k${i}`] = 'v';
+    await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'e6'), validDoc({ enrichment: ok })));
+  });
+
+  test('a non-timestamp enrichedAt is refused', async () => {
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'e7'), validDoc({ enrichedAt: '2026-08-16' })));
+  });
+
+  test('a document missing enrichment entirely is refused', async () => {
+    const d = validDoc() as Record<string, unknown>;
+    delete d.enrichment;
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'e8'), d));
   });
 });
 

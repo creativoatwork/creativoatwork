@@ -6,10 +6,12 @@ import { normalize } from '../data/types';
 import { ProjectForm, useProjectForm } from '../components/ProjectForm';
 import { DeleteDialog } from '../components/DeleteDialog';
 import { ErrorBanner } from '../components/States';
+import { EnrichmentPanel } from '../components/EnrichmentPanel';
 
 const toFields = (p: Project): ProjectFields => ({
   name: p.name, description: p.description, repoUrl: p.repoUrl, domain: p.domain,
   host: p.host, frontend: p.frontend, database: p.database, status: p.status, notes: p.notes,
+  enrichment: p.enrichment, enrichedAt: p.enrichedAt,
 });
 
 export function ProjectPage() {
@@ -27,6 +29,7 @@ export function ProjectPage() {
   const form = useProjectForm({
     name: '', description: '', repoUrl: '', domain: '',
     host: 'unknown', frontend: 'unknown', database: 'unknown', status: 'active', notes: '',
+    enrichment: {}, enrichedAt: null,
   });
   const { setValue } = form;
 
@@ -147,6 +150,22 @@ export function ProjectPage() {
           </button>
         </div>
       </form>
+
+      <EnrichmentPanel
+        repoUrl={form.value.repoUrl}
+        domain={form.value.domain}
+        enrichment={project.enrichment}
+        enrichedAt={project.enrichedAt}
+        onSave={async (enrichment, at) => {
+          // Written straight through rather than staged in the form: this is gathered fact, not
+          // an edit in progress, and it must not be lost if the operator navigates away.
+          await updateProject(
+            project.id,
+            { ...normalize(form.value), enrichment, enrichedAt: at },
+            project.createdAt,
+          );
+        }}
+      />
 
       <dl className="mt-8 grid grid-cols-2 gap-2 border-t border-[var(--color-rule)] pt-4 font-mono text-xs text-[var(--color-ink-3)]">
         <dt>Created</dt>

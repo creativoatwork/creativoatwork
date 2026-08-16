@@ -30,6 +30,8 @@ export function buildBackup(projects: Project[]): Backup {
       database: p.database,
       status: p.status,
       notes: p.notes,
+      enrichment: p.enrichment ?? {},
+      enrichedAt: p.enrichedAt ? p.enrichedAt.toISOString() : null,
       createdAt: p.createdAt ? p.createdAt.toISOString() : null,
       updatedAt: p.updatedAt ? p.updatedAt.toISOString() : null,
     })),
