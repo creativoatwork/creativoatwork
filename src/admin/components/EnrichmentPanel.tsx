@@ -107,6 +107,21 @@ export function EnrichmentPanel({
               ) : null}
             </Row>
           ) : null}
+          {e.serverIps?.length ? (
+            <Row label="Server IP">
+              <span className="font-mono text-xs">{e.serverIps.join(', ')}</span>
+              {e.serverHostname && (
+                <span className="mt-0.5 block font-mono text-xs text-[var(--color-ink-3)]">
+                  {e.serverHostname}
+                </span>
+              )}
+              {e.dnsProvider === 'cloudflare' && (
+                <span className="mt-0.5 block text-xs text-[var(--color-ink-3)]">
+                  Behind Cloudflare — this is the proxy, not the origin.
+                </span>
+              )}
+            </Row>
+          ) : null}
           {e.hostingHint ? <Row label="Hosting (DNS)">{e.hostingHint}</Row> : null}
           {e.mailProvider ? <Row label="Mail">{e.mailProvider}</Row> : null}
           {e.lastCommitAuthor ? (

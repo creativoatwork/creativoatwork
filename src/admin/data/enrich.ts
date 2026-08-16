@@ -133,6 +133,17 @@ export async function enrichFromDns(domain: string, f: FetchLike): Promise<Enric
     const nameservers = ns.length ? ns : await dnsAnswers(f, domain.split('.').slice(-2).join('.'), 'NS');
     out.nameservers = nameservers.slice(0, 6);
     out.dnsProvider = classifyNameservers(nameservers);
+
+    // A/AAAA are the addresses actually serving the domain. Behind a proxy these are the
+    // proxy's, not the origin's — Cloudflare in particular. Reported as fact, not as "the
+    // server", because a proxied address is genuinely what the internet resolves to.
+    const ips = a.filter((v) => /^[0-9.]+$/.test(v) || v.includes(':'));
+    if (ips.length) {
+      out.serverIps = ips.slice(0, 6);
+      const ptr = await dnsAnswers(f, `${ips[0].split('.').reverse().join('.')}.in-addr.arpa`, 'PTR');
+      if (ptr.length) out.serverHostname = ptr[0];
+    }
+
     const hosting = classifyHosting(cname, a);
     if (hosting) out.hostingHint = hosting;
     const mail = classifyMail(mx);

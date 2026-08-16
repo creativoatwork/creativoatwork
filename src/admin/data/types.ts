@@ -66,6 +66,10 @@ export interface Enrichment {
   lastCommitAuthor?: string;
   lastCommitDate?: string;
   lastCommitMessage?: string;
+  /** Resolved A/AAAA addresses for the domain. */
+  serverIps?: string[];
+  /** Reverse-DNS name for the first address, when one is published. */
+  serverHostname?: string;
   /** 'cloudflare' | 'route53' | 'google' | 'other' | 'none' */
   dnsProvider?: string;
   nameservers?: string[];
@@ -88,12 +92,19 @@ export interface ProjectFields {
   database: Database;
   status: Status;
   notes: string;
-  enrichment: Enrichment;
-  enrichedAt: Date | null;
 }
 
+/**
+ * A stored project: the editable fields, plus data nobody types.
+ *
+ * `enrichment` and `enrichedAt` are deliberately NOT in ProjectFields. They are written by the
+ * gatherer, not by the form, and keeping them out of the form's value is what stops a stale copy
+ * in component state from being written back over freshly gathered data on the next Save.
+ */
 export interface Project extends ProjectFields {
   id: string;
+  enrichment: Enrichment;
+  enrichedAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -108,8 +119,6 @@ export const EMPTY_PROJECT: ProjectFields = {
   database: 'unknown',
   status: 'active',
   notes: '',
-  enrichment: {},
-  enrichedAt: null,
 };
 
 const label = (v: string) =>

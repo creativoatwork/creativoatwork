@@ -213,6 +213,12 @@ async function enrichOne(p) {
       const nameservers = ns.length ? ns : await doh(p.domain.split('.').slice(-2).join('.'), 'NS');
       out.nameservers = nameservers.slice(0, 6);
       out.dnsProvider = classifyNs(nameservers);
+      const ips = a.filter((v) => /^[0-9.]+$/.test(v) || v.includes(':'));
+      if (ips.length) {
+        out.serverIps = ips.slice(0, 6);
+        const ptr = await doh(`${ips[0].split('.').reverse().join('.')}.in-addr.arpa`, 'PTR');
+        if (ptr.length) out.serverHostname = ptr[0];
+      }
       const h = classifyHosting([...cname, ...a]); if (h) out.hostingHint = h;
       const m = classifyMail(mx); if (m) out.mailProvider = m;
     } catch (e) { errors.push(`dns: ${e.message}`); }

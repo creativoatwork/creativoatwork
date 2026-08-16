@@ -4,8 +4,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { COLLECTION } from '../config';
-import { normalize, type Project, type ProjectFields } from './types';
-import { Timestamp as TS } from 'firebase/firestore';
+import { normalize, type Enrichment, type Project, type ProjectFields } from './types';
 
 /**
  * The only module in the admin app that imports firebase/firestore. Pages and components go
@@ -56,10 +55,10 @@ export function subscribeProjects(
 
 /** createdAt and updatedAt are server-stamped; the rules reject anything in the future. */
 export async function createProject(fields: ProjectFields): Promise<string> {
-  const { enrichedAt, ...rest } = normalize(fields);
   const ref = await addDoc(col(), {
-    ...rest,
-    enrichedAt: enrichedAt ? TS.fromDate(enrichedAt) : null,
+    ...normalize(fields),
+    enrichment: {},
+    enrichedAt: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -74,10 +73,15 @@ export async function updateProject(
   id: string,
   fields: ProjectFields,
   createdAt: Date | null,
+  enrichment: Enrichment,
+  enrichedAt: Date | null,
 ): Promise<void> {
-  const { enrichedAt, ...rest } = normalize(fields);
+  // The rules require every field present (hasAll) and createdAt unchanged, so the whole
+  // document is rewritten. `enrichment` is passed in rather than read off the form: the form
+  // never owns it, so it can never write a stale copy back over a fresh gather.
   await setDoc(doc(db, COLLECTION, id), {
-    ...rest,
+    ...normalize(fields),
+    enrichment,
     enrichedAt: enrichedAt ? Timestamp.fromDate(enrichedAt) : null,
     createdAt: createdAt ? Timestamp.fromDate(createdAt) : serverTimestamp(),
     updatedAt: serverTimestamp(),

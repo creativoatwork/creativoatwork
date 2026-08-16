@@ -11,7 +11,6 @@ import { EnrichmentPanel } from '../components/EnrichmentPanel';
 const toFields = (p: Project): ProjectFields => ({
   name: p.name, description: p.description, repoUrl: p.repoUrl, domain: p.domain,
   host: p.host, frontend: p.frontend, database: p.database, status: p.status, notes: p.notes,
-  enrichment: p.enrichment, enrichedAt: p.enrichedAt,
 });
 
 export function ProjectPage() {
@@ -29,7 +28,6 @@ export function ProjectPage() {
   const form = useProjectForm({
     name: '', description: '', repoUrl: '', domain: '',
     host: 'unknown', frontend: 'unknown', database: 'unknown', status: 'active', notes: '',
-    enrichment: {}, enrichedAt: null,
   });
   const { setValue } = form;
 
@@ -66,7 +64,14 @@ export function ProjectPage() {
     setSaveError(null);
     setSaved(false);
     try {
-      await updateProject(project.id, normalize(form.value), project.createdAt);
+      await updateProject(
+        project.id,
+        normalize(form.value),
+        project.createdAt,
+        // From the live document, not from form state: a Save must never undo a Gather.
+        project.enrichment,
+        project.enrichedAt,
+      );
       setSaved(true);
     } catch (err) {
       const code = (err as { code?: string }).code ?? 'unknown';
@@ -161,8 +166,10 @@ export function ProjectPage() {
           // an edit in progress, and it must not be lost if the operator navigates away.
           await updateProject(
             project.id,
-            { ...normalize(form.value), enrichment, enrichedAt: at },
+            normalize(form.value),
             project.createdAt,
+            enrichment,
+            at,
           );
         }}
       />
