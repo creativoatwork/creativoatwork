@@ -22,8 +22,19 @@ import {
 const ADMIN = 'admin-uid-under-test';
 const OTHER = 'some-other-signed-in-user';
 
-const rules = readFileSync('firestore.rules', 'utf8')
-  .replace("'UID_PLACEHOLDER_1'", `'${ADMIN}'`);
+// Swap whatever the allowlist currently holds for the test UID, rather than matching a literal
+// placeholder string. The placeholders get replaced with real UIDs at deploy time, and a test
+// harness that silently stops granting admin access when that happens is worse than no test:
+// every "admin can..." case would fail, and every "is denied" case would pass for the wrong
+// reason. Everything else in the file — the real rule logic — is used verbatim.
+const rulesSource = readFileSync('firestore.rules', 'utf8');
+const rules = rulesSource.replace(
+  /(function adminUids\(\) \{\s*return \[)[\s\S]*?(\];)/,
+  `$1'${ADMIN}',$2`,
+);
+if (!rules.includes(`'${ADMIN}'`)) {
+  throw new Error('rules harness: could not inject the test UID into adminUids() — did the function shape change?');
+}
 
 let env: RulesTestEnvironment;
 

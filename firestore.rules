@@ -18,8 +18,7 @@ service cloud.firestore {
     // and replace them. See the spec, section 9.2 steps 8-9.
     function adminUids() {
       return [
-        'UID_PLACEHOLDER_1',
-        'UID_PLACEHOLDER_2',
+        'lj2K2fBmWig6QbEzQn5TVCmrrSg2',
       ];
     }
 
