@@ -37,6 +37,9 @@ admindash.html  -> src/admin/main.tsx  dashboard, never prerendered
 - **`npm run test:rules`** runs 47 emulator-backed rules tests. Requires a JDK. It is not part of `npm run build`.
 - Development points at the Firestore emulator (`import.meta.env.DEV`), never the live database.
 - Recovery is the dashboard's "Download JSON" plus `npm run restore:projects`. There is no PITR on the free plan.
+- **Enrichment** reads GitHub and DNS: `src/admin/data/enrich.ts` in the browser (public repos, 60 req/hour), `scripts/enrich-projects.mjs` via the `gh` CLI token (private repos, 5000/hour). Both hosts are hardcoded — `api.github.com` and `dns.google`, which publish `access-control-allow-origin: *` — so there is no user-supplied URL and no SSRF surface. Results land in the `enrichment` map, validated by type and a 25-key cap rather than key by key.
+- **Adding an outbound host means editing the CSP in `firebase.json`.** `connect-src` is an allowlist; a blocked request surfaces as `Failed to fetch` with no HTTP status, which reads like a network error and is not one. This has bitten twice: once on `apis.google.com` for the sign-in popup, once on `api.github.com`/`dns.google` for enrichment — the second time in production, because nothing outside a real browser can catch it.
+- The detection tables in `enrich.ts` and `scripts/enrich-projects.mjs` are duplicated by necessity (browser TS vs plain Node). Change both.
 
 ## Stack
 

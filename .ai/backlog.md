@@ -27,6 +27,9 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 - **No automated export.** Backups are manual — nobody is reminded. Closing this needs Blaze plus scheduled Firestore exports, or a cron on a machine that is on regularly.
 - **The detail view subscribes to the whole collection** to find one document. Fine at tens of documents; revisit alongside the ~500-document threshold.
 - **`worker/wrangler.toml` still uses `[[unsafe.bindings]]`** for the contact rate limiter. Cloudflare's current GA syntax is `[[ratelimits]]` (needs Wrangler >= 4.36.0; the repo declares ^4.119.0). Verified against Cloudflare docs during the /admindash review. Standalone cleanup, unrelated to the dashboard.
+- **No browser-level check in the verification chain.** Type-check, 54 rules tests, bundle-isolation walking, and a Node probe against the live APIs all passed while the CSP blocked every enrichment request in production. Playwright over `/admindash` sign-in plus one Gather would close it; until then, any change adding a network destination needs a manual browser pass.
+- **Enrichment detection tables are duplicated** between `src/admin/data/enrich.ts` and `scripts/enrich-projects.mjs`. Extracting a shared module would need the script to consume compiled TS or the tables to move to JSON.
+- **MX classification is weak** — `creativoatwork.com` returns a verification-style record and reports "other" rather than naming the mail host.
 - **The Cloud Monitoring alert on Firestore read count is designed but not created.** Spark has no budget alerts, but Cloud Monitoring alerting policies work without billing.
 
 ## Validation
