@@ -22,10 +22,19 @@ const BACKSPACE = ['\u007f', '\b'];
 export function ask(question) {
   return new Promise((resolve, reject) => {
     const rl = createInterface({ input: stdin, output: stdout });
-    rl.once('close', () => reject(new Error('input closed before a value was entered')));
+    // `settled` matters: rl.close() emits 'close' synchronously, so closing after a successful
+    // answer would otherwise fire the EOF rejection and settle the promise as an error on the
+    // success path.
+    let settled = false;
+    rl.once('close', () => {
+      if (!settled) {
+        settled = true;
+        reject(new Error('input closed before a value was entered'));
+      }
+    });
     rl.question(question).then(
-      (v) => { rl.close(); resolve(v.trim()); },
-      (e) => { rl.close(); reject(e); },
+      (v) => { settled = true; rl.close(); resolve(v.trim()); },
+      (e) => { settled = true; rl.close(); reject(e); },
     );
   });
 }
