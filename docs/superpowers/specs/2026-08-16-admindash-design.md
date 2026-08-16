@@ -1,6 +1,6 @@
 # `/admindash` — private multi-project aggregator
 
-**Status:** design v4 — corrected after Codex re-review of v3, awaiting second re-review
+**Status:** design v5 — corrected after Codex re-review of v4, awaiting final re-review
 **Date:** 2026-08-16
 **Repo:** creativoatwork (Vite + React + TS + Tailwind 4, Firebase Hosting, Cloudflare Worker)
 
@@ -38,6 +38,21 @@ export was an undefined blob rather than a recovery plan (§7); CSS/JS isolation
 equality, which is the wrong test (§9.4); the rules test matrix under-tested its own constraints
 (§9.3); and "quota monitoring" was arithmetic wearing a monitoring label (§10). Six FIX
 dispositions in §13 were overclaims and are relabelled honestly.
+
+**v5 corrects v4 after a third Codex pass**, which rejected it on the recovery design. The
+blocking defect: v4's restore script had no implementable authentication path (`signInWithPopup`
+cannot run in Node) and proposed deploying *relaxed* production rules for the duration of a
+restore, with a rollback check incapable of detecting a relaxation left behind. v5 deletes the
+hazard rather than hardening it — §5's `create` now accepts non-future timestamps instead of
+pinning them to `request.time`, so a restore runs under production rules unchanged (§7).
+Also fixed: `authDomain` is pinned so `frame-src` is actually correct (§3.2); the preview-channel
+hostname is authorized *after* the channel exists, since it does not exist before (§9.2); the
+domain regex now enforces label lengths and rejects uppercase, single-label, and trailing-dot
+hostnames while accepting punycode (§5); `repoUrl` is bounded to realistic GitHub owner/repo
+limits, and the test case demanding a 300-character GitHub URL be accepted — an impossible URL —
+is gone (§9.3); the CSS subset check is labelled a tripwire with the structural proof stated
+separately (§9.4); and the claim that Spark cannot alert on anything is corrected, with a real
+Cloud Monitoring policy now in scope (§10).
 
 ---
 
@@ -121,10 +136,20 @@ dynamically loads `https://apis.google.com/js/api.js` before opening the auth if
 wrong in v3 and would have shipped a dashboard nobody could log into. `style-src` and `font-src`
 cover Google Fonts because `admindash.html` uses the same Geist stack as the marketing page.
 
+**`authDomain` is pinned to `creativoatwork-54e65.firebaseapp.com`** in `src/admin/config.ts`,
+and `frame-src` allows exactly that host. These two must agree: if the implementation ever points
+`authDomain` at the custom domain, the auth iframe is blocked and sign-in fails with a CSP error
+that looks nothing like an auth error. A comment in each points at the other.
+
 **Verification precedes production, not follows it.** The CSP is validated on a Firebase Hosting
 **preview channel** (`firebase hosting:channel:deploy admindash-csp`, available on Spark) with a
-full sign-in round trip and a clean console, before any promotion to live. v3 deployed the
-header in step 5 and only checked it in step 8, which was not verification — it was hoping.
+full sign-in round trip on both providers and a clean console, before any promotion to live. v3
+deployed the header and checked it three steps later, which was not verification — it was hoping.
+
+The preview channel's hostname is a random hash that Firebase only returns **after** the channel
+is created, so it cannot be added to the authorized-domains list in advance. §9.2 orders this
+correctly: create the channel, read its hostname, authorize it, then verify. v4 had the
+authorization step before the channel existed and was not executable as written.
 
 ### 3.3 Routing
 
@@ -237,9 +262,9 @@ service cloud.firestore {
         && d.name        is string && d.name.size() > 0 && d.name.size() <= 200
         && d.description is string && d.description.size() <= 2000
         && d.domain      is string && d.domain.size() > 0 && d.domain.size() <= 253
-        && d.domain.matches('^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$')
-        && d.repoUrl     is string && d.repoUrl.size() <= 300
-        && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+/?$'))
+        && d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{2,59})$')
+        && d.repoUrl     is string && d.repoUrl.size() <= 140
+        && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9._-]{1,39}/[A-Za-z0-9._-]{1,100}$'))
         && d.notes       is string && d.notes.size() <= 10000
         && d.host     in ['firebase','digitalocean','lovable','vercel','netlify',
                           'cloudflare','aws','wordpress-host','other','unknown']
@@ -257,8 +282,8 @@ service cloud.firestore {
 
       allow create: if isAdmin()
         && validShape(request.resource.data)
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.createdAt <= request.time
+        && request.resource.data.updatedAt <= request.time;
 
       allow update: if isAdmin()
         && validShape(request.resource.data)
@@ -281,10 +306,18 @@ Four deliberate choices:
   `email_verified` check to be safe.
 - **`hasAll` *and* `hasOnly`.** `hasOnly` alone permits *omitting* required fields — a client
   could drop `createdAt` entirely.
-- **Timestamps pinned to `request.time`.** The client writes `serverTimestamp()`; anything else
-  is rejected. `createdAt` is immutable across updates by direct comparison to `resource.data`,
-  which is stronger and simpler here than `diff().affectedKeys()` given every field is validated
-  on every write.
+- **Timestamps must not be in the future, and `updatedAt` is pinned on update.** On `create`
+  both accept `<= request.time`; the app writes `serverTimestamp()`, which resolves exactly to
+  `request.time`, while the §7 restore writes the original historical values. On `update`,
+  `updatedAt == request.time` so an edit always stamps now, and `createdAt` is immutable by
+  direct comparison to `resource.data` — stronger and simpler here than `diff().affectedKeys()`
+  given every field is validated on every write.
+
+  Earlier drafts pinned both to `request.time` on create, which made restore impossible without
+  temporarily deploying weakened rules to production. Accepting the past instead of temporarily
+  accepting anything removes that hazard entirely. The cost is that an owner account can backdate
+  a timestamp — cosmetic on a private single-user tool, and a far better trade than a window in
+  which production validation is switched off.
 - **Global `if false` catch-all.** Adding a collection later requires a deliberate rule.
 - **`domain` and `repoUrl` are shape-validated, not merely length-capped.** v3 claimed domain was
   required in the UI while the rules accepted `""` or arbitrary text. The rules are now the
@@ -344,8 +377,9 @@ else can be filled in later. Focus trapped, `Esc` closes, focus returns to the t
 blocks navigation with a confirm.
 
 **Delete** — typed confirmation: the project's name must be entered. Never a bare button. This
-guards against a misclick, not against intent; see §5. Spark has no point-in-time recovery, so
-deletion is unrecoverable (§10).
+guards against a misclick, not against intent; see §5. There is no point-in-time recovery on
+this plan, so a delete is recoverable only as far back as the last JSON export (§10) — and not at
+all if none was taken.
 
 **Export / restore** — "Download JSON" serialises the whole collection. v3 left the format
 undefined, which made it an artifact rather than a recovery plan. Specified:
@@ -367,15 +401,36 @@ undefined, which made it an artifact rather than a recovery plan. Specified:
 `projectCount` must equal `projects.length`; the UI refuses to offer a download if it does not,
 because a silently truncated backup is worse than none.
 
-**Restore** is `npm run restore:projects -- <file.json>`, a small Node script authenticating as
-an allowlisted account and writing each document back **by its original ID** via `setDoc`. It
-refuses to run against a non-empty collection unless `--force` is passed. `createdAt` is
-restored from the file, so restore is one of the two writes that legitimately needs
-`createdAt != request.time` — handled by running the script against a temporarily relaxed rule
-set, documented in §10 rather than weakening the production rules.
+**Restore** is `npm run restore:projects -- <file.json>`, a Node script that runs **entirely
+under production rules**. No temporary rule relaxation, no service account, no Admin SDK.
 
-The restore path is exercised once against the emulator during rollout. An untested backup is
-not a backup.
+- **Authentication.** `signInWithEmailAndPassword` from the `firebase/auth` **web** SDK, which
+  runs in Node. `signInWithPopup` cannot, which is why v4's unspecified "authenticating as an
+  allowlisted account" was not implementable. This is the second reason the Email/Password
+  provider in §9.2 step 2 is mandatory, not a fallback: without it there is no restore path at
+  all. Credentials are prompted for at runtime and never stored in the repo or in a file.
+- **Timestamps need no special case.** §5's `create` accepts `createdAt <= request.time` and
+  `updatedAt <= request.time` rather than pinning both to `request.time`, so a restore writes the
+  original values directly. v4 proposed deploying relaxed rules and trusting the operator to
+  redeploy the strict ones afterwards — a window in which the production database runs with
+  validation disabled, and whose rollback check could not actually detect a lingering
+  relaxation. That entire hazard is deleted by making the rule tolerant of the past instead of
+  temporarily tolerant of everything.
+- **Idempotent and convergent.** Documents are written by original ID via `setDoc` in
+  `writeBatch` chunks of 500. Re-running produces the same end state. `--force` is required when
+  the collection is non-empty; without it the script refuses. A partial failure names the failed
+  chunk and exits non-zero — re-running is safe and completes the job, because `setDoc` by ID is
+  not additive.
+- **Post-restore assertion.** The script re-reads the collection and compares the document count
+  and every document ID against the file, exiting non-zero on any mismatch. "It seemed to work"
+  is not a restore.
+
+The restore path is exercised once against the emulator during rollout, and once more against a
+throwaway collection in the real project. An untested backup is not a backup.
+
+**The trade this makes explicit:** an owner account can write a `createdAt` older than reality.
+On a private single-user tool that is cosmetic, and it buys the removal of a procedure that could
+leave production validation switched off.
 
 **States** — skeleton rows on first load, not a spinner. The empty state distinguishes "no
 projects yet" from "no matches". Errors render an inline banner carrying the Firestore error code
@@ -428,23 +483,29 @@ Rules before UI, and nothing risky deploys unverified.
 
 1. Enable the Firestore API; create the database (Native mode, `nam5`).
 2. **Enable both sign-in providers** in Firebase Auth — **Google and Email/Password** — and add
-   authorized domains (`creativoatwork.com`, `creativoatwork-54e65.web.app`, the preview-channel
-   domain, `localhost`). v3 enabled only Google while §4 implements an email/password fallback;
-   that fallback would have failed at the provider, not in the code.
+   the authorized domains known at this point: `creativoatwork.com`,
+   `creativoatwork-54e65.web.app`, `creativoatwork-54e65.firebaseapp.com`, `localhost`. The
+   preview-channel domain is added later, at step 6b, because it does not exist yet. Email/Password
+   is required twice over: as the §4 fallback, and as the only way the §7 restore script can
+   authenticate from Node.
 3. Deploy `firestore.rules` with placeholder UIDs only — no real UID matches, so this is a
    deny-all deployment. Verify with the 403 curl in §9.4.
 4. Run the rules test suite against the emulator (§9.3). It must pass before the UI exists.
 5. Build. Confirm `prerender: injected N bytes` still prints and the marketing-bundle isolation
    checks in §9.4 pass. The CSS baseline for the subset check is captured from the current
    production build **before** any implementation begins.
-6. **Deploy to a preview channel** (`firebase hosting:channel:deploy admindash-csp`). Verify the
-   CSP against a real sign-in round trip with a clean browser console — both providers. Nothing
-   reaches production until this passes.
+6. **Deploy to a preview channel** — `firebase hosting:channel:deploy admindash-csp`.
+   6a. Read the channel's generated hostname from the command output.
+   6b. **Add that hostname to Firebase Auth authorized domains.** It did not exist before step 6,
+       so it could not have been authorized earlier; sign-in on the channel fails until this is
+       done, and the failure looks like a CSP problem rather than a domain problem.
+   6c. Verify the CSP against a real sign-in round trip on **both** providers, with a clean
+       browser console. Nothing reaches production until this passes.
 7. Promote to live.
 8. Sign in at `/admindash`, read the UID(s) off the card.
 9. Fill the UIDs into `firestore.rules`, deploy rules, reload.
-10. Exercise the restore script against the emulator once (§7), then post-deploy verification
-    (§9.4).
+10. Exercise the restore script (§7) against the emulator, then against a throwaway collection in
+    the real project, then post-deploy verification (§9.4).
 
 **Rollback:** Hosting has one-click release rollback in the console, exercised once during
 rollout so the runbook is known-good. Rules roll back by redeploying the placeholder version,
@@ -467,11 +528,16 @@ locally** — a genuine new dependency, noted because the emulator fails confusi
 | Create with a bad enum value, for each of the four enum fields | deny |
 | Create with a wrong type per field (number/bool/map/array/null where a string is required) | deny |
 | Create with `name` empty, and `name` at 201 chars | deny |
-| Create at each length ceiling + 1: `description` 2001, `repoUrl` 301, `domain` 254, `notes` 10001 | deny |
+| Create at each length ceiling + 1: `description` 2001, `repoUrl` 141, `domain` 254, `notes` 10001 | deny |
 | Create at each length ceiling exactly | allow |
 | Create with `domain` empty or not hostname-shaped | deny |
+| `domain` cases: uppercase `Example.com`, trailing dot `example.com.`, single label `localhost`, 64-char label | deny |
+| `domain` cases: `goodai.news`, `sub.domain.example.co.uk`, punycode `xn--80ak6aa92e.com` | allow |
 | Create with `repoUrl` non-empty and not a GitHub URL | deny |
+| `repoUrl` cases: owner >39 chars, repo >100 chars, trailing slash, `http://` scheme | deny |
 | Create with `repoUrl` empty | allow |
+| Create with historical `createdAt`/`updatedAt` (the restore path) | allow |
+| Create with a future `createdAt` or `updatedAt` | deny |
 | Create with `createdAt` or `updatedAt` absent | deny |
 | Create with `createdAt`/`updatedAt` a string rather than a timestamp | deny |
 | Create with a client-chosen `createdAt` | deny |
@@ -503,6 +569,14 @@ Nothing below is claimed as passing until it has actually been run.
   selector absent from that baseline. A size increase beyond ~2% fails the check as a tripwire
   even if the selector diff looks clean. The same reasoning retires the "JS hash unchanged"
   claim; the dependency-graph assertion above is what actually proves JS isolation.
+
+  **This subset check is a regression tripwire, not proof.** It compares selectors, so it is blind
+  to declaration-level changes, to non-selector CSS such as `@theme` or custom properties, and to
+  a leak small enough to fit under the size threshold. The *proof* of CSS isolation is structural
+  and comes first: `dist/index.html` must reference exactly one stylesheet, and it must not be the
+  asset emitted from `src/admin/admin.css`. Assert the referenced-asset sets of the two HTML
+  entries are disjoint apart from shared vendor chunks. The subset check then guards against
+  regression inside the marketing stylesheet itself.
 - Unauthenticated Firestore REST read → 403:
   ```bash
   curl -s -o /dev/null -w '%{http_code}\n' \
@@ -526,11 +600,17 @@ Nothing below is claimed as passing until it has actually been run.
 per load; at tens of documents and a single user that sits roughly three orders of magnitude
 inside the daily ceiling.
 
-Calling this "monitoring" would be a lie, and v3 did. **Spark has no budget alerts** — those
-require billing to be enabled — so there is no threshold that can page anyone. What exists is a
-manual check of the Firebase console Usage tab, recommended monthly and after any bulk import.
-Quota exhaustion on Spark degrades to failed reads, which the §7 error banner surfaces rather
-than hides. Revisit alongside the ~500-document threshold in §6.
+v3 called this arithmetic "monitoring", which it was not. v4 corrected the label but justified
+it with a false claim — that nothing can alert on Spark. **That was wrong.** Cloud *budget*
+alerts require billing, but **Cloud Monitoring alerting policies on Firestore metrics do not**,
+and the project already has Cloud Monitoring available.
+
+So there is real monitoring to configure, and it is now in scope: one alerting policy on
+`firestore.googleapis.com/document/read_count`, threshold at 50% of the daily free quota over a
+rolling day, notifying by email. That is a genuine tripwire for a runaway query or a loop, which
+is the only realistic way this collection generates load. Quota exhaustion otherwise degrades to
+failed reads, which the §7 error banner surfaces rather than hides. Revisit alongside the
+~500-document threshold in §6.
 
 **Auth on Spark:** unlimited for Google and email/password.
 
@@ -546,11 +626,10 @@ design.** Two ways to close it, neither in scope here: enable Blaze and turn on 
 Firestore exports to Cloud Storage, or run the export on a cron from a machine that is on
 regularly. Recorded in `backlog.md`.
 
-Restore requires writing `createdAt` values that predate `request.time`, which the production
-rules correctly refuse. The documented procedure is to deploy a temporary rule set that relaxes
-only the `createdAt == request.time` clause on create, run the restore, then immediately redeploy
-the production rules and re-run the 403 check. Relaxing rules is a deliberate, logged, reversed
-step — never a lingering state.
+**Restore needs no special rule handling.** Because §5's `create` accepts non-future timestamps,
+the restore script writes original `createdAt` and `updatedAt` values under the production rules
+as deployed. There is no temporary rule set, no window during which validation is weakened, and
+therefore nothing that can be left behind by an interrupted restore.
 
 **Revocation runbook:** to remove access, delete the UID from `firestore.rules` and deploy — that
 is the entire gate. Revoking a Google account's refresh tokens additionally requires the Firebase
@@ -571,7 +650,8 @@ prerender guarantee.
 
 - Whether `simone@creativoatwork.com` is a Google identity — resolved at bootstrap; the
   email/password path in §4 covers the negative case.
-- Both UIDs are placeholders until deploy step 6.
+- Both UIDs are placeholders until deploy steps 8–9, where they are read off the sign-in card
+  and written into `firestore.rules`.
 - CSP is verified in a browser before it ships (§3.2).
 
 ---
@@ -643,3 +723,26 @@ Codex's stated verdict on v3: *"reject as written until the CSP and Auth provide
 are corrected. Once fixed, it is implementable if the team explicitly accepts the weak recovery
 posture."* Both corrections are in v4, and §10 makes that acceptance explicit rather than
 implicit.
+
+### Third pass — re-review of v4
+
+Codex rejected v4 as not implementable, blocking on the recovery design, and graded most of v4's
+FIX labels as partial. Dispositions:
+
+| # | Finding | Sev | Disposition |
+|---|---|---|---|
+| v4-1 | Restore has no implementable Node auth path; temporary rule relaxation is worse than the risk it solves; `--force` non-convergent; rollback check cannot detect a lingering relaxation | **BLOCKING** | **FIX by removing the hazard** — §5 `create` accepts non-future timestamps, so restore runs under production rules with no relaxation at all. §7 specifies `signInWithEmailAndPassword` (works in Node, unlike popup), batched idempotent `setDoc` by ID, and a count-and-ID assertion afterwards |
+| v4-2 | `authDomain` never pinned, so `frame-src` may not match | MED | **FIX** — §3.2 pins it and cross-references the CSP |
+| v4-3 | Preview domain authorized at step 2, before the channel that generates it exists at step 6 | MED | **FIX** — §9.2 steps 6a–6c reorder it |
+| v4-4 | Domain regex rejects valid hosts and accepts overlong labels; no normalization policy | MED | **FIX** — §5 bounds labels to 63, requires ≥2 labels, accepts punycode, rejects uppercase and trailing dots; the client lowercases and trims before write |
+| v4-5 | `repoUrl` regex too permissive on owner/repo length; test matrix demands an impossible 300-char GitHub URL pass | MED | **FIX** — bounded to 39/100 and 140 total; the bad test case is replaced with real accept/reject cases |
+| v4-6 | Selector-subset check is a tripwire, not proof of isolation | MED | **ACCEPTED, reframed** — §9.4 says so plainly and states the structural proof (disjoint referenced-asset sets) separately |
+| v4-7 | Claim that Spark cannot alert is factually false | LOW | **FIX, and the underlying decision reversed** — Cloud Monitoring alerting works without billing. §10 now specifies a real alerting policy on `document/read_count` |
+| v4-8 | §7 called deletion "unrecoverable" while §7 defines JSON recovery | LOW | **FIX** — reworded to "recoverable only as far as the last export" |
+| v4-9 | §12 said UIDs are placeholders until step 6; §9.2 reads them at 8–9 | LOW | **FIX** — §12 corrected |
+
+Codex's stated verdict on v4: *"Not implementable as written. The blocking issue is the
+restore/recovery design… The single riskiest remaining item is the restore procedure — as
+specified, an operator following it could either fail to authenticate at all or leave the
+timestamp-validation bypass deployed without any test catching it."* v5 removes the bypass from
+the design entirely, so there is nothing left to leave deployed.
