@@ -6,6 +6,61 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-16 — Adopt CCOS 2.4, and keep the existing memory system as the authority
+
+**Decision.** Install the CCOS 2.4 operating standard at `.ai/CCOS.md` and add a root
+`CLAUDE.md` that imports it alongside `.ai/CLAUDE.md`. The existing `.ai/` files —
+`CLAUDE.md`, `CONTEXT.md`, `decisions.md`, `backlog.md`, `sessions/` — are preserved unchanged
+in substance. Where CCOS's generic defaults and this repository's rules disagree, the
+repository's rules win.
+
+**Reasoning.** This repo already had a working memory system using the same `.ai/` layout, but
+hand-written rather than derived from any CCOS version. CCOS 2.4 §4 covers exactly this case
+and says to merge rather than overwrite: preserve project-specific instructions that remain
+valid, add only what is missing.
+
+The naming collision was the one real problem. CCOS's tree wants `.ai/CLAUDE.md` for the
+standard itself, but that path was already the project rules — the more valuable file. Putting
+the standard at `.ai/CCOS.md` keeps both, and the separation is honest: standard versus
+specifics.
+
+**What this rules out.** CCOS does not authorize architecture changes. It is an operating
+protocol, not a license to migrate the stack, add Firebase services, or reshape conventions
+toward generic defaults.
+
+**A process failure worth recording.** The upgrade was first attempted against a working copy
+22 commits behind `origin/main`. Everything upstream — prerendering, the legal pages, the
+crawler files, the consent banner, rate limiting, the rebuilt Work grid — was invisible, so
+the session concluded "no CCOS present" and wrote a `CONTEXT.md` describing a site that no
+longer existed. The push was rejected, which is the only reason it was caught. **Confirm
+`git fetch` and branch position before reading repository state as current** — a clean
+`git status` says nothing about whether the branch is behind. CCOS §8 "Confirm repository root
+and Git state" means fetch, not just status.
+
+---
+
+## 2026-08-16 — Codex as the independent reviewer
+
+**Decision.** Use Codex in the role CCOS §13 defines: independent reviewer and adversarial
+challenger, not co-implementer. Claude stays the primary engineer and final decision-maker.
+`codex-cli 0.147.0` was already installed system-wide and authenticated; the
+`codex@openai-codex` plugin is enabled for this project.
+
+**Reasoning.** The review gates in §14–§19 were unsatisfiable without it. This repo has a small
+but genuinely security-relevant surface — a public unauthenticated endpoint, a rate limiter
+that fails open, secrets that must never cross into the client bundle — and one reviewer who
+did not write the code is worth more here than broader test coverage would be at this size.
+
+**What this rules out.** Codex findings are recommendations, classified FIX / NO-CHANGE /
+DEFER / DUPLICATE / FALSE POSITIVE, not authority. Claude and Codex must never edit this
+working tree concurrently. Never claim Codex reviewed something it did not.
+
+**The stop-time review gate is off.** Enabling it would force a fresh review before any session
+can stop, taxing copy edits as heavily as Worker changes, which §14 explicitly exempts. Left
+as a judgment call; see `backlog.md`.
+
+---
+
 ## 2026-08-05 — Publish Terms of Service and Privacy Policy
 
 **Decision.** Replace the seven-section placeholder at `/terms` with a 33-section document, and add a 21-section Privacy Policy at `/privacy`. Both are standalone HTML in `public/`, linked from the site footer and from each other, indexed, and listed in the sitemap.

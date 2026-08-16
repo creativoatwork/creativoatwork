@@ -1,6 +1,8 @@
 # Project rules — creativoatwork
 
-Project-specific working agreements. Read alongside `CONTEXT.md` (current state) and `PRODUCT.md` (product and design intent).
+Project-specific working agreements. Read alongside `CONTEXT.md` (current state), `PRODUCT.md` (product and design intent), and `CCOS.md` (the generic operating standard).
+
+Where this file and `CCOS.md` disagree, **this file wins** — it describes the actual repository; CCOS provides generic defaults. See `CCOS.md` §4 "Configuration Priority".
 
 ## Scope
 
@@ -37,7 +39,7 @@ Every UI change gets checked for: visible focus state, keyboard reachability (in
 - Keep the CORS allowlist tight. Do not widen it to `*`.
 - Never log full message bodies, email addresses, or the Resend key.
 - `RESEND_API_KEY` is a Wrangler secret. It must never appear in the repo, in a `VITE_`-prefixed variable, or in client code — `VITE_` variables are inlined into the public bundle.
-- The honeypot is the only abuse control today. There is no rate limiting; do not describe the endpoint as protected.
+- Abuse controls today are the honeypot plus a 3/min per-IP burst limit (`CONTACT_RATE_LIMITER`, `[[unsafe.bindings]]` in `wrangler.toml`). Keep `RATE_LIMIT_PERIOD_SECONDS` in `index.ts` in sync with `period`. The limiter is per-colo and **fails open**, so it caps runaway spend rather than guaranteeing a quota — do not describe the endpoint as protected against a determined or distributed attacker. Remaining gaps are in `backlog.md`.
 
 ## Verification honesty
 

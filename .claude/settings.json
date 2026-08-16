@@ -8,6 +8,7 @@
     }
   },
   "enabledPlugins": {
-    "impeccable@impeccable": true
+    "impeccable@impeccable": true,
+    "codex@openai-codex": true
   }
 }

@@ -10,6 +10,17 @@ Known gaps and candidate work, roughly by priority. Not a task tracker for in-fl
 - **No idempotency on send.** A double-submitted or retried request sends two emails. The client guards against double-submit in the UI (`status === 'sending'`), which is not a server-side guarantee.
 - **`VITE_CONTACT_URL` is build-time only.** If the Worker URL changes, a stale deployed bundle points at a dead endpoint until the frontend is rebuilt and redeployed. Worth documenting in the deploy runbook, or fronting the Worker with a stable custom domain.
 
+## Process
+
+- **The Codex stop-time review gate is disabled.** Enabling it (`/codex:setup --enable-review-gate`)
+  forces a fresh Codex review before a session can stop. That matches CCOS §16 literally, but
+  taxes copy and styling edits that §14 exempts. Left off deliberately; revisit if a
+  review-worthy change ever ships without one.
+- **`.ai/CLAUDE.md` drifted once already.** It claimed the honeypot was the only abuse control
+  months after rate limiting shipped, while `CONTEXT.md` documented the limiter correctly.
+  Fixed 2026-08-16. Memory files can contradict each other, not just the code — a reconcile
+  pass should read them against one another, not only against the repository.
+
 ## Validation
 
 - **No test framework.** Contact form state transitions (idle → sending → ok/error, error-code mapping) and Worker request validation are the highest-value units to cover first.
