@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Enrichment } from '../data/types';
+import type { Enrichment, ProjectFields } from '../data/types';
+import { LABELS } from '../data/types';
 import { enrichProject } from '../data/enrich';
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -31,13 +32,17 @@ const dnsLabel: Record<string, string> = {
  * Everything here is rendered as text. The values come from third-party APIs and are never
  * trusted as markup, and never used for any authorization decision.
  */
+type Classification = Pick<ProjectFields, 'host' | 'frontend' | 'database' | 'status'>;
+
 export function EnrichmentPanel({
-  repoUrl, domain, enrichment, enrichedAt, onSave,
+  repoUrl, domain, enrichment, enrichedAt, current, onApply, onSave,
 }: {
   repoUrl: string;
   domain: string;
   enrichment: Enrichment;
   enrichedAt: Date | null;
+  current: Classification;
+  onApply: (patch: Partial<Classification>) => void;
   onSave: (e: Enrichment, at: Date) => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
@@ -59,11 +64,26 @@ export function EnrichmentPanel({
   const e = enrichment ?? {};
   const empty = Object.keys(e).filter((k) => k !== 'source').length === 0;
 
+  // Only offer what the evidence supports AND what would actually change something. A suggestion
+  // matching the current value is noise.
+  const suggestions = (
+    [
+      ['host', e.suggestedHost], ['frontend', e.suggestedFrontend],
+      ['database', e.suggestedDatabase], ['status', e.suggestedStatus],
+    ] as const
+  ).filter(([k, v]) => v && v !== current[k]) as Array<[keyof Classification, string]>;
+
+  const applyAll = () => {
+    const patch: Record<string, string> = {};
+    for (const [k, v] of suggestions) patch[k] = v;
+    onApply(patch as Partial<Classification>);
+  };
+
   return (
     <section className="mt-8 border-t border-[var(--color-rule)] pt-6">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-3)]">
-          Gathered
+          Tech stack
         </h2>
         <div className="flex items-center gap-3">
           {enrichedAt && (
@@ -77,7 +97,7 @@ export function EnrichmentPanel({
             disabled={busy || (!repoUrl && !domain)}
             className="border border-[var(--color-rule-strong)] px-3 py-1 text-xs hover:border-[var(--color-ink)] disabled:opacity-40"
           >
-            {busy ? 'Reading…' : enrichedAt ? 'Refresh' : 'Gather'}
+            {busy ? 'Reading…' : enrichedAt ? 'Refresh' : 'Gather tech stack'}
           </button>
         </div>
       </div>
@@ -89,6 +109,45 @@ export function EnrichmentPanel({
           Nothing gathered yet. Reads the GitHub repo and the domain's DNS — both public, no
           credentials involved.
         </p>
+      )}
+
+      {suggestions.length > 0 && (
+        <div className="mb-4 border border-[var(--color-rule-strong)] bg-[var(--color-paper-2)] px-4 py-3">
+          <p className="text-sm text-[var(--color-ink)]">
+            Suggested from the evidence below — review before applying, and note these only take
+            effect when you save.
+          </p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {suggestions.map(([k, v]) => (
+              <li key={k} className="flex flex-wrap items-baseline gap-2">
+                <span className="font-mono text-xs uppercase text-[var(--color-ink-3)]">{k}</span>
+                <span className="font-mono text-xs text-[var(--color-ink-3)] line-through">
+                  {(LABELS[k] as Record<string, string>)[current[k]]}
+                </span>
+                <span aria-hidden="true" className="text-[var(--color-ink-3)]">→</span>
+                <span className="font-mono text-xs text-[var(--color-ink)]">
+                  {(LABELS[k] as Record<string, string>)[v] ?? v}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onApply({ [k]: v } as Partial<Classification>)}
+                  className="ml-auto border border-[var(--color-rule-strong)] px-2 py-0.5 text-xs hover:border-[var(--color-ink)]"
+                >
+                  Apply
+                </button>
+              </li>
+            ))}
+          </ul>
+          {suggestions.length > 1 && (
+            <button
+              type="button"
+              onClick={applyAll}
+              className="mt-3 border border-[var(--color-ink)] px-3 py-1 text-xs text-[var(--color-ink)] hover:bg-[var(--color-paper)]"
+            >
+              Apply all {suggestions.length}
+            </button>
+          )}
+        </div>
       )}
 
       {!empty && (

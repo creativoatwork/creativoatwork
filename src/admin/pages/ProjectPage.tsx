@@ -3,7 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { subscribeProjects, updateProject, deleteProject } from '../data/projects';
 import type { Project, ProjectFields } from '../data/types';
 import { normalize } from '../data/types';
-import { ProjectForm, useProjectForm } from '../components/ProjectForm';
+import {
+  IdentityFields, RepoField, DescriptionField, ClassificationFields, NotesField, useProjectForm,
+} from '../components/ProjectForm';
 import { DeleteDialog } from '../components/DeleteDialog';
 import { ErrorBanner } from '../components/States';
 import { EnrichmentPanel } from '../components/EnrichmentPanel';
@@ -133,7 +135,32 @@ export function ProjectPage() {
       </nav>
 
       <form onSubmit={save} noValidate>
-        <ProjectForm value={form.value} onChange={form.setValue} errors={form.errors} />
+        {/* Order is deliberate: identity, where it lives, what it is, what was gathered about
+            it, then free-text notes, then immutable metadata. */}
+        <div className="space-y-5">
+          <IdentityFields value={form.value} onChange={form.setValue} errors={form.errors} withStatus />
+          <RepoField value={form.value} onChange={form.setValue} errors={form.errors} />
+          <DescriptionField value={form.value} onChange={form.setValue} errors={form.errors} />
+        </div>
+
+        <EnrichmentPanel
+          repoUrl={form.value.repoUrl}
+          domain={form.value.domain}
+          enrichment={project.enrichment}
+          enrichedAt={project.enrichedAt}
+          current={{ host: form.value.host, frontend: form.value.frontend, database: form.value.database, status: form.value.status }}
+          onApply={(patch) => form.setValue({ ...form.value, ...patch })}
+          onSave={async (enrichment, at) => {
+            // Written straight through rather than staged in the form: gathered fact, not an
+            // edit in progress, and it must survive navigating away without a Save.
+            await updateProject(project.id, normalize(form.value), project.createdAt, enrichment, at);
+          }}
+        />
+
+        <div className="mt-6 space-y-5">
+          <ClassificationFields value={form.value} onChange={form.setValue} errors={form.errors} />
+          <NotesField value={form.value} onChange={form.setValue} errors={form.errors} />
+        </div>
 
         {saveError && <div className="mt-4"><ErrorBanner message={saveError} /></div>}
 
@@ -155,24 +182,6 @@ export function ProjectPage() {
           </button>
         </div>
       </form>
-
-      <EnrichmentPanel
-        repoUrl={form.value.repoUrl}
-        domain={form.value.domain}
-        enrichment={project.enrichment}
-        enrichedAt={project.enrichedAt}
-        onSave={async (enrichment, at) => {
-          // Written straight through rather than staged in the form: this is gathered fact, not
-          // an edit in progress, and it must not be lost if the operator navigates away.
-          await updateProject(
-            project.id,
-            normalize(form.value),
-            project.createdAt,
-            enrichment,
-            at,
-          );
-        }}
-      />
 
       <dl className="mt-8 grid grid-cols-2 gap-2 border-t border-[var(--color-rule)] pt-4 font-mono text-xs text-[var(--color-ink-3)]">
         <dt>Created</dt>

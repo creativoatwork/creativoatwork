@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
-import { ProjectForm, useProjectForm } from './ProjectForm';
+import { IdentityFields, useProjectForm } from './ProjectForm';
 import { EMPTY_PROJECT, normalize } from '../data/types';
 import { createProject } from '../data/projects';
 
 /**
- * Domain first, then everything else by hand.
+ * Asks for the two things you actually know when a project first exists: its domain and what to
+ * call it. Everything else lives on the detail page.
  *
  * Earlier drafts probed the domain server-side to infer host and stack. That required a
  * URL-fetching endpoint with JWT verification and SSRF guards on the Worker that serves the live
@@ -41,7 +42,11 @@ export function AddProjectModal({
   return (
     <Modal title="Add project" onClose={onClose}>
       <form onSubmit={submit} noValidate>
-        <ProjectForm value={form.value} onChange={form.setValue} errors={form.errors} />
+        <IdentityFields value={form.value} onChange={form.setValue} errors={form.errors} />
+        <p className="mt-3 text-xs text-[var(--color-ink-3)]">
+          Everything else — repo, stack, notes — is filled in on the project page, where the
+          tech stack can be gathered from GitHub and DNS.
+        </p>
         {error && <p role="alert" className="mt-4 text-sm text-[var(--color-accent)]">{error}</p>}
         <div className="mt-6 flex gap-3">
           <button type="submit" disabled={busy}

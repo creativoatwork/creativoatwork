@@ -102,8 +102,8 @@ backup.projects.forEach((p, i) => {
   if (!STATUSES.includes(p.status)) problems.push(`${at}: invalid status "${p.status}"`);
   if (p.enrichment !== undefined && (typeof p.enrichment !== 'object' || p.enrichment === null || Array.isArray(p.enrichment))) {
     problems.push(`${at}: enrichment must be an object when present`);
-  } else if (p.enrichment && Object.keys(p.enrichment).length > 25) {
-    problems.push(`${at}: enrichment has more than 25 keys; the rules will refuse it`);
+  } else if (p.enrichment && Object.keys(p.enrichment).length > 40) {
+    problems.push(`${at}: enrichment has more than 40 keys; the rules will refuse it`);
   }
   if (p.enrichedAt != null && Number.isNaN(Date.parse(p.enrichedAt))) {
     problems.push(`${at}: enrichedAt must be an ISO timestamp or null`);

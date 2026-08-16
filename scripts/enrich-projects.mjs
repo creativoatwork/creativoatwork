@@ -224,6 +224,32 @@ async function enrichOne(p) {
     } catch (e) { errors.push(`dns: ${e.message}`); }
   }
 
+  // Suggestions, mirroring suggest() in src/admin/data/enrich.ts. Change both together.
+  const fe = out.stackFrontend ?? [], be = out.stackBackend ?? [], mk = out.markers ?? [];
+  if (mk.includes('WordPress')) out.suggestedFrontend = 'wordpress';
+  else if (fe.includes('Next.js')) out.suggestedFrontend = 'next';
+  else if (fe.includes('Nuxt') || fe.includes('Vue')) out.suggestedFrontend = 'vue';
+  else if (fe.includes('SvelteKit') || fe.includes('Svelte')) out.suggestedFrontend = 'svelte';
+  else if (fe.includes('Astro')) out.suggestedFrontend = 'astro';
+  else if (fe.includes('React')) out.suggestedFrontend = 'react';
+  else if (out.languages?.length && !fe.length) out.suggestedFrontend = 'static';
+
+  if (mk.includes('WordPress')) out.suggestedDatabase = 'wordpress-mysql';
+  else if (be.includes('PostgreSQL') || be.includes('Supabase')) out.suggestedDatabase = 'postgres';
+  else if (be.includes('MySQL')) out.suggestedDatabase = 'mysql';
+  else if (be.includes('Mongoose')) out.suggestedDatabase = 'mongo';
+  else if (be.includes('Firebase') || be.includes('Firebase Admin')) out.suggestedDatabase = 'firestore';
+
+  if (mk.includes('Firebase Hosting')) out.suggestedHost = 'firebase';
+  else if (mk.includes('Vercel')) out.suggestedHost = 'vercel';
+  else if (mk.includes('Netlify')) out.suggestedHost = 'netlify';
+  else if (mk.includes('Cloudflare Workers')) out.suggestedHost = 'cloudflare';
+  else if (out.hostingHint === 'Vercel') out.suggestedHost = 'vercel';
+  else if (out.hostingHint === 'Netlify') out.suggestedHost = 'netlify';
+  else if (out.hostingHint === 'Firebase Hosting') out.suggestedHost = 'firebase';
+
+  if (out.repoArchived) out.suggestedStatus = 'archived';
+
   if (errors.length) out.errors = errors;
   return out;
 }

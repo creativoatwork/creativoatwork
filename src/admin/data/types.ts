@@ -43,7 +43,7 @@ export const REPO_RE =
 /**
  * Machine-written enrichment, read from GitHub and DNS.
  *
- * Deliberately loose: the rules validate that this is a map of at most 25 keys and nothing more,
+ * Deliberately loose: the rules validate that this is a map of at most 40 keys and nothing more,
  * so a new signal can be added without a rules deploy. It is owner-written, display-only, and
  * never used for authorization. Rendered as text, never as HTML.
  */
@@ -77,6 +77,19 @@ export interface Enrichment {
   mailProvider?: string;
   /** Set when a source could not be read, so a blank panel is never mistaken for a clean result. */
   errors?: string[];
+  /**
+   * Values the gatherer believes the classification fields should hold, derived from the
+   * evidence above. Suggestions only — never applied automatically. The operator may know
+   * something the evidence cannot show (an origin behind Cloudflare, a database the manifest
+   * does not name), so overwriting their choice would be wrong.
+   *
+   * `status` is only ever suggested from GitHub's `archived` flag. Active vs maintenance is a
+   * judgement about intent that no repository fact can settle.
+   */
+  suggestedHost?: string;
+  suggestedFrontend?: string;
+  suggestedDatabase?: string;
+  suggestedStatus?: string;
   /** Which run wrote this: 'browser' or 'cli'. */
   source?: string;
 }

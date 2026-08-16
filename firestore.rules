@@ -58,7 +58,7 @@ service cloud.firestore {
         // size rather than key by key, so adding a new signal needs no rules deploy. The inner
         // values are never used for authorization or rendered as HTML.
         && d.enrichment is map
-        && d.enrichment.size() <= 25
+        && d.enrichment.size() <= 40
         && (d.enrichedAt == null || d.enrichedAt is timestamp);
     }
 

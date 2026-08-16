@@ -259,16 +259,30 @@ describe('enrichment', () => {
     await assertFails(setDoc(doc(adminDb(), 'projects', 'e4'), validDoc({ enrichment: ['a'] })));
   });
 
-  test('more than 25 enrichment keys is refused', async () => {
+  test('more than 40 enrichment keys is refused', async () => {
     const big: Record<string, string> = {};
-    for (let i = 0; i < 26; i++) big[`k${i}`] = 'v';
+    for (let i = 0; i < 41; i++) big[`k${i}`] = 'v';
     await assertFails(setDoc(doc(adminDb(), 'projects', 'e5'), validDoc({ enrichment: big })));
   });
 
-  test('exactly 25 keys is accepted', async () => {
+  test('exactly 40 keys is accepted', async () => {
     const ok: Record<string, string> = {};
-    for (let i = 0; i < 25; i++) ok[`k${i}`] = 'v';
+    for (let i = 0; i < 40; i++) ok[`k${i}`] = 'v';
     await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'e6'), validDoc({ enrichment: ok })));
+  });
+
+  test('every key the gatherer can emit fits under the cap', async () => {
+    // Guards the failure this cap nearly caused: 26 possible keys against a 25-key limit would
+    // have refused exactly the projects with the most gathered data.
+    const everyKey = [
+      'repoOwner','repoName','repoPrivate','repoArchived','repoPushedAt','repoLicense',
+      'repoTopics','languages','stackFrontend','stackBackend','markers','lastCommitAuthor',
+      'lastCommitDate','lastCommitMessage','serverIps','serverHostname','dnsProvider',
+      'nameservers','hostingHint','mailProvider','suggestedHost','suggestedFrontend',
+      'suggestedDatabase','suggestedStatus','errors','source',
+    ];
+    const full = Object.fromEntries(everyKey.map((k) => [k, 'v']));
+    await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'e9'), validDoc({ enrichment: full })));
   });
 
   test('a non-timestamp enrichedAt is refused', async () => {

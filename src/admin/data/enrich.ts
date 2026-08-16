@@ -259,6 +259,52 @@ export async function enrichFromGithub(
   return out;
 }
 
+/**
+ * Turn evidence into proposed classification values.
+ *
+ * Only where the evidence actually supports it. Frontend and database are usually decidable from
+ * the dependency manifest; host is often masked by a proxy; status is not a repository fact at
+ * all, so it is suggested only when GitHub reports the repo archived.
+ */
+function suggest(e: Enrichment): Enrichment {
+  const fe = e.stackFrontend ?? [];
+  const be = e.stackBackend ?? [];
+  const mk = e.markers ?? [];
+  const has = (list: string[], v: string) => list.includes(v);
+  const out: Enrichment = {};
+
+  // Frontend — the most specific framework wins over the bundler that ships it.
+  if (has(mk, 'WordPress')) out.suggestedFrontend = 'wordpress';
+  else if (has(fe, 'Next.js')) out.suggestedFrontend = 'next';
+  else if (has(fe, 'Nuxt') || has(fe, 'Vue')) out.suggestedFrontend = 'vue';
+  else if (has(fe, 'SvelteKit') || has(fe, 'Svelte')) out.suggestedFrontend = 'svelte';
+  else if (has(fe, 'Astro')) out.suggestedFrontend = 'astro';
+  else if (has(fe, 'React')) out.suggestedFrontend = 'react';
+  else if (e.languages?.length && !fe.length) out.suggestedFrontend = 'static';
+
+  // Database — named dependencies only. Prisma and Drizzle are ORMs and do not name the engine.
+  if (has(mk, 'WordPress')) out.suggestedDatabase = 'wordpress-mysql';
+  else if (has(be, 'PostgreSQL') || has(be, 'Supabase')) out.suggestedDatabase = 'postgres';
+  else if (has(be, 'MySQL')) out.suggestedDatabase = 'mysql';
+  else if (has(be, 'Mongoose')) out.suggestedDatabase = 'mongo';
+  else if (has(be, 'Firebase') || has(be, 'Firebase Admin')) out.suggestedDatabase = 'firestore';
+
+  // Host — repo markers are stronger evidence than DNS, which a proxy can mask.
+  if (has(mk, 'Firebase Hosting')) out.suggestedHost = 'firebase';
+  else if (has(mk, 'Vercel')) out.suggestedHost = 'vercel';
+  else if (has(mk, 'Netlify')) out.suggestedHost = 'netlify';
+  else if (has(mk, 'Cloudflare Workers')) out.suggestedHost = 'cloudflare';
+  else if (e.hostingHint === 'Vercel') out.suggestedHost = 'vercel';
+  else if (e.hostingHint === 'Netlify') out.suggestedHost = 'netlify';
+  else if (e.hostingHint === 'Firebase Hosting') out.suggestedHost = 'firebase';
+  else if (e.hostingHint === 'GitHub Pages') out.suggestedHost = 'other';
+
+  // Status — the only defensible inference.
+  if (e.repoArchived) out.suggestedStatus = 'archived';
+
+  return out;
+}
+
 /** Both halves. Partial results are kept — a DNS failure must not discard a good repo read. */
 export async function enrichProject(
   opts: { repoUrl: string; domain: string; source: string; token?: string },
@@ -269,7 +315,8 @@ export async function enrichProject(
     opts.domain ? enrichFromDns(opts.domain, f) : Promise.resolve({} as Enrichment),
   ]);
   const errors = [...(gh.errors ?? []), ...(dns.errors ?? [])];
-  const merged: Enrichment = { ...gh, ...dns, source: opts.source };
+  const base: Enrichment = { ...gh, ...dns };
+  const merged: Enrichment = { ...base, ...suggest(base), source: opts.source };
   if (errors.length) merged.errors = errors;
   else delete merged.errors;
   return merged;
