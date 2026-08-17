@@ -20,19 +20,27 @@ export function ProjectTable({
   dir: 'asc' | 'desc';
   onSort: (k: SortKey) => void;
 }) {
-  const Th = ({ k, children, className = '' }: { k: SortKey; children: React.ReactNode; className?: string }) => (
-    <th scope="col" className={`sticky top-0 z-10 bg-[var(--color-paper)] px-3 py-2 text-left font-mono text-xs font-medium uppercase tracking-wide ${className}`}>
-      <button
-        type="button"
-        onClick={() => onSort(k)}
-        aria-sort={sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
-        className="text-[var(--color-ink-3)] hover:text-[var(--color-ink)]"
+  const Th = ({ k, children, className = '' }: { k: SortKey; children: React.ReactNode; className?: string }) => {
+    const active = sort === k;
+    return (
+      // aria-sort belongs on the header CELL, not on the button inside it. On a <button> it is
+      // not a valid attribute and assistive technology reports no sort state at all.
+      <th
+        scope="col"
+        aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+        className={`sticky top-0 z-10 bg-[var(--color-paper)] px-3 py-2 text-left font-mono text-xs font-medium uppercase tracking-wide ${className}`}
       >
-        {children}
-        {sort === k && <span aria-hidden="true">{dir === 'asc' ? ' ↑' : ' ↓'}</span>}
-      </button>
-    </th>
-  );
+        <button
+          type="button"
+          onClick={() => onSort(k)}
+          className={`hover:text-[var(--color-ink)] ${active ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-3)]'}`}
+        >
+          {children}
+          <span aria-hidden="true">{active ? (dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
+        </button>
+      </th>
+    );
+  };
 
   return (
     <div className="overflow-x-auto border border-[var(--color-rule)]">

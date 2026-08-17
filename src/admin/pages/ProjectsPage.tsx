@@ -49,7 +49,11 @@ export function ProjectsPage() {
   const onSort = (k: SortKey) => {
     const next = new URLSearchParams(params);
     next.set('sort', k);
-    next.set('dir', sort === k && dir === 'desc' ? 'asc' : 'desc');
+    // Clicking a NEW column starts in the direction that column is usually wanted in: A-Z for
+    // text, newest-first for a date. Starting every column descending made a first click on
+    // "Project" sort Z-A, which reads as broken rather than as a choice.
+    const firstDir = k === 'updatedAt' ? 'desc' : 'asc';
+    next.set('dir', sort === k ? (dir === 'asc' ? 'desc' : 'asc') : firstDir);
     setParams(next, { replace: true });
   };
 
@@ -64,11 +68,17 @@ export function ProjectsPage() {
       if (!q) return true;
       return [p.name, p.domain, p.description, p.notes].some((v) => v.toLowerCase().includes(q));
     });
+    // Case-insensitive and number-aware, so "landUSup" files under L and "Project 10" sorts
+    // after "Project 9" rather than before it.
+    const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
     const cmp = (a: Project, b: Project) => {
       if (sort === 'updatedAt') {
         return (a.updatedAt?.getTime() ?? 0) - (b.updatedAt?.getTime() ?? 0);
       }
-      return String(a[sort]).localeCompare(String(b[sort]));
+      const av = String(a[sort] ?? '');
+      const bv = String(b[sort] ?? '');
+      // Fall back to name so equal hosts/statuses land in a stable, readable order.
+      return collator.compare(av, bv) || collator.compare(a.name, b.name);
     };
     return out.sort((a, b) => (dir === 'asc' ? cmp(a, b) : -cmp(a, b)));
   }, [projects, filters.q, filters.host, filters.frontend, filters.database, filters.status, sort, dir]);

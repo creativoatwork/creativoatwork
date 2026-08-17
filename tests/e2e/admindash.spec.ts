@@ -150,6 +150,48 @@ test.describe('/admindash', () => {
     await expect(gatheredRow(page, 'DNS'), 'Save must not undo a Gather').toContainText('Cloudflare');
   });
 
+  test('sorts by project name, ascending on the first click', async ({ page }) => {
+    await signIn(page);
+
+    // Three names whose order differs by case and by number, so a naive comparison shows up.
+    for (const [domain, name] of [
+      ['zebra-sort.example', 'zebra lowercase'],
+      ['alpha-sort.example', 'Alpha Uppercase'],
+      ['num-sort.example', 'Project 10'],
+      ['num2-sort.example', 'Project 9'],
+    ] as const) {
+      await page.getByRole('button', { name: 'Add project' }).click();
+      await page.getByLabel('Domain').fill(domain);
+      await page.getByLabel('Project name').fill(name);
+      await page.getByRole('button', { name: 'Save project' }).click();
+      await expect(page).toHaveURL(/\/admindash\/[A-Za-z0-9]+$/);
+      await page.getByRole('link', { name: '← all projects' }).click();
+    }
+
+    const header = page.getByRole('columnheader', { name: /Project/ });
+    const names = () => page.locator('tbody tr td:first-child span:first-child');
+
+    await header.getByRole('button').click();
+    await expect(header, 'first click on a text column sorts A-Z').toHaveAttribute('aria-sort', 'ascending');
+    const FIXTURES = ['Alpha Uppercase', 'Project 9', 'Project 10', 'zebra lowercase'];
+    const asc = await names().allTextContents();
+    expect(asc.filter((n) => FIXTURES.includes(n))).toEqual([
+      'Alpha Uppercase', 'Project 9', 'Project 10', 'zebra lowercase',
+    ]);
+
+    await header.getByRole('button').click();
+    await expect(header).toHaveAttribute('aria-sort', 'descending');
+    const desc = await names().allTextContents();
+    expect(desc.filter((n) => FIXTURES.includes(n))).toEqual([
+      'zebra lowercase', 'Project 10', 'Project 9', 'Alpha Uppercase',
+    ]);
+
+    // Sorting lives in the URL, so a sorted view is linkable and survives reload.
+    await expect(page).toHaveURL(/sort=name/);
+    await page.reload();
+    await expect(header).toHaveAttribute('aria-sort', 'descending');
+  });
+
   test('deletes the fixture, and requires the name typed to do it', async ({ page }) => {
     await signIn(page);
     await page.getByRole('link', { name: /E2E fixture/ }).click();
@@ -161,8 +203,10 @@ test.describe('/admindash', () => {
     await expect(confirm).toBeEnabled();
     await confirm.click();
 
+    // Asserts the row is gone, not that the collection is empty: other tests leave fixtures
+    // behind, and coupling to a global count makes this fail for reasons unrelated to delete.
     await expect(page).toHaveURL(/\/admindash$/);
-    await expect(page.getByText('No projects yet.')).toBeVisible();
+    await expect(page.getByRole('link', { name: /E2E fixture/ })).toHaveCount(0);
   });
 });
 

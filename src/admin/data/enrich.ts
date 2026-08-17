@@ -335,8 +335,17 @@ export async function enrichProject(
   f: FetchLike,
   previous?: Enrichment,
 ): Promise<Enrichment> {
+  // A repo already known to be private cannot be read without a token, and the browser has
+  // none. Asking again spends one of GitHub's 60 unauthenticated requests per hour to be told
+  // 404 — so skip it, keep what the CLI found, and refresh the half that can still change.
+  const knownPrivate = !opts.token && previous?.repoPrivate === true;
+
   const [gh, dns] = await Promise.all([
-    enrichFromGithub(opts.repoUrl, f, opts.token),
+    knownPrivate
+      ? Promise.resolve({
+          errors: ['repo: private — kept the reading from npm run enrich:projects'],
+        } as Enrichment)
+      : enrichFromGithub(opts.repoUrl, f, opts.token),
     opts.domain ? enrichFromDns(opts.domain, f) : Promise.resolve({} as Enrichment),
   ]);
 
@@ -354,7 +363,7 @@ export async function enrichProject(
   }
 
   const errors = [...(repoPart.errors ?? []), ...(dns.errors ?? [])];
-  if (kept) {
+  if (kept && !knownPrivate) {
     errors.push('repo: kept the previous reading — run npm run enrich:projects to refresh it');
   }
 
