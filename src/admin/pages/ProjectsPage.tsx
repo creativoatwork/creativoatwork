@@ -6,6 +6,7 @@ import type { Project } from '../data/types';
 import { ProjectTable, type SortKey } from '../components/ProjectTable';
 import { FilterBar, type Filters } from '../components/FilterBar';
 import { AddProjectModal } from '../components/AddProjectModal';
+import { ImportProjectsModal } from '../components/ImportProjectsModal';
 import { ErrorBanner, TableSkeleton, EmptyState } from '../components/States';
 import { useAuth } from '../auth/AuthProvider';
 
@@ -13,6 +14,7 @@ export function ProjectsPage() {
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
   const [adding, setAdding] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -111,6 +113,14 @@ export function ProjectsPage() {
         >
           Add project
         </button>
+        <button
+          type="button"
+          onClick={() => setImporting(true)}
+          disabled={!projects}
+          className="border border-[var(--color-rule-strong)] px-4 py-1.5 text-sm hover:border-[var(--color-ink)] disabled:opacity-40"
+        >
+          Import list
+        </button>
       </div>
 
       {error && (
@@ -144,6 +154,12 @@ export function ProjectsPage() {
           onClose={() => setAdding(false)}
           onCreated={(id) => { setAdding(false); navigate(`/${id}`); }}
         />
+      )}
+
+      {importing && projects && (
+        // The live collection is passed in so duplicate detection compares against what is
+        // actually stored, not a stale copy.
+        <ImportProjectsModal existing={projects} onClose={() => setImporting(false)} />
       )}
     </div>
   );

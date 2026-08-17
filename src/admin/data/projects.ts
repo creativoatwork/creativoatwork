@@ -1,5 +1,5 @@
 import {
-  collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, orderBy,
+  collection, doc, addDoc, setDoc, deleteDoc, getDoc, onSnapshot, query, orderBy,
   serverTimestamp, Timestamp, type DocumentData, type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -86,6 +86,30 @@ export async function updateProject(
     createdAt: createdAt ? Timestamp.fromDate(createdAt) : serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+}
+
+/**
+ * Writes gathered enrichment onto a project the caller did not load — the bulk import's case,
+ * where the document was created a moment ago and only its ID is known.
+ *
+ * The read is not optional. `update` requires `createdAt` to equal the stored value, and a
+ * serverTimestamp() written at create time is only knowable by reading it back; sending anything
+ * else is a permission-denied. The editable fields are re-read too, so this can never write a
+ * stale copy of a field it does not own.
+ */
+export async function saveEnrichmentById(
+  id: string,
+  enrichment: Enrichment,
+  at: Date,
+): Promise<void> {
+  const snap = await getDoc(doc(db, COLLECTION, id));
+  if (!snap.exists()) throw Object.assign(new Error('Project no longer exists.'), { code: 'not-found' });
+  const p = toProject(snap as QueryDocumentSnapshot<DocumentData>);
+  const fields: ProjectFields = {
+    name: p.name, description: p.description, repoUrl: p.repoUrl, domain: p.domain,
+    host: p.host, frontend: p.frontend, database: p.database, status: p.status, notes: p.notes,
+  };
+  await updateProject(id, fields, p.createdAt, enrichment, at);
 }
 
 export async function deleteProject(id: string): Promise<void> {

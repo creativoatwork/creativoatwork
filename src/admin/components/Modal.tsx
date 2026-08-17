@@ -5,8 +5,8 @@ import { useEffect, useRef, type ReactNode } from 'react';
  * Keyboard reachability is part of the accessibility floor, private tool or not.
  */
 export function Modal({
-  title, onClose, children,
-}: { title: string; onClose: () => void; children: ReactNode }) {
+  title, onClose, size = 'md', children,
+}: { title: string; onClose: () => void; size?: 'md' | 'lg'; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
 
@@ -48,7 +48,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-2xl border border-[var(--color-rule-strong)] bg-[var(--color-paper)] p-6"
+        className={`w-full ${size === 'lg' ? 'max-w-5xl' : 'max-w-2xl'} border border-[var(--color-rule-strong)] bg-[var(--color-paper)] p-6`}
       >
         <div className="mb-4 flex items-baseline justify-between">
           <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-3)]">{title}</h2>

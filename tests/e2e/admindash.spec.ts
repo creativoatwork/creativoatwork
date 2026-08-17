@@ -165,3 +165,75 @@ test.describe('/admindash', () => {
     await expect(page.getByText('No projects yet.')).toBeVisible();
   });
 });
+
+/**
+ * Bulk import.
+ *
+ * Runs after the block above, which leaves the collection empty. The preview is the feature's
+ * only safety mechanism — fields are classified by shape rather than by column position, so what
+ * the parser decided has to be visible before anything is written. These tests assert on the
+ * preview's own cells, not just on the outcome.
+ */
+test.describe('/admindash import', () => {
+  const row = (page: Page, line: number) => page.locator(`tr[data-line="${line}"]`);
+
+  const PASTE = [
+    'Alpha Import, alpha-import.example, https://github.com/creativoatwork/alpha',
+    'beta-import.example',
+    'https://github.com/owner/repo',
+    'Alpha Again, alpha-import.example',
+  ].join('\n');
+
+  test('previews a pasted list, classifies each row, and imports only the valid ones', async ({ page }) => {
+    const violations = await watchCsp(page);
+    await signIn(page);
+    await page.getByRole('button', { name: 'Import list' }).click();
+    await page.getByLabel('One project per line').fill(PASTE);
+
+    // Line 1: all three fields supplied, in the canonical order.
+    await expect(row(page, 1)).toContainText('alpha-import.example');
+    await expect(row(page, 1)).toContainText('creativoatwork/alpha');
+    await expect(row(page, 1).getByLabel('Project name for line 1')).toHaveValue('Alpha Import');
+    await expect(row(page, 1)).toContainText('ok');
+
+    // Line 2: domain only — the name is derived from it.
+    await expect(row(page, 2).getByLabel('Project name for line 2')).toHaveValue('Beta Import');
+    await expect(row(page, 2)).toContainText('from the domain');
+    await expect(row(page, 2)).toContainText('ok');
+
+    // Line 3: a repo with no domain. firestore.rules requires a hostname, so this is refused
+    // here rather than attempted and rejected by the server.
+    await expect(row(page, 3)).toContainText('invalid');
+    await expect(row(page, 3)).toContainText('No domain on this line');
+    await expect(row(page, 3).getByRole('checkbox')).toBeDisabled();
+
+    // Line 4: same domain as line 1, so it is a duplicate within the paste itself, and off.
+    await expect(row(page, 4)).toContainText('duplicate');
+    await expect(row(page, 4)).toContainText('Same domain as line 1');
+    await expect(row(page, 4).getByRole('checkbox')).not.toBeChecked();
+
+    await expect(page.getByText('2 ready, 1 duplicate, 1 invalid')).toBeVisible();
+
+    // The GitHub ceiling has to be stated where the checkbox is, not in a doc nobody opens.
+    await expect(page.getByText(/60 unauthenticated requests an hour/)).toBeVisible();
+
+    await page.getByRole('button', { name: /^Import 2 projects$/ }).click();
+    await expect(page.getByText(/Created 2 · Skipped 2 · Failed 0/)).toBeVisible();
+    await page.getByRole('button', { name: 'Done' }).click();
+
+    await expect(page.getByRole('link', { name: /Alpha Import/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Beta Import/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Alpha Again/ })).toHaveCount(0);
+    expect(violations, 'importing must not be blocked by the CSP').toEqual([]);
+  });
+
+  test('a second import of the same domain is flagged against what is already stored', async ({ page }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'Import list' }).click();
+    await page.getByLabel('One project per line').fill('alpha-import.example');
+
+    await expect(row(page, 1)).toContainText('duplicate');
+    await expect(row(page, 1)).toContainText('Already in the collection.');
+    await expect(page.getByRole('button', { name: 'Import 0 projects' })).toBeDisabled();
+  });
+});

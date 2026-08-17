@@ -38,6 +38,17 @@ admindash.html  -> src/admin/main.tsx  dashboard, never prerendered
 - Development points at the Firestore emulator (`import.meta.env.DEV`), never the live database.
 - Recovery is the dashboard's "Download JSON" plus `npm run restore:projects`. There is no PITR on the free plan.
 - **Enrichment** reads GitHub and DNS: `src/admin/data/enrich.ts` in the browser (public repos, 60 req/hour), `scripts/enrich-projects.mjs` via the `gh` CLI token (private repos, 5000/hour). Both hosts are hardcoded — `api.github.com` and `dns.google`, which publish `access-control-allow-origin: *` — so there is no user-supplied URL and no SSRF surface. Results land in the `enrichment` map, validated by type and a 25-key cap rather than key by key.
+- **Bulk import** ("Import list" on the projects page) parses a pasted list into projects. The
+  design spec lists bulk import as out of scope; it was added later on request, and that spec
+  section is now stale. Fields are classified **by shape, not by column position** —
+  `src/admin/data/importParse.ts` recognises a GitHub URL, then a hostname, and treats whatever
+  remains as the name — so a paste works in any column order. Rows are validated with `validate()`
+  from `types.ts`, the same function the form uses; a row the rules would reject is marked invalid
+  in the preview rather than attempted. The preview is the feature's only safety mechanism, since
+  shape-based classification can misread a field. Creation goes through `createProject`, one row at
+  a time. The optional post-import gather is sequential and bounded in practice by GitHub's 60
+  unauthenticated requests/hour — about 15 projects — after which `npm run enrich:projects` is the
+  way.
 - **Adding an outbound host means editing the CSP in `firebase.json`.** `connect-src` is an allowlist; a blocked request surfaces as `Failed to fetch` with no HTTP status, which reads like a network error and is not one. This has bitten twice: once on `apis.google.com` for the sign-in popup, once on `api.github.com`/`dns.google` for enrichment — the second time in production, because nothing outside a real browser can catch it.
 - The detection tables in `enrich.ts` and `scripts/enrich-projects.mjs` are duplicated by necessity (browser TS vs plain Node). Change both.
 
