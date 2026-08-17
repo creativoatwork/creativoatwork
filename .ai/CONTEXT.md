@@ -36,6 +36,7 @@ admindash.html  -> src/admin/main.tsx  dashboard, never prerendered
 - **`create` accepts non-future timestamps; `update` pins `updatedAt` to now** and freezes `createdAt`. That asymmetry is deliberate: it lets `scripts/restore-projects.mjs` write historical timestamps under production rules, with no temporary rule relaxation. It also means an existing document cannot be overwritten with a historical `updatedAt` — which is why restore clears the collection before writing.
 - **`npm run test:rules`** runs 47 emulator-backed rules tests. Requires a JDK. It is not part of `npm run build`.
 - Development points at the Firestore emulator (`import.meta.env.DEV`), never the live database.
+- **One deployed surface only** — `creativoatwork.com`. No preview channels; see `.ai/CLAUDE.md` for why.
 - Recovery is the dashboard's "Download JSON" plus `npm run restore:projects`. There is no PITR on the free plan.
 - **Enrichment** reads GitHub and DNS: `src/admin/data/enrich.ts` in the browser (public repos, 60 req/hour), `scripts/enrich-projects.mjs` via the `gh` CLI token (private repos, 5000/hour). Both hosts are hardcoded — `api.github.com` and `dns.google`, which publish `access-control-allow-origin: *` — so there is no user-supplied URL and no SSRF surface. Results land in the `enrichment` map, validated by type and a 25-key cap rather than key by key.
 - **Bulk import** ("Import list" on the projects page) parses a pasted list into projects. The

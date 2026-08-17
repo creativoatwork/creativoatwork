@@ -41,6 +41,25 @@ Every UI change gets checked for: visible focus state, keyboard reachability (in
 - `RESEND_API_KEY` is a Wrangler secret. It must never appear in the repo, in a `VITE_`-prefixed variable, or in client code — `VITE_` variables are inlined into the public bundle.
 - Abuse controls today are the honeypot plus a 3/min per-IP burst limit (`CONTACT_RATE_LIMITER`, `[[unsafe.bindings]]` in `wrangler.toml`). Keep `RATE_LIMIT_PERIOD_SECONDS` in `index.ts` in sync with `period`. The limiter is per-colo and **fails open**, so it caps runaway spend rather than guaranteeing a quota — do not describe the endpoint as protected against a determined or distributed attacker. Remaining gaps are in `backlog.md`.
 
+## One deployed surface, deliberately
+
+There is exactly one URL: `creativoatwork.com`. **Do not leave a Firebase Hosting preview
+channel alive.**
+
+A channel was used once to verify a CSP before promoting it, then kept around. It updates only
+when explicitly redeployed, so it silently served an older bundle while production was correct.
+That caused three separate debugging rounds in one session: each time the fix was verified on
+production and reported as done while the operator was looking at the channel. A second URL
+serving different bytes is a hazard with no compensating value — the e2e suite covers the same
+ground locally against the Hosting emulator, which reads the real `firebase.json`.
+
+If a channel is genuinely needed for a one-off check, delete it in the same session:
+`npx firebase-tools hosting:channel:delete <name>`.
+
+**When a UI change looks wrong after a deploy, establish which bytes the browser has before
+theorising.** `curl -s <url>/admindash | grep -o '/assets/admindash-[^"]*\.js'` on every surface,
+and compare against `dist/`.
+
 ## Verification honesty
 
 The only automated gate is `npm run build` (which runs `tsc -b`). There are no tests.
