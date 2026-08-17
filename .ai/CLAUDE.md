@@ -62,9 +62,27 @@ and compare against `dist/`.
 
 ## Verification honesty
 
-The only automated gate is `npm run build` (which runs `tsc -b`). There are no tests.
+Three gates now, added 2026-08-16 alongside `/admindash`:
 
-State what was actually run. "Type-checks and builds clean" is a claim you can make after running it; "works" is not, unless the behavior was exercised in a browser. If a change touches the form, the header nav, or responsive layout, verify in a browser before calling it done.
+| Command | Covers |
+|---|---|
+| `npm run build` | `tsc -b`, both entries, and the prerender step |
+| `npm run test:rules` | 56 Firestore Security Rules tests against the emulator. Needs a JDK. |
+| `npm run test:e2e` | 11 Playwright tests through the Hosting emulator, so the **real CSP and rewrites** are exercised. Needs Chrome. |
+
+The marketing site itself still has no tests; all three gates exist for `/admindash`.
+
+State what was actually run. "Type-checks and builds clean" is a claim you can make after
+running it; "works" is not, unless the behavior was exercised in a browser.
+
+**A change that adds a network destination is unverified until a browser has made the request.**
+Two CSP misconfigurations shipped from this repo while type-checking, rules tests, bundle
+analysis and a Node probe against the real APIs all passed — Node has no CSP, and Vite does not
+serve the header. `Failed to fetch` with no status code means CSP first, network second. That is
+what `npm run test:e2e` exists to catch; removing a host from `connect-src` turns it red.
+
+**Test the success path before the failure path.** An EOF guard verified only with `</dev/null`
+shipped rejecting on success and broke the script within minutes.
 
 ## Git
 
