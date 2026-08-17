@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "test:rules": "firebase emulators:exec --only firestore --config firebase.rules.emulator.json --project demo-admindash \"vitest run\"",
     "restore:projects": "node scripts/restore-projects.mjs",
-    "enrich:projects": "node scripts/enrich-projects.mjs"
+    "enrich:projects": "node scripts/enrich-projects.mjs",
+    "build:e2e": "VITE_EMULATOR=1 npm run build",
+    "e2e:serve": "node scripts/free-ports.mjs && node scripts/e2e-config.mjs && npm run build:e2e && npx -y firebase-tools@latest emulators:start --only auth,firestore,hosting --config firebase.e2e.json --project creativoatwork-54e65",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "firebase": "^12.17.1",
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.1",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

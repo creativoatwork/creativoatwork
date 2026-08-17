@@ -313,17 +313,52 @@ function suggest(e: Enrichment): Enrichment {
   return out;
 }
 
-/** Both halves. Partial results are kept — a DNS failure must not discard a good repo read. */
+/** Fields that only a successful repo read can produce. */
+const REPO_FIELDS = [
+  'repoPrivate', 'repoArchived', 'repoPushedAt', 'repoLicense', 'repoTopics',
+  'languages', 'stackFrontend', 'stackBackend', 'markers',
+  'lastCommitAuthor', 'lastCommitDate', 'lastCommitMessage',
+] as const;
+
+/**
+ * Both halves, merged over whatever was gathered before.
+ *
+ * `previous` matters for private repos. The browser cannot read them and gets a 404, while
+ * `npm run enrich:projects` can and does. Without this, clicking Refresh in the browser would
+ * overwrite a good CLI read with an error — destroying data the operator had just gone to the
+ * trouble of gathering. A failed read must never be treated as an empty result.
+ *
+ * A DNS failure is handled the same way: partial results are kept rather than discarded.
+ */
 export async function enrichProject(
   opts: { repoUrl: string; domain: string; source: string; token?: string },
   f: FetchLike,
+  previous?: Enrichment,
 ): Promise<Enrichment> {
   const [gh, dns] = await Promise.all([
     enrichFromGithub(opts.repoUrl, f, opts.token),
     opts.domain ? enrichFromDns(opts.domain, f) : Promise.resolve({} as Enrichment),
   ]);
-  const errors = [...(gh.errors ?? []), ...(dns.errors ?? [])];
-  const base: Enrichment = { ...gh, ...dns };
+
+  const repoFailed = (gh.errors ?? []).some((e) => e.startsWith('repo:'));
+  let repoPart: Enrichment = gh;
+  let kept = false;
+
+  if (repoFailed && previous) {
+    const carried: Record<string, unknown> = {};
+    for (const k of REPO_FIELDS) {
+      if (previous[k] !== undefined) { carried[k] = previous[k]; kept = true; }
+    }
+    // gh last, so its error survives; carried values fill the gaps it could not read.
+    repoPart = { ...(carried as Enrichment), ...gh };
+  }
+
+  const errors = [...(repoPart.errors ?? []), ...(dns.errors ?? [])];
+  if (kept) {
+    errors.push('repo: kept the previous reading — run npm run enrich:projects to refresh it');
+  }
+
+  const base: Enrichment = { ...repoPart, ...dns };
   const merged: Enrichment = { ...base, ...suggest(base), source: opts.source };
   if (errors.length) merged.errors = errors;
   else delete merged.errors;

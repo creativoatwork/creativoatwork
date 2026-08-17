@@ -13,3 +13,7 @@ _assets_tmp
 .env.production
 firestore-debug.log
 firebase-debug.log
+test-results
+playwright-report
+.firebase/emulators
+firebase.e2e.json

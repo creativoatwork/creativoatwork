@@ -5,6 +5,7 @@ import {
   browserLocalPersistence,
   type Auth,
 } from 'firebase/auth';
+import { connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
@@ -21,4 +22,12 @@ export const persistenceReady = setPersistence(auth, browserLocalPersistence);
 // against the real project so the actual sign-in path is exercised in dev.
 if (import.meta.env.DEV) {
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}
+
+// End-to-end runs point BOTH at emulators, so a test never needs a real password and never
+// touches production data. Set only by `npm run build:e2e`; a normal production build has this
+// undefined and the branch is dropped by the bundler.
+if (import.meta.env.VITE_EMULATOR === '1') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  if (!import.meta.env.DEV) connectFirestoreEmulator(db, '127.0.0.1', 8080);
 }

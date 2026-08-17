@@ -33,6 +33,10 @@ export const firebaseConfig = {
 export const ADMIN_EMAILS: readonly string[] = [
   'creativoatwork@gmail.com',
   'simone@creativoatwork.com',
+  // Present only in an emulator build (`npm run build:e2e`). A production bundle drops this
+  // branch entirely — and even if it did not, an email without a matching UID in
+  // firestore.rules grants precisely nothing.
+  ...(import.meta.env.VITE_EMULATOR === '1' ? ['e2e@creativoatwork.test'] : []),
 ];
 
 export const COLLECTION = 'projects';

@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     include: ['tests/rules/**/*.test.ts'],
+    exclude: ['tests/e2e/**'],   // Playwright owns those; vitest must not try to run them
     testTimeout: 20_000,
     hookTimeout: 60_000,
     fileParallelism: false,

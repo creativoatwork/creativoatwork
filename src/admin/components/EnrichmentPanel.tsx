@@ -53,7 +53,8 @@ export function EnrichmentPanel({
     setBusy(true);
     setError(null);
     try {
-      const next = await enrichProject({ repoUrl, domain, source: 'browser' }, fetch as never);
+      // Pass what is already stored so a repo the browser cannot read keeps its CLI reading.
+      const next = await enrichProject({ repoUrl, domain, source: 'browser' }, fetch as never, enrichment);
       await onSave(next, new Date());
     } catch (e) {
       setError(`Could not refresh: ${(e as Error).message}`);
