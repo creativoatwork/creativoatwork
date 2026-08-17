@@ -68,6 +68,12 @@ export function EnrichmentPanel({
 
   // Only offer what the evidence supports AND what would actually change something. A suggestion
   // matching the current value is noise.
+  // A private repo is the expected outcome of an unauthenticated browser call, not a failure.
+  // Rendering it in the same red as a real error taught the operator to distrust the panel.
+  const isNote = (x: string) => /private|kept the/.test(x);
+  const notes = (e.errors ?? []).filter(isNote);
+  const problems = (e.errors ?? []).filter((x) => !isNote(x));
+
   const suggestions = (
     [
       ['host', e.suggestedHost], ['frontend', e.suggestedFrontend],
@@ -203,10 +209,17 @@ export function EnrichmentPanel({
           {e.repoArchived ? <Row label="Repo">Archived</Row> : null}
           {e.repoLicense ? <Row label="License">{e.repoLicense}</Row> : null}
           {e.repoTopics?.length ? <Row label="Topics"><Chips items={e.repoTopics} /></Row> : null}
-          {e.errors?.length ? (
+          {notes.length ? (
+            <Row label="Note">
+              <ul className="space-y-1 text-sm text-[var(--color-ink-3)]">
+                {notes.map((x) => <li key={x}>{x}</li>)}
+              </ul>
+            </Row>
+          ) : null}
+          {problems.length ? (
             <Row label="Could not read">
               <ul className="space-y-1 text-sm text-[var(--color-accent)]">
-                {e.errors.map((x) => <li key={x}>{x}</li>)}
+                {problems.map((x) => <li key={x}>{x}</li>)}
               </ul>
             </Row>
           ) : null}

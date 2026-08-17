@@ -6,6 +6,26 @@ Entries below marked _(reconstructed)_ were inferred from repository state and c
 
 ---
 
+## 2026-08-16 — No GitHub token in the browser; the CLI reads private repos
+
+**Decision.** The in-page Gather button reads DNS and public repos only. Private repos are read
+by `npm run enrich:projects`, which takes a token from `gh auth token` at runtime. No GitHub
+credential is stored in the bundle, in Firestore, or in the repository.
+
+**Reasoning.** GitHub returns 404 rather than 403 for private repos to an anonymous caller, so
+owning them does not help a browser that has no credentials. The alternatives were: a token in
+the bundle, which is a leaked token the moment it ships, since `admindash-*.js` is public; or a
+token in a Firestore document behind the UID allowlist, which works but creates a long-lived
+secret to hold and rotate, in Firestore and in browser memory, in exchange for saving one
+Terminal command. The operator chose the CLI.
+
+**Consequences.** After adding projects, run `npm run enrich:projects -- --all`. The browser no
+longer re-requests a repo already known to be private — it cannot succeed and would spend one of
+GitHub's 60 unauthenticated requests per hour to be told 404 again. The panel reports "private"
+as a note rather than an error, because it is the expected outcome and not a failure.
+
+---
+
 ## 2026-08-16 — /admindash: a second entry point, not a route
 
 **Decision.** The private project dashboard is a separate Vite entry (`admindash.html` →
