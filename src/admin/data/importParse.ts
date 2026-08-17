@@ -105,9 +105,18 @@ const looksLikeDomain = (s: string) => {
 };
 
 /** `goodai.news` -> `Goodai`. First label only; the TLD is never part of a studio's project name. */
-export function defaultName(domain: string): string {
-  const first = domain.replace(/^www\./, '').split('.')[0] ?? '';
-  return first
+/**
+ * A readable name from whatever identifies the project.
+ *
+ * The domain's first label when there is one, otherwise the repository name — a repo-only row
+ * would otherwise arrive with no name at all and be rejected as invalid, which is most of a
+ * list of repositories.
+ */
+export function defaultName(domain: string, repoUrl = ''): string {
+  const source = domain
+    ? domain.replace(/^www\./, '').split('.')[0] ?? ''
+    : (repoUrl.split('/').pop() ?? '').replace(/\.git$/, '');
+  return source
     .split(/[-_]+/)
     .filter(Boolean)
     .map((w) => w[0].toUpperCase() + w.slice(1))
@@ -135,15 +144,16 @@ export function parseImport(text: string): Array<Omit<ImportRow, 'status' | 'rea
     }
 
     const domain = domains[0] ? normalizeDomain(domains[0]) : '';
+    const repoUrl = repos[0] ? (canonicalRepo(repos[0]) ?? repos[0].trim()) : '';
     const supplied = names.join(' ').trim();
-    const derivedName = supplied === '' && domain !== '';
+    const derivedName = supplied === '' && (domain !== '' || repoUrl !== '');
 
     const fields: ProjectFields = {
       ...EMPTY_PROJECT,
       domain,
-      // A supplied name always wins; the domain is only a fallback.
-      name: supplied || (domain ? defaultName(domain) : ''),
-      repoUrl: repos[0] ? (canonicalRepo(repos[0]) ?? repos[0].trim()) : '',
+      repoUrl,
+      // A supplied name always wins; the domain, then the repo, are fallbacks.
+      name: supplied || defaultName(domain, repoUrl),
     };
 
     out.push({ line: i + 1, raw: line, fields: normalize(fields), derivedName });
@@ -156,15 +166,17 @@ export function parseImport(text: string): Array<Omit<ImportRow, 'status' | 'rea
  * Assigns a status to every row: valid, a duplicate of something already stored or of an earlier
  * row in the same paste, or invalid with the reason `validate()` gave.
  *
- * Duplicates are detected on the normalised domain, which is the only field that identifies a
- * project — two records for one domain is the mistake this is here to prevent.
+ * Duplicates are detected on the normalised domain when there is one, and on the repo URL when
+ * there is not — a project may legitimately have only one of the two, and either identifies it.
+ * Two records for one project is the mistake this exists to prevent.
  */
 export function classifyRows(
   rows: Array<Omit<ImportRow, 'status' | 'reason'>>,
-  existingDomains: Iterable<string>,
+  existingKeys: Iterable<string>,
 ): ImportRow[] {
   const existing = new Set(
-    Array.from(existingDomains, (d) => normalizeDomain(d)).filter(Boolean),
+    Array.from(existingKeys, (k) => (k.includes('github.com') ? k.toLowerCase() : normalizeDomain(k)))
+      .filter(Boolean),
   );
   const seen = new Map<string, number>();
 
@@ -172,21 +184,23 @@ export function classifyRows(
     const errors = validate(row.fields);
     const keys = Object.keys(errors) as Array<keyof ProjectFields>;
     if (keys.length > 0) {
-      const reason = !row.fields.domain
-        ? 'No domain on this line — a project needs one.'
+      const reason = !row.fields.domain && !row.fields.repoUrl
+        ? 'Neither a domain nor a GitHub repo on this line.'
         : keys.map((k) => `${k}: ${errors[k]}`).join(' ');
       return { ...row, status: 'invalid' as const, reason };
     }
 
-    const d = row.fields.domain;
-    if (existing.has(d)) {
+    // Identity is the domain when present, otherwise the repo.
+    const key = row.fields.domain || row.fields.repoUrl.toLowerCase();
+    const label = row.fields.domain ? 'domain' : 'repo';
+    if (existing.has(key)) {
       return { ...row, status: 'duplicate' as const, reason: 'Already in the collection.' };
     }
-    const earlier = seen.get(d);
+    const earlier = seen.get(key);
     if (earlier !== undefined) {
-      return { ...row, status: 'duplicate' as const, reason: `Same domain as line ${earlier}.` };
+      return { ...row, status: 'duplicate' as const, reason: `Same ${label} as line ${earlier}.` };
     }
-    seen.set(d, row.line);
+    seen.set(key, row.line);
     return { ...row, status: 'ok' as const };
   });
 }

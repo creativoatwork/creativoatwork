@@ -148,10 +148,22 @@ describe('domain', () => {
     });
 
   test.each([
-    '', 'Example.com', 'example.com.', 'localhost', 'https://example.com',
+    'Example.com', 'example.com.', 'localhost', 'https://example.com',
     'example .com', '-bad.com', 'bad-.com', `${'a'.repeat(64)}.com`,
   ])('refuses %s', async (domain) => {
     await assertFails(setDoc(doc(adminDb(), 'projects', 'd'), validDoc({ domain })));
+  });
+
+  test('an empty domain is allowed when there is a repo — a project may have no live site', async () => {
+    await assertSucceeds(setDoc(doc(adminDb(), 'projects', 'nodomain'), validDoc({
+      domain: '', repoUrl: 'https://github.com/creativoatwork/vixu',
+    })));
+  });
+
+  test('a record with neither a domain nor a repo identifies nothing, and is refused', async () => {
+    await assertFails(setDoc(doc(adminDb(), 'projects', 'neither'), validDoc({
+      domain: '', repoUrl: '',
+    })));
   });
 });
 

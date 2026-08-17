@@ -58,7 +58,12 @@ export function ImportProjectsModal({
   const cancelled = useRef(false);
   useEffect(() => () => { cancelled.current = true; }, []);
 
-  const existingDomains = useMemo(() => existing.map((p) => p.domain), [existing]);
+  // Identity keys: the domain when a project has one, the repo when it does not. Domain-only
+  // keys would let a repo-only project be imported twice.
+  const existingKeys = useMemo(
+    () => existing.flatMap((p) => [p.domain, p.repoUrl].filter(Boolean)),
+    [existing],
+  );
 
   const rows = useMemo(() => {
     const base = parseImport(text).map((r) =>
@@ -66,8 +71,8 @@ export function ImportProjectsModal({
         ? r
         : { ...r, fields: { ...r.fields, name: names[r.line] }, derivedName: false },
     );
-    return classifyRows(base, existingDomains);
-  }, [text, names, existingDomains]);
+    return classifyRows(base, existingKeys);
+  }, [text, names, existingKeys]);
 
   // Valid rows are in by default, duplicates are out, invalid rows cannot be turned on.
   const isIncluded = (r: ImportRow) =>
@@ -162,7 +167,7 @@ export function ImportProjectsModal({
           <p className="mt-1 text-xs text-[var(--color-ink-3)]">
             Name, domain and GitHub URL, in any order, separated by commas, tabs or two spaces.
             Fields are recognised by shape, not by position — check the parsed columns below before
-            importing. A missing name is derived from the domain. Lines starting with # are ignored.
+            importing. A missing name is derived from the domain, or from the repository when there is no domain. Lines starting with # are ignored.
           </p>
 
           {rows.length > 0 && (
@@ -218,7 +223,7 @@ export function ImportProjectsModal({
                           />
                           {r.derivedName && (
                             <span className="mt-0.5 block text-xs text-[var(--color-ink-3)]">
-                              from the domain
+                              derived
                             </span>
                           )}
                         </td>

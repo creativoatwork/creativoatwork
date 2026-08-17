@@ -156,9 +156,15 @@ export function validate(f: ProjectFields): Partial<Record<keyof ProjectFields, 
   else if (name.length > LIMITS.name) e.name = `Too long (max ${LIMITS.name}).`;
 
   const domain = f.domain.trim().toLowerCase().replace(/\.$/, '');
-  if (!domain) e.domain = 'Required.';
-  else if (domain.length > LIMITS.domain) e.domain = `Too long (max ${LIMITS.domain}).`;
-  else if (!DOMAIN_RE.test(domain)) e.domain = 'Must be a hostname, e.g. goodai.news — no https://, no path.';
+  const repoPresent = f.repoUrl.trim().length > 0;
+  if (!domain && !repoPresent) {
+    // A project with neither identifies nothing. Either alone is fine: a repo may have no live
+    // site yet, and a site may have no repository.
+    e.domain = 'Give a domain or a GitHub repo.';
+  } else if (domain) {
+    if (domain.length > LIMITS.domain) e.domain = `Too long (max ${LIMITS.domain}).`;
+    else if (!DOMAIN_RE.test(domain)) e.domain = 'Must be a hostname, e.g. goodai.news — no https://, no path.';
+  }
 
   const repo = f.repoUrl.trim();
   if (repo) {

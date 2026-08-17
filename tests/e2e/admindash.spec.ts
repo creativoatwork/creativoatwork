@@ -224,8 +224,9 @@ test.describe('/admindash import', () => {
   const PASTE = [
     'Alpha Import, alpha-import.example, https://github.com/creativoatwork/alpha',
     'beta-import.example',
-    'https://github.com/owner/repo',
+    'https://github.com/creativoatwork/repo-only',
     'Alpha Again, alpha-import.example',
+    'not a domain and not a repo',
   ].join('\n');
 
   test('previews a pasted list, classifies each row, and imports only the valid ones', async ({ page }) => {
@@ -242,31 +243,39 @@ test.describe('/admindash import', () => {
 
     // Line 2: domain only — the name is derived from it.
     await expect(row(page, 2).getByLabel('Project name for line 2')).toHaveValue('Beta Import');
-    await expect(row(page, 2)).toContainText('from the domain');
+    await expect(row(page, 2)).toContainText('derived');
     await expect(row(page, 2)).toContainText('ok');
 
-    // Line 3: a repo with no domain. firestore.rules requires a hostname, so this is refused
-    // here rather than attempted and rejected by the server.
-    await expect(row(page, 3)).toContainText('invalid');
-    await expect(row(page, 3)).toContainText('No domain on this line');
-    await expect(row(page, 3).getByRole('checkbox')).toBeDisabled();
+    // Line 3: a repo with no domain. Valid — a repository with no live site yet is a real
+    // state, and the repo identifies it. The rules allow an empty domain provided a repo is
+    // present; only a record with neither is refused.
+    await expect(row(page, 3)).toContainText('creativoatwork/repo-only');
+    await expect(row(page, 3).getByLabel('Project name for line 3')).toHaveValue('Repo Only');
+    await expect(row(page, 3)).toContainText('ok');
+    await expect(row(page, 3).getByRole('checkbox')).toBeChecked();
 
     // Line 4: same domain as line 1, so it is a duplicate within the paste itself, and off.
     await expect(row(page, 4)).toContainText('duplicate');
     await expect(row(page, 4)).toContainText('Same domain as line 1');
     await expect(row(page, 4).getByRole('checkbox')).not.toBeChecked();
 
-    await expect(page.getByText('2 ready, 1 duplicate, 1 invalid')).toBeVisible();
+    // Line 5: neither a domain nor a repo, so it identifies nothing.
+    await expect(row(page, 5)).toContainText('invalid');
+    await expect(row(page, 5)).toContainText('Neither a domain nor a GitHub repo');
+    await expect(row(page, 5).getByRole('checkbox')).toBeDisabled();
+
+    await expect(page.getByText('3 ready, 1 duplicate, 1 invalid')).toBeVisible();
 
     // The GitHub ceiling has to be stated where the checkbox is, not in a doc nobody opens.
     await expect(page.getByText(/60 unauthenticated requests an hour/)).toBeVisible();
 
-    await page.getByRole('button', { name: /^Import 2 projects$/ }).click();
-    await expect(page.getByText(/Created 2 · Skipped 2 · Failed 0/)).toBeVisible();
+    await page.getByRole('button', { name: /^Import 3 projects$/ }).click();
+    await expect(page.getByText(/Created 3 · Skipped 2 · Failed 0/)).toBeVisible();
     await page.getByRole('button', { name: 'Done' }).click();
 
     await expect(page.getByRole('link', { name: /Alpha Import/ })).toBeVisible();
     await expect(page.getByRole('link', { name: /Beta Import/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Repo Only/ })).toBeVisible();
     await expect(page.getByRole('link', { name: /Alpha Again/ })).toHaveCount(0);
     expect(violations, 'importing must not be blocked by the CSP').toEqual([]);
   });

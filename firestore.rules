@@ -40,8 +40,11 @@ service cloud.firestore {
         && d.keys().hasOnly(fields())
         && d.name        is string && d.name.size() > 0 && d.name.size() <= 200
         && d.description is string && d.description.size() <= 2000
-        && d.domain      is string && d.domain.size() > 0 && d.domain.size() <= 253
-        && d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{0,57}[a-z0-9])$')
+        && d.domain      is string && d.domain.size() <= 253
+        // An empty domain is a real state: a repository that has no live site yet. What is not
+        // allowed is a record identifying nothing, so a domain or a repo URL must be present.
+        && (d.domain == '' || d.domain.matches('^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+([a-z]{2,63}|xn--[a-z0-9-]{0,57}[a-z0-9])$'))
+        && (d.domain != '' || d.repoUrl != '')
         && d.repoUrl     is string && d.repoUrl.size() <= 140
         && (d.repoUrl == '' || d.repoUrl.matches('^https://github\\.com/[A-Za-z0-9]+(-[A-Za-z0-9]+)*/[A-Za-z0-9._-]{1,100}$'))
         && d.notes       is string && d.notes.size() <= 10000
